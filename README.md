@@ -1,5 +1,7 @@
 # Ponce
 
+**This version has been modified to compile with the IDA 6.8 SDK!**
+
 <p align="center"><img src ="https://cloud.githubusercontent.com/assets/5193128/18534105/f27da220-7a9c-11e6-8d2e-a940d94b404b.png" /></p>
  
 ## Definition
