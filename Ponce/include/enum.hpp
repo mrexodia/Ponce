@@ -250,16 +250,14 @@ idaman const_t ida_export get_next_serial_enum_member(const_t first_cid, uchar *
 idaman const_t ida_export get_prev_serial_enum_member(const_t first_cid, uchar *in_out_serial);
 //@}
 
-/// Enum member visitor - see for_all_enum_members().
+/// Implements action to take when enum is visited by for_all_enum_members().
 /// Derive your visitor from this class.
 struct enum_member_visitor_t
 {
-  /// Implements action to take when enum member is visited.
-  /// \return nonzero to stop the iteration
   virtual int idaapi visit_enum_member(const_t cid, uval_t value) = 0;
 };
 
-/// Visit all members of a given enum
+/// Visit all enumeration members
 
 idaman int ida_export for_all_enum_members(enum_t id, enum_member_visitor_t &cv);
 
@@ -358,8 +356,7 @@ inline bool is_one_bit_mask(bmask_t mask)
 
 inline netnode get_bmask_node(enum_t id, bmask_t bmask)
 {
-  if ( !is_bf(id) )
-    return BADNODE;
+  if ( !is_bf(id) ) return BADNODE;
   return netnode(id).altval(bmask, ENUM_MASKS)-1;
 }
 
@@ -380,11 +377,10 @@ inline ssize_t get_bmask_cmt(enum_t id, bmask_t bmask, bool repeatable, char *bu
 /// \cond
 inline uval_t get_selected_enum(size_t n) { return enums.altval(n,ENUM_SELMEMS); }
 inline void   add_selected_enum(size_t *idx, enum_t id) { enums.altset((*idx)++,id,ENUM_SELMEMS); }
-inline void   unmark_selected_enums(void) { enums.altdel_all(ENUM_SELMEMS); }
+inline void   unmark_selected_enums(void){ enums.altdel_all(ENUM_SELMEMS); }
 inline bool set_enum_flag(enum_t id, uint32 bit, bool set)
 {
-  if ( id == BADNODE )
-    return false;
+  if ( id == BADNODE ) return false;
   netnode n(id);
   uint32 f = uint32(n.altval(ENUM_FLAGS));
   setflag(f, bit, set);

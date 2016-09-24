@@ -44,7 +44,7 @@ struct area_t
   ea_t startEA;     ///< startEA included
   ea_t endEA;       ///< endEA excluded
   /// Constructor
-  area_t(void) : startEA(0), endEA(0) {}
+  area_t(void) {}
   /// Constructor
   area_t(ea_t ea1, ea_t ea2) : startEA(ea1), endEA(ea2) {}
 
@@ -77,27 +77,22 @@ struct area_t
   /// Assign the area_t to the intersection between the area_t and 'r'
   void intersect(const area_t &r)
   {
-    if ( startEA < r.startEA )
-      startEA = r.startEA;
-    if ( endEA > r.endEA )
-      endEA = r.endEA;
-    if ( endEA < startEA )
-      endEA = startEA;
+    if ( startEA < r.startEA ) startEA = r.startEA;
+    if ( endEA   > r.endEA   ) endEA   = r.endEA;
+    if ( endEA   < startEA   ) endEA   = startEA;
   }
 
   /// Ensure that the area_t includes 'ea'
   void extend(ea_t ea)
   {
-    if ( startEA > ea )
-      startEA = ea;
-    if ( endEA < ea )
-      endEA = ea;
+    if ( startEA > ea ) startEA = ea;
+    if ( endEA < ea ) endEA = ea;
   }
 
   /// Print the area_t.
   /// \param buf the output buffer
   /// \param bufsize the size of the buffer
-  size_t print(char *buf, size_t bufsize) const { return area_t_print(this, buf, bufsize); }
+  size_t print(char *buf, size_t bufsize) const { return area_t_print(this, buf, bufsize); };
 };
 DECLARE_TYPE_AS_MOVABLE(area_t);
 struct areavec_t : public qvector<area_t> /// Vector of area_t instances
@@ -108,21 +103,21 @@ struct areavec_t : public qvector<area_t> /// Vector of area_t instances
 /// Helper functions. Should not be called directly!
 #ifndef SWIG
 #define AREASET_HELPER_DEFINITIONS(decl) \
-decl bool ida_export areaset_t_add(areaset_t *, const area_t &area);\
-decl bool ida_export areaset_t_sub(areaset_t *, const area_t &area);\
-decl bool ida_export areaset_t_add2(areaset_t *, const areaset_t &aset);\
-decl bool ida_export areaset_t_sub2(areaset_t *, const areaset_t &aset);\
-decl bool ida_export areaset_t_has_common(const areaset_t *, const area_t &area, bool strict);\
-decl bool ida_export areaset_t_has_common2(const areaset_t *, const areaset_t &aset);\
-decl bool ida_export areaset_t_contains(const areaset_t *, const areaset_t &aset);\
-decl size_t ida_export areaset_t_print(const areaset_t *, char *buf, size_t bufsize);\
-decl bool ida_export areaset_t_intersect(areaset_t *, const areaset_t &aset);\
-decl const area_t *ida_export areaset_t_find_area(const areaset_t *, ea_t ea);\
-decl ea_t ida_export areaset_t_next_addr(const areaset_t *, ea_t ea);\
-decl ea_t ida_export areaset_t_prev_addr(const areaset_t *, ea_t ea);\
-decl ea_t ida_export areaset_t_next_area(const areaset_t *, ea_t ea);\
-decl ea_t ida_export areaset_t_prev_area(const areaset_t *, ea_t ea);\
-decl areavec_t::const_iterator ida_export areaset_t_lower_bound(const areaset_t *, ea_t ea);\
+decl bool                      ida_export areaset_t_add(areaset_t *, const area_t &area);\
+decl bool                      ida_export areaset_t_sub(areaset_t *, const area_t &area);\
+decl bool                      ida_export areaset_t_add2(areaset_t *, const areaset_t &aset);\
+decl bool                      ida_export areaset_t_sub2(areaset_t *, const areaset_t &aset);\
+decl bool                      ida_export areaset_t_has_common(const areaset_t *, const area_t &area, bool strict);\
+decl bool                      ida_export areaset_t_has_common2(const areaset_t *, const areaset_t &aset);\
+decl bool                      ida_export areaset_t_contains(const areaset_t *, const areaset_t &aset);\
+decl size_t                    ida_export areaset_t_print(const areaset_t *, char *buf, size_t bufsize);\
+decl bool                      ida_export areaset_t_intersect(areaset_t *, const areaset_t &aset);\
+decl const area_t             *ida_export areaset_t_find_area(const areaset_t *, ea_t ea);\
+decl ea_t                      ida_export areaset_t_next_addr(const areaset_t *, ea_t ea);\
+decl ea_t                      ida_export areaset_t_prev_addr(const areaset_t *, ea_t ea);\
+decl ea_t                      ida_export areaset_t_next_area(const areaset_t *, ea_t ea);\
+decl ea_t                      ida_export areaset_t_prev_area(const areaset_t *, ea_t ea);\
+decl areavec_t::const_iterator ida_export areaset_t_lower_bound(const areaset_t *, ea_t ea); \
 decl areavec_t::const_iterator ida_export areaset_t_upper_bound(const areaset_t *, ea_t ea);
 #else
 #define AREASET_HELPER_DEFINITIONS(decl)
@@ -153,40 +148,40 @@ public:
   /// to include 'area', and any superfluous elements (subsets of e) are removed.
   /// \param area  address range to add. can not be empty
   /// \return false if 'area' was not added (the set was unchanged)
-  bool add(const area_t &area)    { return areaset_t_add(this, area); }
+  bool add(const area_t &area)    { return areaset_t_add(this, area); };
 
   /// Create a new area_t from 'start' and 'end' and add it to the set
   bool add(ea_t start, ea_t _end) { return add(area_t(start, _end)); }
 
   /// Add each element of 'aset' to the set.
   /// \return false if no elements were added (the set was unchanged)
-  bool add(const areaset_t &aset) { return areaset_t_add2(this, aset); }
+  bool add(const areaset_t &aset) { return areaset_t_add2(this, aset); };
 
   /// Subtract an address range from the set.
   /// All subsets of 'area' will be removed, and all elements that intersect
   /// 'area' will be truncated/split so they do not include 'area'.
   /// \param area  address range to subtract. can not be empty.
   /// \return false if 'area' was not subtracted (the set was unchanged)
-  bool sub(const area_t &area)    { return areaset_t_sub(this, area); }
+  bool sub(const area_t &area)    { return areaset_t_sub(this, area); };
 
   /// Subtract an ea (an area of size 1) from the set. See sub(const area_t &)
   bool sub(ea_t ea)               { return sub(area_t(ea, ea+1)); }
 
   /// Subtract each area in 'aset' from the set
   /// \return false if nothing was subtracted (the set was unchanged)
-  bool sub(const areaset_t &aset) { return areaset_t_sub2(this, aset); }
+  bool sub(const areaset_t &aset) { return areaset_t_sub2(this, aset); };
 
   /// Is there an ea in 'area' that is also in the areaset?
   bool has_common(const area_t &area) const
-    { return areaset_t_has_common(this, area, false); }
+    { return areaset_t_has_common(this, area, false); };
 
   /// Is every ea in 'area' contained in the areaset?
   bool includes(const area_t &area) const
-    { return areaset_t_has_common(this, area, true); }
+    { return areaset_t_has_common(this, area, true); };
 
   /// Print each area_t in the areaset
   size_t print(char *buf, size_t bufsize) const
-    { return areaset_t_print(this, buf, bufsize); }
+    { return areaset_t_print(this, buf, bufsize); };
 
   /// Size in bytes
   asize_t count(void) const;
@@ -208,25 +203,25 @@ public:
 
   /// Does any element of 'aset' overlap with an element in this areaset?. See area_t::overlaps()
   bool has_common(const areaset_t &aset) const
-    { return areaset_t_has_common2(this, aset); }
+    { return areaset_t_has_common2(this, aset); };
 
   /// Does an element of the areaset contain 'ea'? See area_t::contains(ea_t)
   bool contains(ea_t ea) const { return !empty() && find_area(ea) != NULL; }
 
   /// Is every element in 'aset' contained in an element of this areaset?. See area_t::contains(area_t)
   bool contains(const areaset_t &aset) const
-     { return areaset_t_contains(this, aset); }
+     { return areaset_t_contains(this, aset); };
 
   /// Set the areaset to its intersection with 'aset'.
   /// \return false if the set was unchanged
   bool intersect(const areaset_t &aset)
-     { return areaset_t_intersect(this, aset); }
+     { return areaset_t_intersect(this, aset); };
 
   /// Is every element in the areaset contained in an element of 'aset'?
   bool is_subset_of(const areaset_t &aset) const { return aset.contains(*this); }
 
   /// Do this areaset and 'aset' have identical elements?
-  bool is_equal(const areaset_t &aset)   const { return bag == aset.bag; }
+  bool is_equal(const areaset_t &aset)   const { return bag == aset.bag; };
 
   bool operator==(const areaset_t &aset) const { return is_equal(aset); }   ///< Compare two areasets with '=='
   bool operator!=(const areaset_t &aset) const { return !is_equal(aset); }  ///< Compare two areasets with '!='
@@ -239,31 +234,31 @@ public:
   iterator end(void)   { return bag.end(); }                ///< \copydoc end
 
   /// Get the first area that contains at least one ea_t value greater than 'ea'
-  const_iterator lower_bound(ea_t ea) const { return areaset_t_lower_bound(this, ea); }
+  const_iterator lower_bound(ea_t ea) const { return areaset_t_lower_bound(this, ea); };
 
   /// Get the first area such that every ea_t value in this area is strictly greater than 'ea'
-  const_iterator upper_bound(ea_t ea) const { return areaset_t_upper_bound(this, ea); }
+  const_iterator upper_bound(ea_t ea) const { return areaset_t_upper_bound(this, ea); };
 
   /// Get the element from the set that contains 'ea'.
   /// \return NULL if there is no such element
   const area_t *find_area(ea_t ea) const
-     { return areaset_t_find_area(this, ea); }
+     { return areaset_t_find_area(this, ea); };
 
   /// When searching the areaset, we keep a cached element to help speed up searches.
   /// \return a pointer to the cached element
   const area_t *cached_area(void) const { return cache; }
 
   /// Get the smallest ea_t value greater than 'ea' contained in the areaset
-  ea_t next_addr(ea_t ea) const { return areaset_t_next_addr(this, ea); }
+  ea_t next_addr(ea_t ea) const { return areaset_t_next_addr(this, ea); };
 
   /// Get the largest ea_t value less than 'ea' contained in the areaset
-  ea_t prev_addr(ea_t ea) const { return areaset_t_prev_addr(this, ea); }
+  ea_t prev_addr(ea_t ea) const { return areaset_t_prev_addr(this, ea); };
 
   /// Get the smallest ea_t value greater than 'ea' that is not in the same area as 'ea'
-  ea_t next_area(ea_t ea) const { return areaset_t_next_area(this, ea); }
+  ea_t next_area(ea_t ea) const { return areaset_t_next_area(this, ea); };
 
   /// Get the largest ea_t value less than 'ea' that is not in the same area as 'ea'
-  ea_t prev_area(ea_t ea) const { return areaset_t_prev_area(this, ea); }
+  ea_t prev_area(ea_t ea) const { return areaset_t_prev_area(this, ea); };
 
   /// Subtract the address range (from, from+size) and add the range (to, to+size)
   int move_chunk(ea_t from, ea_t to, asize_t size);
@@ -284,41 +279,41 @@ typedef qvector<areaset_t> array_of_areasets; ///< Array of areaset_t objects
 #endif
 /// \copydoc AREASET_HELPER_DEFINITIONS
 #define AREA_HELPER_DEFINITIONS(decl) \
-decl void ida_export areacb_t_zero(areacb_t *);\
-decl void ida_export areacb_t_terminate(areacb_t *);\
-decl void ida_export areacb_t_save(const areacb_t *);\
-decl bool ida_export areacb_t_link(areacb_t *,const char *file, const char *name, int infosize);\
-decl bool ida_export areacb_t_create(areacb_t *,const char *file,const char *name,uint infosize);\
-decl void ida_export areacb_t_kill(areacb_t *);\
-decl bool ida_export areacb_t_create_area(const areacb_t *,const area_t *info);\
-decl bool ida_export areacb_t_update(const areacb_t *,const area_t *info);\
-decl area_t *ida_export areacb_t_get_area(const areacb_t *,ea_t ea);\
-decl area_t *ida_export areacb_t_getn_area(const areacb_t *,unsigned int n);\
-decl int ida_export areacb_t_get_area_num(const areacb_t *,ea_t ea);\
-decl ea_t ida_export areacb_t_prepare_to_create(areacb_t *,ea_t start,ea_t end);\
-decl int ida_export areacb_t_get_next_area(const areacb_t *,ea_t ea);\
-decl int ida_export areacb_t_get_prev_area(areacb_t *,ea_t ea);\
-decl int ida_export areacb_t_lock_area(const areacb_t *,const area_t *);\
-decl int ida_export areacb_t_unlock_area(const areacb_t *,const area_t *);\
-decl bool ida_export areacb_t_may_lock_area(const areacb_t *,const area_t *);\
-decl int ida_export areacb_t_get_area_locks(const areacb_t *,const area_t *);\
-decl area_t *ida_export areacb_t_prev_area_ptr(areacb_t *,ea_t ea);\
-decl area_t *ida_export areacb_t_next_area_ptr(areacb_t *,ea_t ea);\
-decl area_t *ida_export areacb_t_first_area_ptr(areacb_t *);\
-decl bool ida_export areacb_t_del_area(areacb_t *,ea_t ea, bool delcmt);\
-decl bool ida_export areacb_t_may_start_at(const areacb_t *,uint n,ea_t newstart);\
-decl bool ida_export areacb_t_may_end_at(const areacb_t *,uint n,ea_t newend);\
-decl bool ida_export areacb_t_set_start(areacb_t *,uint n,ea_t newstart);\
-decl bool ida_export areacb_t_set_end(areacb_t *,uint n,ea_t newend);\
-decl bool ida_export areacb_t_resize_areas(areacb_t *,uint n,ea_t newstart);\
-decl uint ida_export areacb_t_get_area_qty(const areacb_t *);\
-decl area_t *ida_export areacb_t_choose_area(areacb_t *,int flags, int width, char *(idaapi*getl)(areacb_t *obj,uint32 n,char *buf), const char *title, int icon, int x0,int y0,int x1,int y1, const char *const *popup_menus, ea_t defea);\
-decl area_t *ida_export areacb_t_choose_area2(areacb_t *,int flags, int ncol, const int *widths, void (idaapi*getl)(areacb_t *obj,uint32 n,char *const *arrptr), const char *title, int icon, int x0,int y0,int x1,int y1, const char *const *popup_menus, ea_t defea);\
-decl bool ida_export areacb_t_set_area_cmt(areacb_t *,const area_t *a, const char *cmt, bool repeatable);\
-decl char *ida_export areacb_t_get_area_cmt(const areacb_t *,const area_t *a, bool repeatable);\
-decl int ida_export areacb_t_move_areas(areacb_t *,ea_t from,ea_t to, asize_t size, int (idaapi*area_mover)(area_t *a, adiff_t delta, void *ud), void *ud);\
-decl void ida_export areacb_t_make_hole(areacb_t *,ea_t ea1, ea_t ea2, bool create_tail_area);\
-decl int ida_export areacb_t_for_all_areas2(areacb_t *,ea_t ea1, ea_t ea2, area_visitor2_t &av);\
+decl void    ida_export areacb_t_zero             (areacb_t *);\
+decl void    ida_export areacb_t_terminate        (areacb_t *);\
+decl void    ida_export areacb_t_save             (const areacb_t *);\
+decl bool    ida_export areacb_t_link             (areacb_t *,const char *file, const char *name, int infosize);\
+decl bool    ida_export areacb_t_create           (areacb_t *,const char *file,const char *name,uint infosize);\
+decl void    ida_export areacb_t_kill             (areacb_t *);\
+decl bool    ida_export areacb_t_create_area      (const areacb_t *,const area_t *info);\
+decl bool    ida_export areacb_t_update           (const areacb_t *,const area_t *info);\
+decl area_t *ida_export areacb_t_get_area         (const areacb_t *,ea_t ea);\
+decl area_t *ida_export areacb_t_getn_area        (const areacb_t *,unsigned int n);\
+decl int     ida_export areacb_t_get_area_num     (const areacb_t *,ea_t ea);\
+decl ea_t    ida_export areacb_t_prepare_to_create(areacb_t *,ea_t start,ea_t end);\
+decl int     ida_export areacb_t_get_next_area    (const areacb_t *,ea_t ea);\
+decl int     ida_export areacb_t_get_prev_area    (areacb_t *,ea_t ea);\
+decl int     ida_export areacb_t_lock_area        (const areacb_t *,const area_t *);\
+decl int     ida_export areacb_t_unlock_area      (const areacb_t *,const area_t *);\
+decl bool    ida_export areacb_t_may_lock_area    (const areacb_t *,const area_t *);\
+decl int     ida_export areacb_t_get_area_locks   (const areacb_t *,const area_t *);\
+decl area_t *ida_export areacb_t_prev_area_ptr    (areacb_t *,ea_t ea);\
+decl area_t *ida_export areacb_t_next_area_ptr    (areacb_t *,ea_t ea);\
+decl area_t *ida_export areacb_t_first_area_ptr   (areacb_t *);\
+decl bool    ida_export areacb_t_del_area         (areacb_t *,ea_t ea, bool delcmt);\
+decl bool    ida_export areacb_t_may_start_at     (const areacb_t *,uint n,ea_t newstart);\
+decl bool    ida_export areacb_t_may_end_at       (const areacb_t *,uint n,ea_t newend);\
+decl bool    ida_export areacb_t_set_start        (areacb_t *,uint n,ea_t newstart);\
+decl bool    ida_export areacb_t_set_end          (areacb_t *,uint n,ea_t newend);\
+decl bool    ida_export areacb_t_resize_areas     (areacb_t *,uint n,ea_t newstart);\
+decl uint    ida_export areacb_t_get_area_qty     (const areacb_t *);\
+decl area_t *ida_export areacb_t_choose_area      (areacb_t *,int flags, int width, char *(idaapi*getl)(areacb_t *obj,uint32 n,char *buf), const char *title, int icon, int x0,int y0,int x1,int y1, const char * const *popup_menus, ea_t defea);\
+decl area_t *ida_export areacb_t_choose_area2     (areacb_t *,int flags, int ncol, const int *widths, void (idaapi*getl)(areacb_t *obj,uint32 n,char * const *arrptr), const char *title, int icon, int x0,int y0,int x1,int y1, const char * const *popup_menus, ea_t defea);\
+decl bool    ida_export areacb_t_set_area_cmt     (areacb_t *,const area_t *a, const char *cmt, bool repeatable);\
+decl char   *ida_export areacb_t_get_area_cmt     (const areacb_t *,const area_t *a, bool repeatable);\
+decl int     ida_export areacb_t_move_areas       (areacb_t *,ea_t from,ea_t to, asize_t size, int (idaapi*area_mover)(area_t *a, adiff_t delta, void *ud), void *ud);\
+decl void    ida_export areacb_t_make_hole        (areacb_t *,ea_t ea1, ea_t ea2, bool create_tail_area);\
+decl int     ida_export areacb_t_for_all_areas2   (areacb_t *,ea_t ea1, ea_t ea2, area_visitor2_t &av);\
 OLD_AREA_VISITOR(decl)
 #else
 #define AREA_HELPER_DEFINITIONS(decl)
@@ -666,7 +661,7 @@ public:
                       const char *title,
                       int icon,
                       int x0=-1,int y0=-1,int x1=-1,int y1=-1,
-                      const char *const *popup_menus=NULL,
+                      const char * const *popup_menus=NULL,
                       ea_t defea=BADADDR)
   {
     return areacb_t_choose_area(this, flags, width, getl, title, icon,
@@ -698,11 +693,11 @@ public:
   area_t *choose_area2(int flags,
                       int ncol,
                       const int *widths,
-                      void (idaapi*getl)(areacb_t *obj,uint32 n,char *const *arrptr),
+                      void (idaapi*getl)(areacb_t *obj,uint32 n,char * const *arrptr),
                       const char *title,
                       int icon,
                       int x0=-1,int y0=-1,int x1=-1,int y1=-1,
-                      const char *const *popup_menus=NULL,
+                      const char * const *popup_menus=NULL,
                       ea_t defea=BADADDR)
   {
     return areacb_t_choose_area2(this, flags, ncol, widths, getl, title, icon,

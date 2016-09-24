@@ -11,6 +11,9 @@
 #ifndef __GDLDRAW_HPP
 #define __GDLDRAW_HPP
 
+#include <algorithm>
+#include <vector>
+#include <deque>
 #include <map>
 #include <set>
 
@@ -60,7 +63,7 @@ DECLARE_HELPER(idaman)
 class intseq_t : public qvector<int>
 {
 public:
-  int idaapi index(int value) const
+  int  idaapi index(int value) const
   {
     for ( size_t i=0; i < size(); i++ )
       if ( (*this)[i] == value )
@@ -111,7 +114,7 @@ public:
   const char *idaapi dstr(void) const;
 };
 
-typedef qvector<intmap_t> array_of_intmap_t;
+typedef std::vector<intmap_t> array_of_intmap_t;
 
 //-------------------------------------------------------------------------
 /// Set of graph nodes
@@ -130,7 +133,7 @@ public:
   int  idaapi first(void) const { return empty() ? -1 : *begin(); }
 };
 
-typedef qvector<node_set_t> array_of_node_set_t;
+typedef std::vector<node_set_t> array_of_node_set_t;
 
 //-------------------------------------------------------------------------
 /// Node iterator (used to draw graphs)
@@ -300,7 +303,7 @@ idaman bool ida_export gen_complex_call_chart(
 /// This function is called by the GUI at the beginning, so no need to call
 /// it again.
 
-idaman void ida_export setup_graph_subsystem(const char *_grapher, bgcolor_t (idaapi *get_graph_color)(int color));
+idaman void ida_export setup_graph_subsystem(const char *grapher, bgcolor_t (idaapi *get_graph_color)(int color));
 
 
 //--------------------------------------------------------------------------
@@ -309,7 +312,6 @@ idaman void ida_export setup_graph_subsystem(const char *_grapher, bgcolor_t (id
 //      Third party plugins or modules should not use them.
 //
 /// \cond
-//-V:cancellable_graph_t:730 not all members of a class are initialized inside the constructor
 class cancellable_graph_t : public gdl_graph_t
 {
 public:
@@ -355,9 +357,9 @@ public:
   blocks_t blocks;
   int nproper;          // number of basic blocks belonging to the specified area
 
-  idaapi qflow_chart_t(void) : pfn(NULL), flags(0), nproper(0) {}
+  idaapi qflow_chart_t(void) : flags(0) {}
   idaapi qflow_chart_t(const char *_title, func_t *_pfn, ea_t _ea1, ea_t _ea2, int _flags)
-    : title(_title), bounds(_ea1, _ea2), pfn(_pfn), flags(_flags), nproper(0)
+    : title(_title), bounds(_ea1, _ea2), pfn(_pfn), flags(_flags)
   {
     refresh();
   }
@@ -388,7 +390,7 @@ public:
   int  idaapi succ(int node, int i) const { return blocks[node].succ[i]; }
   int  idaapi pred(int node, int i) const { return blocks[node].pred[i]; } // note: specify FC_PREDS for preds!
   bool idaapi print_names(void) const { return (flags & FC_PRINT) != 0; }
-  char *idaapi get_node_label(int /*n*/, char * /*buf*/, int /*bufsize*/) const { return NULL; }
+  char *idaapi get_node_label(int /*n*/, char* /*buf*/, int /*bufsize*/) const { return NULL; }
   int  idaapi size(void) const { return int(blocks.size()); }
 };
 /// \endcond

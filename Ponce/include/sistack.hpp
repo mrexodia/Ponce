@@ -15,7 +15,6 @@ class sistack_t;
 idaman void ida_export sistack_t_flush(const sistack_t *ss);
 idaman size_t ida_export sistack_t_size(const sistack_t *ss);
 
-//-V:sistack_t:730 not all members of a class are initialized inside the constructor
 class sistack_t
 {
   friend void ida_export sistack_t_flush(const sistack_t *ss);

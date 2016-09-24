@@ -249,7 +249,7 @@ int  esign(eNE x);
 /// x = -x
 inline void eneg(eNE x)
 {
-  if ( x[IEEE_NE-1] != 0 )
+  if(x[IEEE_NE-1])
     x[IEEE_NE-1] ^= 0x8000;
 }
 #endif

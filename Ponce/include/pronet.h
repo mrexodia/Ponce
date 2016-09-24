@@ -41,7 +41,7 @@
        if ( rc != -1 || errno != EINTR ) \
          return rc;                      \
      }                                   \
-     while ( true )
+     while (true)
 #  define SOCKLEN_T  socklen_t
 #  define SOCKBUF_T  void *
 #endif

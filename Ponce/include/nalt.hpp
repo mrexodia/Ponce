@@ -311,9 +311,9 @@ NSUP_STRUCT(xrefpos, NSUP_XREFPOS)
 /// \name Work with additional location flags
 /// See \ref AFL_
 //@{
-inline void   set_aflags0(ea_t ea, uint32 flags) { netnode(ea).altset(NALT_AFLAGS,flags); }
-inline uint32 get_aflags0(ea_t ea)               { return flags_t(netnode(ea).altval(NALT_AFLAGS)); }
-inline void   del_aflags0(ea_t ea)               { netnode(ea).altdel(NALT_AFLAGS); }
+inline void   set_aflags0(ea_t ea, uint32 flags){ netnode(ea).altset(NALT_AFLAGS,flags); }
+inline uint32 get_aflags0(ea_t ea)              { return flags_t(netnode(ea).altval(NALT_AFLAGS)); }
+inline void   del_aflags0(ea_t ea)              { netnode(ea).altdel(NALT_AFLAGS); }
 idaman void   ida_export set_aflags(ea_t ea, uint32 flags);
 idaman void   ida_export set_abits(ea_t ea,uint32 bits);
 idaman void   ida_export clr_abits(ea_t ea,uint32 bits);
@@ -618,22 +618,10 @@ struct switch_info_t
   void set_jtable_element_size(int size)
   {
     flags &= ~SWI_J32|SWI_JSIZE;
-    switch ( size )
-    {
-      case 4:
-        flags |= SWI_J32;
-        break;
-      case 1:
-        flags |= SWI_JSIZE;
-        break;
-      case 8:
-        flags |= SWI_J32|SWI_JSIZE;
-        break;
-      case 2:
-        break;
-      default:
-        INTERR(1297);
-    }
+    if ( size == 4 ) { flags |= SWI_J32; return; }
+    if ( size == 1 ) { flags |= SWI_JSIZE; return; }
+    if ( size == 8 ) { flags |= SWI_J32|SWI_JSIZE; return; }
+    if ( size != 2 ) abort();
   }
   int get_vtable_element_size(void) const
   {
@@ -649,22 +637,10 @@ struct switch_info_t
   void set_vtable_element_size(int size)
   {
     flags &= ~SWI_V32|SWI_VSIZE;
-    switch ( size )
-    {
-      case 4:
-        flags |= SWI_V32;
-        break;
-      case 1:
-        flags |= SWI_VSIZE;
-        break;
-      case 8:
-        flags |= SWI_V32|SWI_VSIZE;
-        break;
-      case 2:
-        break;
-      default:
-        INTERR(1298);
-    }
+    if ( size == 4 ) { flags |= SWI_V32; return; }
+    if ( size == 1 ) { flags |= SWI_VSIZE; return; }
+    if ( size == 8 ) { flags |= SWI_V32|SWI_VSIZE; return; }
+    if ( size != 2 ) abort();
   }
   ushort ncases;                ///< number of cases (excluding default)
   ea_t jumps;                   ///< jump table start address
@@ -937,7 +913,7 @@ idaman int  ida_export read_struc_path(netnode node, int idx, tid_t *path, adiff
 void del_struc_path(netnode node, int idx, const tid_t *path, int plen);
 
 #define DEFINE_PATH_FUNCS(name, code)                                \
-inline int N_PASTE(get_,name)(ea_t ea, tid_t *path, adiff_t *delta)  \
+inline int  N_PASTE(get_,name)(ea_t ea, tid_t *path, adiff_t *delta) \
  { return read_struc_path(netnode(ea), code, path, delta); }         \
 inline void N_PASTE(set_,name)(ea_t ea, const tid_t *path, int plen, adiff_t delta) \
  { write_struc_path(netnode(ea), code, path, plen, delta); }         \
@@ -1009,7 +985,6 @@ inline void idaapi del_tinfo2(ea_t ea, int n) { set_op_tinfo2(ea, n, NULL); }
 #define RIDX_SRCDBG_PATHS         1306     ///< source debug paths, occupies 20 indexes
 #define RIDX_SELECTED_EXTLANG     1327     ///< last selected extlang name (from the execute script box)
 #define RIDX_DBG_BINPATHS         1328     ///< debug binary paths, occupies 20 indexes
-#define RIDX_SHA256               1349     ///< SHA256 of the input file
 
 // altvals
 #define RIDX_ALT_VERSION        uval_t(-1) ///< initial version of database
@@ -1019,7 +994,6 @@ inline void idaapi del_tinfo2(ea_t ea, int n) { set_op_tinfo2(ea, n, NULL); }
 #define RIDX_ALT_CRC32          uval_t(-5) ///< input file crc32
 #define RIDX_ALT_IMAGEBASE      uval_t(-6) ///< image base
 #define RIDX_ALT_IDSNODE        uval_t(-7) ///< ids modnode id (for import_module)
-#define RIDX_ALT_FSIZE          uval_t(-8) ///< input file size
 //@}
 
 //--------------------------------------------------------------------------
@@ -1040,23 +1014,15 @@ idaman ssize_t ida_export get_root_filename(char *buf, size_t bufsize);
 inline void set_root_filename(const char *file) { RootNode.set(file); }
 
 
-/// Get size of input file in bytes
-
-inline uint32 idaapi retrieve_input_file_size(void) { return uint32(RootNode.altval(RIDX_ALT_FSIZE)); }
-
-
 /// Get input file crc32 stored in the database.
 /// it can be used to check that the input file has not been changed.
 
 inline uint32 idaapi retrieve_input_file_crc32(void) { return uint32(RootNode.altval(RIDX_ALT_CRC32)); }
 
+
 /// Get input file md5
 
 inline bool idaapi retrieve_input_file_md5(uchar hash[16]) { return RootNode.supval(RIDX_MD5, hash, 16) == 16; }
-
-/// Get input file sha256
-
-inline bool idaapi retrieve_input_file_sha256(uchar hash[32]) { return RootNode.supval(RIDX_SHA256, hash, 32) == 32; }
 
 
 /// Get name of the include file

@@ -37,8 +37,8 @@
    __ARM__     - ARM
 */
 
-/// IDA SDK v6.9
-#define IDA_SDK_VERSION      690
+/// IDA SDK v6.8
+#define IDA_SDK_VERSION      680
 
 /// x86 processor by default
 #ifndef __PPC__
@@ -125,9 +125,7 @@ typedef int off_t;
 /// \def{INLINE,        inline keyword for c++}
 #ifdef __cplusplus
 #define EXTERNC         extern "C"
-#define C_INCLUDE       EXTERNC \
-   {
-
+#define C_INCLUDE       EXTERNC {
 #define C_INCLUDE_END   }
 #define INLINE          inline
 #else
@@ -216,13 +214,6 @@ typedef int off_t;
 //---------------------------------------------------------------------------
 /// Macro to avoid of message 'Parameter x is never used'
 #define qnotused(x)   (void)x
-
-// this macro can be used as a suffix for declarations/definitions instead of qnotused()
-#if defined(__clang__) || defined(__GNUC__)
-# define QUNUSED  __attribute__((unused))
-#else
-# define QUNUSED
-#endif
 
 /// \def{va_argi, GNU C complains about some data types in va_arg because they are promoted to int and proposes to replace them by int}
 #ifdef __GNUC__
@@ -329,11 +320,6 @@ inline int64 qatoll(const char *nptr) { return _atoi64(nptr); }
 inline int64 qatoll(const char *nptr) { return atol(nptr); }
 #endif
 
-// VS2010 lacks strtoull
-#ifdef _MSC_VER
-#define strtoull _strtoui64
-#endif
-
 /// \typedef{wchar16_t, 2-byte char}
 /// \typedef{wchar32_t, 4-byte char}
 #if defined(__BORLANDC__) || defined(_MSC_VER)
@@ -358,10 +344,6 @@ typedef ptrdiff_t ssize_t;
   #define FMT_64 "ll"
   #define FMT_Z  "zu"
   #define FMT_ZS "zd"
-#elif defined(_MSC_VER) && _MSC_VER >= 1900
-  #define FMT_64 "I64"
-  #define FMT_Z  "zu"
-  #define FMT_ZS "td"
 #elif defined(_MSC_VER) || defined(__MINGW32__)
   #define FMT_64 "I64"
   #ifdef __X64__
@@ -558,7 +540,7 @@ struct qstatbuf64
 // non standard functions are missing:
 #ifdef _MSC_VER
 #if _MSC_VER <= 1200
-#define for if(0); else for    ///< MSVC <= 1200 is not compliant to the ANSI standard
+#define for if(0) ; else for    ///< MSVC <= 1200 is not compliant to the ANSI standard
 #else
 #pragma warning(disable : 4200) ///< zero-sized array in structure (non accept from cmdline)
 #endif
@@ -599,6 +581,21 @@ idaman THREAD_SAFE error_t ida_export set_qerrno(error_t code);
 idaman THREAD_SAFE error_t ida_export get_qerrno(void);
 
 //---------------------------------------------------------------------------
+/// Constant to specify which platform we're on
+enum ostype_t
+{
+   osMSDOS,    ///< MS DOS 32-bit extender
+   osAIX_RISC, ///< IBM AIX RS/6000
+   osOS2,      ///< OS/2
+   osNT,       ///< MS Windows (all platforms)
+   osLINUX,    ///< Linux
+   osMACOSX,   ///< Mac OS X
+   osBSD,      ///< FreeBSD
+};
+
+extern ostype_t ostype; ///< set based on which of  __NT__,  __MAC__, ... is defined
+
+//---------------------------------------------------------------------------
 // debugging macros
 /// \def{ZZZ, debug print}
 /// \def{BPT, trigger a breakpoint from IDA. also see #INTERR}
@@ -607,7 +604,7 @@ idaman THREAD_SAFE error_t ida_export get_qerrno(void);
 #  define BPT __emit__(0xcc)
 #  define __FUNCTION__ __FUNC__
 #elif defined(__GNUC__)
-#  if defined(__arm__) || defined(__aarch64__)
+#  ifdef __arm__
 #    ifdef __LINUX__
 #      define BPT __builtin_trap()
 #    else
@@ -633,8 +630,7 @@ idaman THREAD_SAFE error_t ida_export get_qerrno(void);
 #else
 #define __CASSERT_N0__(l) COMPILE_TIME_ASSERT_ ## l
 #define __CASSERT_N1__(l) __CASSERT_N0__(l)
-#define  __CASSERT_N2__(l)  dummy_var_ ## __CASSERT_N0__(l)
-#define CASSERT(cnd) typedef char __CASSERT_N1__(__LINE__) [(cnd) ? 1 : -1] QUNUSED
+#define CASSERT(cnd) typedef char __CASSERT_N1__(__LINE__) [(cnd) ? 1 : -1]
 #define CASSERT0(cnd) (sizeof(char [1 - 2*!(cnd)]) - 1)
 #endif
 
@@ -694,7 +690,7 @@ T *qrealloc_array(T *ptr, size_t n)
       struct is_pointer;
       struct is_array {};
       template <typename T>
-      static is_pointer check_type(const T *, const T *const *);
+      static is_pointer check_type(const T *, const T * const *);
       static is_array check_type(const void *, const void *);
   };
 #elif defined(_MSC_VER) && !defined(__LINT__)
@@ -1182,7 +1178,12 @@ idaman THREAD_SAFE NORETURN void ida_export qexit(int code);
 //---------------------------------------------------------------------------
 #define qmin(a,b) ((a) < (b)? (a): (b)) ///< universal min
 #define qmax(a,b) ((a) > (b)? (a): (b)) ///< universal max
-template <class T> T qabs(T x) { return x < 0 ? -x : x; }
+#if defined(__EA64__) && defined(__VC__) && defined(__cplusplus)
+#if _MSC_VER < 1600
+static inline int64 abs(int64 n) { return _abs64(n); }
+#endif
+static inline int32 abs(uint32 n) { return abs((int32)n); }
+#endif
 
 //----------------------------------------------------------------------
 /// Test if 'bit' is set in 'bitmap'
@@ -1302,7 +1303,7 @@ template<class T, class U> void idaapi setflag(T &where, U bit, bool cnd)
 template<class T> bool is_mul_ok(T count, T elsize)
 {
   CASSERT((T)(-1) > 0); // make sure T is unsigned
-  if ( elsize == 0 || count == 0 )
+  if ( elsize  == 0 || count == 0 )
     return true;
   return count <= ((T)(-1)) / elsize;
 }
@@ -1494,7 +1495,7 @@ template <class T> inline void qswap(T &a, T &b)
         (buf)[0] = '\0';                          \
         break;                                    \
       }                                           \
-      if ( (*(buf) = *__ida_in++) == '\0' )       \
+      if (( *(buf) = *__ida_in++) == '\0' )       \
         break;                                    \
       (buf)++;                                    \
     }                                             \
@@ -1636,7 +1637,7 @@ template <class T> class qvector
     else
     {
       ssize_t s = cnt;
-      while ( --s >= 0 )
+      while( --s >= 0 )
       {
         new(dst) T(*src);
         src->~T();
@@ -1660,7 +1661,7 @@ template <class T> class qvector
       ssize_t s = cnt;
       dst += s;
       src += s;
-      while ( --s >= 0 )
+      while( --s >= 0 )
       {
         --src;
         --dst;
@@ -2228,7 +2229,7 @@ public:
     {
       size_t len = ::qstrlen(ptr) + 1;
       body.resize(len);
-      memmove(body.begin(), ptr, len*sizeof(qchar));
+      memcpy(body.begin(), ptr, len*sizeof(qchar));
     }
   }
   /// Constructor - creates a new qstring using first 'len' chars from 'ptr'
@@ -2237,7 +2238,7 @@ public:
     if ( len > 0 )
     {
       body.resize(len+1);
-      memmove(body.begin(), ptr, len*sizeof(qchar));
+      memcpy(body.begin(), ptr, len*sizeof(qchar));
     }
   }
   void swap(_qstring<qchar> &r) { body.swap(r.body); }                        ///< Swap contents of two qstrings. see qvector::swap()
@@ -2304,7 +2305,7 @@ public:
     if ( len > 0 )
     {
       body.resize(len+1);
-      memmove(body.begin(), str, len*sizeof(qchar));
+      memcpy(body.begin(), str, len*sizeof(qchar));
       body[len] = '\0';
     }
     else
@@ -2482,7 +2483,7 @@ public:
   /// Remove characters from the qstring.
   /// \param idx  starting position
   /// \param cnt  number of characters to remove
-  _qstring &remove(size_t idx, size_t cnt)
+  _qstring& remove(size_t idx, size_t cnt)
   {
     size_t len = length();
     if ( idx < len && cnt != 0 )
@@ -2503,7 +2504,7 @@ public:
   /// Insert a character into the qstring.
   /// \param idx  position of insertion (if idx >= length(), the effect is the same as append)
   /// \param c    char to insert
-  _qstring &insert(size_t idx, qchar c)
+  _qstring& insert(size_t idx, qchar c)
   {
     size_t len = length();
     body.resize(len+2);
@@ -2521,7 +2522,7 @@ public:
   /// \param idx     position of insertion (if idx >= length(), the effect is the same as append)
   /// \param str     the string to insert
   /// \param addlen  number of chars from 'str' to insert
-  _qstring &insert(size_t idx, const qchar *str, size_t addlen)
+  _qstring& insert(size_t idx, const qchar *str, size_t addlen)
   {
     size_t len = length();
     body.resize(len+addlen+1);
@@ -2533,11 +2534,11 @@ public:
       memmove(p2, p1, (len-idx)*sizeof(qchar));
       len = idx;
     }
-    memmove(body.begin()+len, str, addlen*sizeof(qchar));
+    memcpy(body.begin()+len, str, addlen*sizeof(qchar));
     return *this;
   }
   /// Same as insert(size_t, const qchar *, size_t), but all chars in str are inserted
-  _qstring &insert(size_t idx, const qchar *str)
+  _qstring& insert(size_t idx, const qchar *str)
   {
     if ( str != NULL )
     {
@@ -2547,7 +2548,7 @@ public:
     return *this;
   }
   /// Same as insert(size_t, const qchar *), but takes a qstring parameter
-  _qstring &insert(size_t idx, const _qstring &qstr)
+  _qstring& insert(size_t idx, const _qstring &qstr)
   {
     size_t len = length();
     size_t add = qstr.length();
@@ -2563,11 +2564,11 @@ public:
     memcpy(body.begin()+len, qstr.begin(), add*sizeof(qchar));
     return *this;
   }
-  _qstring &insert(qchar c)               { return insert(0, c);    } ///< Prepend the qstring with 'c'
-  _qstring &insert(const qchar *str)      { return insert(0, str);  } ///< Prepend the qstring with 'str'
-  _qstring &insert(const _qstring &qstr)  { return insert(0, qstr); } ///< Prepend the qstring with 'qstr'
+  _qstring& insert(qchar c)               { return insert(0, c);    } ///< Prepend the qstring with 'c'
+  _qstring& insert(const qchar *str)      { return insert(0, str);  } ///< Prepend the qstring with 'str'
+  _qstring& insert(const _qstring &qstr)  { return insert(0, qstr); } ///< Prepend the qstring with 'qstr'
   /// Append c to the end of the qstring
-  _qstring &append(qchar c)
+  _qstring& append(qchar c)
   {
     size_t len = length();
     body.resize(len+2);
@@ -2578,16 +2579,16 @@ public:
   /// Append a string to the qstring.
   /// \param str     the string to append
   /// \param addlen  number of characters from 'str' to append
-  _qstring &append(const qchar *str, size_t addlen)
+  _qstring& append(const qchar *str, size_t addlen)
   {
     size_t len = length();
     body.resize(len+addlen+1);
     body[len+addlen] = '\0';
-    memmove(body.begin()+len, str, addlen*sizeof(qchar));
+    memcpy(body.begin()+len, str, addlen*sizeof(qchar));
     return *this;
   }
   /// Same as append(const qchar *, size_t), but all chars in 'str' are appended
-  _qstring &append(const qchar *str)
+  _qstring& append(const qchar *str)
   {
     if ( str != NULL )
     {
@@ -2597,7 +2598,7 @@ public:
     return *this;
   }
   /// Same as append(const qchar *), but takes a qstring argument
-  _qstring &append(const _qstring &qstr)
+  _qstring& append(const _qstring &qstr)
   {
     size_t add = qstr.length();
     if ( add != 0 )
@@ -2610,7 +2611,7 @@ public:
     return *this;
   }
   /// Append result of qvsnprintf() to qstring
-  AS_PRINTF(2, 0) _qstring &cat_vsprnt(const char *format, va_list va)
+  AS_PRINTF(2, 0) _qstring& cat_vsprnt(const char *format, va_list va)
   { // since gcc64 forbids reuse of va_list, we make a copy for the second call:
     va_list copy;
     va_copy(copy, va);
@@ -2624,7 +2625,7 @@ public:
     return *this;
   }
   /// Replace qstring with the result of qvsnprintf()
-  AS_PRINTF(2, 0) _qstring &vsprnt(const char *format, va_list va)
+  AS_PRINTF(2, 0) _qstring& vsprnt(const char *format, va_list va)
   { // since gcc64 forbids reuse of va_list, we make a copy for the second call:
     va_list copy;
     va_copy(copy, va);
@@ -2638,7 +2639,7 @@ public:
     return *this;
   }
   /// Append result of qsnprintf() to qstring
-  AS_PRINTF(2, 3) _qstring &cat_sprnt(const char *format, ...)
+  AS_PRINTF(2, 3) _qstring& cat_sprnt(const char *format, ...)
   {
     va_list va;
     va_start(va, format);
@@ -2647,7 +2648,7 @@ public:
     return *this;
   }
   /// Replace qstring with the result of qsnprintf()
-  AS_PRINTF(2, 3) _qstring &sprnt(const char *format, ...)
+  AS_PRINTF(2, 3) _qstring& sprnt(const char *format, ...)
   {
     va_list va;
     va_start(va, format);
@@ -2660,7 +2661,7 @@ public:
   /// \param pos  starting position
   /// \param c    the character to fill
   /// \param len  number of positions to fill with 'c'
-  _qstring &fill(size_t pos, qchar c, size_t len)
+  _qstring& fill(size_t pos, qchar c, size_t len)
   {
     size_t endp = pos + len + 1;
     if ( body.size() < endp )
@@ -2672,7 +2673,7 @@ public:
     return *this;
   }
   /// Clear contents of qstring and fill with 'c'
-  _qstring &fill(qchar c, size_t len)
+  _qstring& fill(qchar c, size_t len)
   {
     body.qclear();
     if ( len > 0 )
@@ -2680,7 +2681,7 @@ public:
     return *this;
   }
   /// Remove all instances of the specified char from the beginning of the qstring
-  _qstring &ltrim(qchar blank = ' ')
+  _qstring& ltrim(qchar blank = ' ')
   {
     if ( !empty() )
     {
@@ -2697,7 +2698,7 @@ public:
     return *this;
   }
   /// Remove all instances of the specified char from the end of the qstring
-  _qstring &rtrim(qchar blank = ' ')
+  _qstring& rtrim(qchar blank = ' ')
   {
     if ( !empty() )
     {
@@ -2710,7 +2711,7 @@ public:
     return *this;
   }
   /// Remove all instances of the specified char from both ends of the qstring
-  _qstring &trim2(qchar blank = ' ')
+  _qstring& trim2(qchar blank = ' ')
   {
     rtrim(blank);
     ltrim(blank);
@@ -2868,7 +2869,7 @@ public:
     iter(constness listnode_t *x) : cur(x) {}                           \
   public:                                                               \
     typedef constness T value_type;                                     \
-    iter(void) : cur(NULL) {}                                           \
+    iter(void) {}                                                       \
     iter(const iter &x) : cur(x.cur) {}                                 \
     cstr                                                                \
     iter &operator=(const iter &x) { cur = x.cur; return *this; }       \
@@ -2876,7 +2877,7 @@ public:
     bool operator!=(const iter &x) const { return cur != x.cur; }       \
     constness T &operator*(void) const { return ((datanode_t*)cur)->data; }  \
     constness T *operator->(void) const { return &(operator*()); } \
-    iter &operator++(void)       /* prefix ++  */                       \
+    iter& operator++(void)       /* prefix ++  */                       \
     {                                                                   \
       cur = cur->next;                                                  \
       return *this;                                                     \
@@ -2887,7 +2888,7 @@ public:
       ++(*this);                                                        \
       return tmp;                                                       \
     }                                                                   \
-    iter &operator--(void)       /* prefix --  */                       \
+    iter& operator--(void)       /* prefix --  */                       \
     {                                                                   \
       cur = cur->prev;                                                  \
       return *this;                                                     \
@@ -2899,8 +2900,8 @@ public:
       return tmp;                                                       \
     }                                                                   \
   };
-  DEFINE_LIST_ITERATOR(iterator, , friend class const_iterator; )
-  DEFINE_LIST_ITERATOR(const_iterator, const, const_iterator(const iterator &x) : cur(x.cur) {} )
+  DEFINE_LIST_ITERATOR(iterator, , friend class const_iterator;)
+  DEFINE_LIST_ITERATOR(const_iterator, const, const_iterator(const iterator &x) : cur(x.cur) {})
 
 /// Used to define qlist::reverse_iterator and qlist::const_reverse_iterator
 #define DEFINE_REVERSE_ITERATOR(riter, iter)                            \
@@ -2916,8 +2917,8 @@ public:
     riter  operator++(int) { iter q=p; --p; return q; }                 \
     riter &operator--(void) { ++p; return *this; }                      \
     riter  operator--(int) { iter q=p; ++p; return q; }                 \
-    bool operator==(const riter &x) const { return p == x.p; }          \
-    bool operator!=(const riter &x) const { return p != x.p; }          \
+    bool operator==(const riter& x) const { return p == x.p; }          \
+    bool operator!=(const riter& x) const { return p != x.p; }          \
   };
   DEFINE_REVERSE_ITERATOR(reverse_iterator, iterator)
   DEFINE_REVERSE_ITERATOR(const_reverse_iterator, const_iterator)
@@ -2984,7 +2985,7 @@ public:
   /// \param p  the position to insert the element
   /// \param x  the element to be inserted
   /// \return position of newly inserted element
-  iterator insert(iterator p, const T &x)
+  iterator insert(iterator p, const T& x)
   {
     datanode_t *tmp = (datanode_t*)qalloc_or_throw(sizeof(datanode_t));
     new (&(tmp->data)) T(x);
@@ -3232,8 +3233,8 @@ idaman THREAD_SAFE wchar32_t ida_export get_utf8_char(const char **pptr);
 idaman void ida_export char2oem(char *inout);
 idaman void ida_export oem2char(char *inout); ///< \copydoc char2oem
 #else
-inline void idaapi char2oem(char * /*inout*/) {}
-inline void idaapi oem2char(char * /*inout*/) {}
+inline void idaapi char2oem(char* /*inout*/) { }
+inline void idaapi oem2char(char* /*inout*/) { }
 #endif
 
 
@@ -3248,7 +3249,7 @@ idaman bool ida_export set_codepages(int acp/* = CP_ACP*/, int oemcp/* = CP_OEMC
 /// \param[out] oemcp  pointer to oem codepage
 /// \return current codepage
 
-idaman int ida_export get_codepages(int *oemcp);
+idaman int ida_export get_codepages(int* oemcp);
 
 #ifdef __NT__
 /// Convert data from codepage incp to outcp.
@@ -3257,10 +3258,10 @@ idaman int ida_export get_codepages(int *oemcp);
 /// \param insize  insize == -1: input is null-terminated
 /// \return number of bytes after conversion (not counting termination zero)
 
-idaman int ida_export convert_codepage(const void *in, int insize, void *out, size_t outsize, int incp, int outcp, int flags = 0);
+idaman int ida_export convert_codepage(const void* in, int insize, void* out, size_t outsize, int incp, int outcp, int flags = 0);
 
 #else
-inline int idaapi convert_codepage(const void * /*in*/, int /*insize*/, void * /*out*/, size_t /*outsize*/, int /*incp*/, int /*outcp*/, int /*flags*/ = 0) { return 0; }
+inline int idaapi convert_codepage(const void* /*in*/, int /*insize*/, void* /*out*/, size_t /*outsize*/, int /*incp*/, int /*outcp*/, int /*flags*/ = 0) { return 0; }
 #endif
 
 
@@ -3431,7 +3432,7 @@ struct launch_process_params_t
                                  ///< on unix, not used
   launch_process_params_t(void)  ///< constructor
     : cb(sizeof(*this)), flags(0), path(NULL), args(NULL),
-      in_handle(-1), out_handle(-1), err_handle(-1),
+      in_handle(-1), out_handle(-1),  err_handle(-1),
       env(NULL), startdir(NULL), info(NULL) {}
 };
 

@@ -132,62 +132,62 @@ const char ltag = 'L';                  ///< Links between netnodes
 //@{
 class netnode;
 class linput_t;
-idaman bool ida_export netnode_check(netnode *, const char *name, size_t namlen, bool create);
-idaman void ida_export netnode_kill(netnode *);
-idaman bool ida_export netnode_start(netnode *);
-idaman bool ida_export netnode_end(netnode *);
-idaman bool ida_export netnode_next(netnode *);
-idaman bool ida_export netnode_prev(netnode *);
-idaman ssize_t ida_export netnode_name(nodeidx_t num, char *buf, size_t bufsize);
-idaman ssize_t ida_export netnode_get_name(nodeidx_t num, qstring *out);
-idaman bool ida_export netnode_rename(nodeidx_t num, const char *newname, size_t namlen);
-idaman ssize_t ida_export netnode_valobj(nodeidx_t num, void *buf, size_t bufsize);
-idaman ssize_t ida_export netnode_valstr(nodeidx_t num, char *buf, size_t bufsize);
-idaman bool ida_export netnode_set(nodeidx_t num, const void *value, size_t length);
-idaman bool ida_export netnode_delvalue(nodeidx_t num);
-idaman nodeidx_t ida_export netnode_altval(nodeidx_t num, nodeidx_t alt, char tag);
-idaman uchar ida_export netnode_charval(nodeidx_t num, nodeidx_t alt, char tag);
-idaman nodeidx_t ida_export netnode_altval_idx8(nodeidx_t num, uchar alt, char tag);
-idaman uchar ida_export netnode_charval_idx8(nodeidx_t num, uchar alt, char tag);
-idaman ssize_t ida_export netnode_supval(nodeidx_t num, nodeidx_t alt, void *buf, size_t bufsize, char tag);
-idaman ssize_t ida_export netnode_supstr(nodeidx_t num, nodeidx_t alt, char *buf, size_t bufsize, char tag);
-idaman bool ida_export netnode_supset(nodeidx_t num, nodeidx_t alt, const void *value, size_t length, char tag);
-idaman bool ida_export netnode_supdel(nodeidx_t num, nodeidx_t alt, char tag);
-idaman nodeidx_t ida_export netnode_sup1st(nodeidx_t num, char tag);
-idaman nodeidx_t ida_export netnode_supnxt(nodeidx_t num, nodeidx_t cur, char tag);
-idaman nodeidx_t ida_export netnode_suplast(nodeidx_t num, char tag);
-idaman nodeidx_t ida_export netnode_supprev(nodeidx_t num, nodeidx_t cur, char tag);
-idaman ssize_t ida_export netnode_supval_idx8(nodeidx_t num, uchar alt, void *buf, size_t bufsize, char tag);
-idaman ssize_t ida_export netnode_supstr_idx8(nodeidx_t num, uchar alt, char *buf, size_t bufsize, char tag);
-idaman bool ida_export netnode_supset_idx8(nodeidx_t num, uchar alt, const void *value, size_t length, char tag);
-idaman bool ida_export netnode_supdel_idx8(nodeidx_t num, uchar alt, char tag);
-idaman nodeidx_t ida_export netnode_sup1st_idx8(nodeidx_t num, char tag);
-idaman nodeidx_t ida_export netnode_supnxt_idx8(nodeidx_t num, uchar alt, char tag);
+idaman bool  ida_export netnode_check           (netnode *, const char *name, size_t namlen, bool create);
+idaman void  ida_export netnode_kill            (netnode *);
+idaman bool  ida_export netnode_start           (netnode *);
+idaman bool  ida_export netnode_end             (netnode *);
+idaman bool  ida_export netnode_next            (netnode *);
+idaman bool  ida_export netnode_prev            (netnode *);
+idaman ssize_t ida_export netnode_name          (nodeidx_t num, char *buf, size_t bufsize);
+idaman ssize_t ida_export netnode_get_name      (nodeidx_t num, qstring *out);
+idaman bool  ida_export netnode_rename          (nodeidx_t num, const char *newname, size_t namlen);
+idaman ssize_t ida_export netnode_valobj        (nodeidx_t num, void *buf, size_t bufsize);
+idaman ssize_t ida_export netnode_valstr        (nodeidx_t num, char *buf, size_t bufsize);
+idaman bool  ida_export netnode_set             (nodeidx_t num, const void *value, size_t length);
+idaman bool  ida_export netnode_delvalue        (nodeidx_t num);
+idaman nodeidx_t ida_export netnode_altval      (nodeidx_t num, nodeidx_t alt, char tag);
+idaman uchar ida_export netnode_charval         (nodeidx_t num, nodeidx_t alt, char tag);
+idaman nodeidx_t ida_export netnode_altval_idx8 (nodeidx_t num, uchar alt, char tag);
+idaman uchar ida_export netnode_charval_idx8    (nodeidx_t num, uchar alt, char tag);
+idaman ssize_t ida_export netnode_supval        (nodeidx_t num, nodeidx_t alt, void *buf, size_t bufsize, char tag);
+idaman ssize_t ida_export netnode_supstr        (nodeidx_t num, nodeidx_t alt, char *buf, size_t bufsize, char tag);
+idaman bool  ida_export netnode_supset          (nodeidx_t num, nodeidx_t alt, const void *value, size_t length, char tag);
+idaman bool  ida_export netnode_supdel          (nodeidx_t num, nodeidx_t alt, char tag);
+idaman nodeidx_t ida_export netnode_sup1st      (nodeidx_t num, char tag);
+idaman nodeidx_t ida_export netnode_supnxt      (nodeidx_t num, nodeidx_t cur, char tag);
+idaman nodeidx_t ida_export netnode_suplast     (nodeidx_t num, char tag);
+idaman nodeidx_t ida_export netnode_supprev     (nodeidx_t num, nodeidx_t cur, char tag);
+idaman ssize_t ida_export netnode_supval_idx8   (nodeidx_t num, uchar alt, void *buf, size_t bufsize, char tag);
+idaman ssize_t ida_export netnode_supstr_idx8   (nodeidx_t num, uchar alt, char *buf, size_t bufsize, char tag);
+idaman bool  ida_export netnode_supset_idx8     (nodeidx_t num, uchar alt, const void *value, size_t length, char tag);
+idaman bool  ida_export netnode_supdel_idx8     (nodeidx_t num, uchar alt, char tag);
+idaman nodeidx_t ida_export netnode_sup1st_idx8 (nodeidx_t num, char tag);
+idaman nodeidx_t ida_export netnode_supnxt_idx8 (nodeidx_t num, uchar alt, char tag);
 idaman nodeidx_t ida_export netnode_suplast_idx8(nodeidx_t num, char tag);
 idaman nodeidx_t ida_export netnode_supprev_idx8(nodeidx_t num, uchar alt, char tag);
-idaman bool ida_export netnode_supdel_all(nodeidx_t num, char tag);
-idaman int ida_export netnode_supdel_range(nodeidx_t num, nodeidx_t idx1, nodeidx_t idx2, char tag);
-idaman int ida_export netnode_supdel_range_idx8(nodeidx_t num, nodeidx_t idx1, nodeidx_t idx2, char tag);
-idaman ssize_t ida_export netnode_hashval(nodeidx_t num, const char *idx, void *buf, size_t bufsize, char tag);
-idaman ssize_t ida_export netnode_hashstr(nodeidx_t num, const char *idx, char *buf, size_t bufsize, char tag);
+idaman bool  ida_export netnode_supdel_all      (nodeidx_t num, char tag);
+idaman int ida_export netnode_supdel_range      (nodeidx_t num, nodeidx_t idx1, nodeidx_t idx2, char tag);
+idaman int ida_export netnode_supdel_range_idx8 (nodeidx_t num, nodeidx_t idx1, nodeidx_t idx2, char tag);
+idaman ssize_t ida_export netnode_hashval       (nodeidx_t num, const char *idx, void *buf, size_t bufsize, char tag);
+idaman ssize_t ida_export netnode_hashstr       (nodeidx_t num, const char *idx, char *buf, size_t bufsize, char tag);
 idaman nodeidx_t ida_export netnode_hashval_long(nodeidx_t num, const char *idx, char tag);
-idaman bool ida_export netnode_hashset(nodeidx_t num, const char *idx, const void *value, size_t length, char tag);
-idaman bool ida_export netnode_hashdel(nodeidx_t num, const char *idx, char tag);
-idaman ssize_t ida_export netnode_hash1st(nodeidx_t num, char *buf, size_t bufsize, char tag);
-idaman ssize_t ida_export netnode_hashnxt(nodeidx_t num, const char *idx, char *buf, size_t bufsize, char tag);
-idaman ssize_t ida_export netnode_hashlast(nodeidx_t num, char *buf, size_t bufsize, char tag);
-idaman ssize_t ida_export netnode_hashprev(nodeidx_t num, const char *idx, char *buf, size_t bufsize, char tag);
-idaman size_t ida_export netnode_blobsize(nodeidx_t num, nodeidx_t start, char tag);
-idaman void *ida_export netnode_getblob(nodeidx_t num, void *buf, size_t *bufsize, nodeidx_t start, char tag);
-idaman bool ida_export netnode_setblob(nodeidx_t num, const void *buf, size_t size, nodeidx_t start, char tag);
-idaman int ida_export netnode_delblob(nodeidx_t num, nodeidx_t start, char tag);
-idaman bool ida_export netnode_inited(void);
-idaman size_t ida_export netnode_copy(nodeidx_t num, nodeidx_t count, nodeidx_t target, bool move);
-idaman size_t ida_export netnode_altshift(nodeidx_t num, nodeidx_t from, nodeidx_t to, nodeidx_t size, char tag);
-idaman size_t ida_export netnode_charshift(nodeidx_t num, nodeidx_t from, nodeidx_t to, nodeidx_t size, char tag);
-idaman size_t ida_export netnode_supshift(nodeidx_t num, nodeidx_t from, nodeidx_t to, nodeidx_t size, char tag);
-idaman void ida_export netnode_altadjust(nodeidx_t num, nodeidx_t from, nodeidx_t to, nodeidx_t size, bool (idaapi *should_skip)(nodeidx_t ea));
-idaman bool ida_export netnode_exist(const netnode &n);
+idaman bool  ida_export netnode_hashset         (nodeidx_t num, const char *idx, const void *value, size_t length, char tag);
+idaman bool  ida_export netnode_hashdel         (nodeidx_t num, const char *idx, char tag);
+idaman ssize_t ida_export netnode_hash1st       (nodeidx_t num, char *buf, size_t bufsize, char tag);
+idaman ssize_t ida_export netnode_hashnxt       (nodeidx_t num, const char *idx, char *buf, size_t bufsize, char tag);
+idaman ssize_t ida_export netnode_hashlast      (nodeidx_t num, char *buf, size_t bufsize, char tag);
+idaman ssize_t ida_export netnode_hashprev      (nodeidx_t num, const char *idx, char *buf, size_t bufsize, char tag);
+idaman size_t ida_export netnode_blobsize       (nodeidx_t num, nodeidx_t start, char tag);
+idaman void *ida_export netnode_getblob         (nodeidx_t num, void *buf, size_t *bufsize, nodeidx_t start, char tag);
+idaman bool  ida_export netnode_setblob         (nodeidx_t num, const void *buf, size_t size, nodeidx_t start, char tag);
+idaman int   ida_export netnode_delblob         (nodeidx_t num, nodeidx_t start, char tag);
+idaman bool  ida_export netnode_inited          (void);
+idaman size_t ida_export netnode_copy           (nodeidx_t num, nodeidx_t count, nodeidx_t target, bool move);
+idaman size_t ida_export netnode_altshift       (nodeidx_t num, nodeidx_t from, nodeidx_t to, nodeidx_t size, char tag);
+idaman size_t ida_export netnode_charshift      (nodeidx_t num, nodeidx_t from, nodeidx_t to, nodeidx_t size, char tag);
+idaman size_t ida_export netnode_supshift       (nodeidx_t num, nodeidx_t from, nodeidx_t to, nodeidx_t size, char tag);
+idaman void  ida_export netnode_altadjust       (nodeidx_t num, nodeidx_t from, nodeidx_t to, nodeidx_t size, bool (idaapi *should_skip)(nodeidx_t ea));
+idaman bool  ida_export netnode_exist           (const netnode &n);
 //@}
 
 //--------------------------------------------------------------------------
@@ -483,7 +483,7 @@ public:
   ///   - value: 32 bits
   //@{
   nodeidx_t altval_idx8(uchar alt, char tag) const   { return netnode_altval_idx8(*this, alt, tag); }
-  bool altset_idx8(uchar alt, nodeidx_t val, char tag) { return supset_idx8(alt, &val, sizeof(val), tag); }
+  bool altset_idx8(uchar alt, nodeidx_t val, char tag){ return supset_idx8(alt, &val, sizeof(val), tag); }
   bool altdel_idx8(uchar alt, char tag)              { return supdel_idx8(alt, tag); }
   nodeidx_t alt1st_idx8(char tag) const              { return sup1st_idx8(tag); }
   nodeidx_t altnxt_idx8(uchar cur, char tag) const   { return supnxt_idx8(cur, tag); }
@@ -498,12 +498,11 @@ public:
   //@{
   uchar charval_idx8(uchar alt, char tag) const     { return netnode_charval_idx8(*this, alt, tag); }
   bool charset_idx8(uchar alt, uchar val, char tag) { return supset_idx8(alt, &val, sizeof(val), tag); }
-  //-V::524 equivalent functions
   bool chardel_idx8(uchar alt, char tag)            { return supdel_idx8(alt, tag); }
   nodeidx_t char1st_idx8(char tag) const            { return sup1st_idx8(tag); }
   nodeidx_t charnxt_idx8(uchar cur, char tag) const { return supnxt_idx8(cur, tag); }
   nodeidx_t charlast_idx8(char tag) const           { return suplast_idx8(tag); }
-  nodeidx_t charprev_idx8(uchar cur, char tag) const { return supprev_idx8(cur, tag); }
+  nodeidx_t charprev_idx8(uchar cur, char tag) const{ return supprev_idx8(cur, tag); }
   //@}
 
   /// \name Delete altvals
@@ -638,8 +637,8 @@ public:
   //@{
   ssize_t   supval_idx8(uchar alt, void *buf, size_t bufsize, char tag) const { return netnode_supval_idx8(*this, alt, buf, bufsize, tag); }
   ssize_t   supstr_idx8(uchar alt, char *buf, size_t bufsize, char tag) const { return netnode_supstr_idx8(*this, alt, buf, bufsize, tag); }
-  bool     supset_idx8(uchar alt, const void *value, size_t length, char tag) { return netnode_supset_idx8(*this, alt, value, length, tag); }
-  bool     supdel_idx8(uchar alt, char tag)        { return netnode_supdel_idx8(*this, alt, tag); }
+  bool      supset_idx8(uchar alt, const void *value, size_t length, char tag) { return netnode_supset_idx8(*this, alt, value, length, tag); }
+  bool      supdel_idx8(uchar alt, char tag)        { return netnode_supdel_idx8(*this, alt, tag); }
   nodeidx_t sup1st_idx8(char tag) const             { return netnode_sup1st_idx8(*this, tag); }
   nodeidx_t supnxt_idx8(uchar alt, char tag) const  { return netnode_supnxt_idx8(*this, alt, tag); }
   nodeidx_t suplast_idx8(char tag) const            { return netnode_suplast_idx8(*this, tag); }
@@ -653,7 +652,7 @@ public:
   /// This function may be applied to 32-bit and 8-bit supval arrays.
   /// This function deletes the whole supval array.
   /// \return success
-  bool supdel(void)
+  bool   supdel(void)
   {
     return supdel_all(stag);
   }
@@ -868,12 +867,12 @@ public:
   //      linktype - type of link to create
   //      linkspec - arbitrary text stored in the link
   // returns: 1 - ok
-  int link(netnode to, netlink linktype, const char *linkspec);
+  int   link(netnode to, netlink linktype, const char *linkspec);
 
   // Delete a link between two nodes
   //      to       - target netnode
   //      linktype - type of link to create
-  void unlink(netnode to, netlink linktype);
+  void  unlink(netnode to, netlink linktype);
 
   // Get text associated with the link
   //      to       - target netnode
@@ -954,7 +953,7 @@ public:
   /// Functions for global base manipulating.
   //@{
   static bool createbase(const char *fname, nodeidx_t initial_nodeid=0); // Create base
-  static int checkbase(const char *fname);
+  static int  checkbase(const char *fname);
 #define NNBASE_OK      0        // ok
 #define NNBASE_REPAIR  1        // repair database
 #define NNBASE_IOERR   2        // i/o error
@@ -973,11 +972,11 @@ public:
   static linput_t *get_linput();                // must be closed by close_linput()
   static void term(void);
   static void killbase(nodeidx_t iniNumber=0);      // Clean up ALL base
-  static int getdrive(void);                   // Get current drive
-  static int getgraph(void)                    // Get current graph
+  static int  getdrive(void);                   // Get current drive
+  static int  getgraph(void)                    // Get current graph
                                                 // (for compatibility:
                { return atag; }                 //   always returns 'A'
-  static int registerbase(const char *filename, size_t cachesize, bool writeFlag=true);
+  static int  registerbase(const char *filename, size_t cachesize, bool writeFlag=true);
                                                 // Register aux base file
                                                 // 0 - too many bases
                                                 // else - drive number

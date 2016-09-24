@@ -102,9 +102,9 @@ enum storage_type_t
 /// It contains the essential parameters for the current program
 struct idainfo
 {
-  char tag[3];                          ///< 'IDA'
-  ushort version;                       ///< Version of database
-  char procName[8];                     ///< Name of current processor
+  char          tag[3];                 ///< 'IDA'
+  ushort        version;                ///< Version of database
+  char          procName[8];            ///< Name of current processor
                                         ///< The terminating zero may be absent
                                         ///< if the processor name is too long!
 
@@ -130,7 +130,7 @@ struct idainfo
     return buf;
   }
 
-  uchar lflags;                         ///< \ref LFLG_
+  uchar         lflags;                 ///< \ref LFLG_
 /// \defgroup LFLG_ Misc. database flags
 /// used by idainfo::lflags
 //@{
@@ -140,53 +140,47 @@ struct idainfo
 #define LFLG_DBG_NOPATH 0x08            ///< do not store input full path in debugger process options
 #define LFLG_SNAPSHOT   0x10            ///< memory snapshot was taken?
 #define LFLG_IS_DLL     0x20            ///< Is dynamic library?
-#define LFLG_UNUSED     0x40
-#define LFLG_FLAT_OFF32 0x80            ///< treat ::REF_OFF32 as 32-bit offset for 16bit segments (otherwise try SEG16:OFF16)
 //@}
-  bool is_32bit(void) const        { return (lflags & LFLG_PC_FLAT) != 0; }    ///< #LFLG_PC_FLAT
-  bool is_64bit(void) const        { return (lflags & LFLG_64BIT) != 0; }      ///< #LFLG_64BIT
-  bool is_snapshot(void) const     { return (lflags & LFLG_SNAPSHOT) != 0; }   ///< #LFLG_SNAPSHOT
-  bool is_dll(void) const          { return (lflags & LFLG_IS_DLL) != 0; }     ///< #LFLG_IS_DLL
-  bool is_flat_off32(void) const   { return (lflags & LFLG_FLAT_OFF32) != 0; } ///< #LFLG_FLAT_OFF32
+  bool is_32bit(void) const    { return (lflags & LFLG_PC_FLAT) != 0; }  ///< #LFLG_PC_FLAT
+  bool is_64bit(void) const    { return (lflags & LFLG_64BIT) != 0; }    ///< #LFLG_64BIT
+  bool is_snapshot(void) const { return (lflags & LFLG_SNAPSHOT) != 0; } ///< #LFLG_SNAPSHOT
+  bool is_dll(void) const      { return (lflags & LFLG_IS_DLL) != 0; }   ///< #LFLG_IS_DLL
 
-  uchar demnames;                       ///< \ref DEMNAM_
+  uchar         demnames;               ///< \ref DEMNAM_
 /// \defgroup DEMNAM_ Demangled name flags
 /// used by idainfo::demnames
 //@{
 #define DEMNAM_MASK  3                  ///< mask for name form
-#define DEMNAM_CMNT  0                  ///< display demangled names as comments
-#define DEMNAM_NAME  1                  ///< display demangled names as regular names
-#define DEMNAM_NONE  2                  ///< don't display demangled names
+#define  DEMNAM_CMNT 0                  ///< display demangled names as comments
+#define  DEMNAM_NAME 1                  ///< display demangled names as regular names
+#define  DEMNAM_NONE 2                  ///< don't display demangled names
 #define DEMNAM_GCC3  4                  ///< assume gcc3 names (valid for gnu compiler)
-#define DEMNAM_FIRST 8                  ///< override type info
 //@}
   /// Get #DEMNAM_MASK bits of #demnames
   uchar get_demname_form(void) const { return (uchar)(demnames & DEMNAM_MASK); }
 
-  ushort filetype;                      ///< The input file type
+  ushort        filetype;               ///< The input file type
 
   /// Is unstructured input file?
   bool like_binary(void) const
-  {
-    return filetype == f_BIN
+  { return filetype == f_BIN
         || filetype == f_HEX
         || filetype == f_MEX
-        || filetype == f_SREC;
-  }
+        || filetype == f_SREC; }
 
-  uval_t fcoresiz;                      ///< size of input file core image
+  uval_t        fcoresiz;               ///< size of input file core image
                                         ///< used to create executable file
-  uval_t corestart;                     ///< start of pages to load
+  uval_t        corestart;              ///< start of pages to load
                                         ///< (offset in the file)
 
-  ushort ostype;                        ///< OS type the program is for
+  ushort        ostype;                 ///< OS type the program is for
                                         ///< bit definitions in libfuncs.hpp
-  ushort apptype;                       ///< Application type
+  ushort        apptype;                ///< Application type
                                         ///< bit definitions in libfuncs.hpp
-  ea_t startSP;                         ///< SP register value at the start of
+  ea_t          startSP;                ///< SP register value at the start of
                                         ///< program execution
 
-  ushort af;                            ///< \ref AF_
+  ushort        af;                     ///< \ref AF_
 /// \defgroup AF_ Analysis flags
 /// used by idainfo::af
 //@{
@@ -208,39 +202,39 @@ struct idainfo
 #define AF_FINAL        0x8000          ///< Final pass of analysis
 //@}
 
-  ea_t startIP;                         ///< IP register value at the start of
+  ea_t          startIP;                ///< IP register value at the start of
                                         ///< program execution
 
-  ea_t beginEA;                         ///< Linear address of program entry point
-  ea_t minEA;                           ///< current limits of program
-  ea_t maxEA;                           ///< maxEA is excluded
-  ea_t ominEA;                          ///< original minEA (is set after loading the input file)
-  ea_t omaxEA;                          ///< original maxEA (is set after loading the input file)
+  ea_t          beginEA;                ///< Linear address of program entry point
+  ea_t          minEA;                  ///< current limits of program
+  ea_t          maxEA;                  ///< maxEA is excluded
+  ea_t          ominEA;                 ///< original minEA (is set after loading the input file)
+  ea_t          omaxEA;                 ///< original maxEA (is set after loading the input file)
 
-  ea_t lowoff;                          ///< Low  limit for offsets
+  ea_t          lowoff;                 ///< Low  limit for offsets
                                         ///< (used in calculation of 'void' operands)
-  ea_t highoff;                         ///< High limit for offsets
+  ea_t          highoff;                ///< High limit for offsets
                                         ///< (used in calculation of 'void' operands)
-  uval_t maxref;                        ///< Max tail for references
-  uchar ASCIIbreak;                     ///< ASCII line break symbol.
-  bool wide_high_byte_first;            ///< Bit order of wide bytes: high byte first?
+  uval_t        maxref;                 ///< Max tail for references
+  uchar         ASCIIbreak;             ///< ASCII line break symbol.
+  bool          wide_high_byte_first;   ///< Bit order of wide bytes: high byte first?
                                         ///< (wide bytes: \ph{dnbits} > 8)
 
-  uchar indent;                         ///< Indention for instructions
-  uchar comment;                        ///< Indention for comments
+  uchar         indent;                 ///< Indention for instructions
+  uchar         comment;                ///< Indention for comments
 
-  uchar xrefnum;                        ///< Number of references to generate
+  uchar         xrefnum;                ///< Number of references to generate
                                         ///< in the disassembly listing
                                         ///< 0 - xrefs won't be generated at all
-  bool s_entab;                         ///< Use '\t' chars in the output file?
-  uchar specsegs;                       ///< What format do special segments use? 0-unspecified, 4-entries are 4 bytes, 8- entries are 8 bytes.
-  bool s_void;                          ///< Display void marks?
-  uchar type_xrefnum;                   ///< Number of references to generate
+  bool          s_entab;                ///< Use '\t' chars in the output file?
+  bool          specsegs;               ///< New format of special segments?
+  bool          s_void;                 ///< Display void marks?
+  uchar         type_xrefnum;           ///< Number of references to generate
                                         ///< in the struct & enum windows
                                         ///< 0 - xrefs won't be generated at all
-  bool s_showauto;                      ///< Display autoanalysis indicator?
-  bool s_auto;                          ///< Autoanalysis is enabled?
-  uchar s_limiter;                      ///< \ref LMT_
+  bool          s_showauto;             ///< Display autoanalysis indicator?
+  bool          s_auto;                 ///< Autoanalysis is enabled?
+  uchar         s_limiter;              ///< \ref LMT_
 /// \defgroup LMT_ Delimiter options
 /// Used by idainfo::s_limiter
 //@{
@@ -248,8 +242,8 @@ struct idainfo
 #define LMT_THICK       0x02            ///< thick borders
 #define LMT_EMPTY       0x04            ///< empty lines at the end of basic blocks
 //@}
-  uchar s_null;                         ///< Generate empty lines?
-  uchar s_genflags;                     ///< \ref INFFL_
+  uchar         s_null;                 ///< Generate empty lines?
+  uchar         s_genflags;             ///< \ref INFFL_
 /// \defgroup INFFL_ General idainfo flags
 /// Used by idainfo::s_genflags
 //@{
@@ -257,21 +251,17 @@ struct idainfo
 #define INFFL_ALLASM    0x02            ///< may use constructs not supported by
                                         ///< the target assembler
 #define INFFL_LOADIDC   0x04            ///< loading an idc file that contains database info
-#define INFFL_NOUSER    0x08            ///< do not store user info in the database
-#define INFFL_READONLY  0x10            ///< (internal) temporary interdiction to modify the database
 //@}
   bool use_allasm(void) const { return (s_genflags & INFFL_ALLASM) != 0; }   ///< #INFFL_ALLASM
   bool loading_idc(void) const { return (s_genflags & INFFL_LOADIDC) != 0; } ///< #INFFL_LOADIDC
-  bool store_user_info(void) const { return (s_genflags & INFFL_NOUSER) == 0; } ///< #INFFL_NOUSER
-  bool readonly_idb(void) const { return (s_genflags & INFFL_READONLY) != 0; } ///< #INFFL_READONLY
 
-  uchar s_showpref;                     ///< Show line prefixes?
-  uchar s_prefseg;                      ///< line prefixes with segment name?
+  uchar         s_showpref;             ///< Show line prefixes?
+  uchar         s_prefseg;              ///< line prefixes with segment name?
 
-  uchar asmtype;                        ///< target assembler number
-  uval_t baseaddr;                      ///< base address of the program (paragraphs)
+  uchar         asmtype;                ///< target assembler number
+  uval_t        baseaddr;               ///< base address of the program (paragraphs)
 
-  uchar s_xrefflag;                     ///< \ref SW_X
+  uchar         s_xrefflag;             ///< \ref SW_X
 /// \defgroup SW_X Xref options
 /// Used by idainfo::s_xrefflag
 //@{
@@ -281,8 +271,8 @@ struct idainfo
 #define SW_XRFVAL       0x08            ///< show xref values? (otherwise-"...")
 //@}
 
-  short binSize;                        ///< # of instruction bytes to show in line prefix
-  uchar s_cmtflg;                       ///< \ref SW_C
+  short         binSize;                ///< # of instruction bytes to show in line prefix
+  uchar         s_cmtflg;               ///< \ref SW_C
 /// \defgroup SW_C Comment options
 /// Used by idainfo::s_cmtflg
 //@{
@@ -295,7 +285,7 @@ struct idainfo
 #define SW_SHHID_FUNC   0x40            ///< show hidden functions
 #define SW_SHHID_SEGM   0x80            ///< show hidden segments
 //@}
-  char nametype;                        ///< \ref NM_
+  char          nametype;               ///< \ref NM_
 /// \defgroup NM_ Dummy names representation types
 /// Used by idainfo::nametype
 //@{
@@ -311,11 +301,11 @@ struct idainfo
 #define NM_SHORT        9
 #define NM_SERIAL       10
 //@}
-  uchar s_showbads;                     ///< show bad instructions?
+  uchar         s_showbads;             ///< show bad instructions?
                                         ///< an instruction is bad if it appears
                                         ///< in the \ash{badworks} array
 
-  uchar s_prefflag;                     ///< \ref PREF_
+  uchar         s_prefflag;             ///< \ref PREF_
 /// \defgroup PREF_ Line prefix options
 /// Used by idainfo::s_prefflag
 //@{
@@ -324,8 +314,8 @@ struct idainfo
 #define PREF_STACK      0x04            ///< show stack pointer?
 #define PREF_VARMARK    0x08            ///< show asterisk for variable addresses?
 //@}
-  uchar s_packbase;                     ///< pack database?
-  uchar asciiflags;                     ///< \ref ASCF_
+  uchar         s_packbase;             ///< pack database?
+  uchar         asciiflags;             ///< \ref ASCF_
 /// \defgroup ASCF_ ASCII string flags
 /// Used by idainfo::asciiflags
 //@{
@@ -336,7 +326,7 @@ struct idainfo
 #define ASCF_COMMENT    0x10            ///< generate auto comment for ascii references?
 #define ASCF_SAVECASE   0x20            ///< preserve case of ascii strings for identifiers
 //@}
-  uchar listnames;                      ///< \ref LN_
+  uchar         listnames;              ///< \ref LN_
 /// \defgroup LN_ Name list options
 /// Used by idainfo::listnames
 //@{
@@ -345,30 +335,30 @@ struct idainfo
 #define LN_AUTO         0x04            ///< include autogenerated names
 #define LN_WEAK         0x08            ///< include weak names
 //@}
-  char ASCIIpref[16];                   ///< ASCII names prefix
-  uval_t ASCIIsernum;                   ///< serial number
-  char ASCIIzeroes;                     ///< leading zeroes
-  uchar graph_view;                     ///< currently using graph options (\dto{graph})
-  uchar s_reserved5;                    ///< old memory model & calling convention
-  uchar tribyte_order;                  ///< tribyte_order_t: order of bytes in 3-byte items
-  bool mf;                              ///< Byte order: is MSB first?
-  bool s_org;                           ///< Generate 'org' directives?
-  bool s_assume;                        ///< Generate 'assume' directives?
-  uchar s_checkarg;                     ///< bit0: check manual operands? bit1: allow non-matched operands?
-  sel_t start_ss;                       ///< selector of the initial stack segment
-  sel_t start_cs;                       ///< selector of the segment with the main entry point
-  ea_t main;                            ///< address of main()
-  uint32 short_demnames;                ///< short form of demangled names
+  char          ASCIIpref[16];          ///< ASCII names prefix
+  uval_t        ASCIIsernum;            ///< serial number
+  char          ASCIIzeroes;            ///< leading zeroes
+  uchar         graph_view;             ///< currently using graph options (\dto{graph})
+  uchar         s_reserved5;            ///< old memory model & calling convention
+  uchar         tribyte_order;          ///< tribyte_order_t: order of bytes in 3-byte items
+  bool          mf;                     ///< Byte order: is MSB first?
+  bool          s_org;                  ///< Generate 'org' directives?
+  bool          s_assume;               ///< Generate 'assume' directives?
+  uchar         s_checkarg;             ///< bit0: check manual operands? bit1: allow non-matched operands?
+  sel_t         start_ss;               ///< selector of the initial stack segment
+  sel_t         start_cs;               ///< selector of the segment with the main entry point
+  ea_t          main;                   ///< address of main()
+  uint32         short_demnames;        ///< short form of demangled names
   EA64_ALIGN(align_short_demnames)
-  uint32 long_demnames;                 ///< long form of demangled names
+  uint32         long_demnames;         ///< long form of demangled names
                                         ///< see demangle.h for definitions
   EA64_ALIGN(align_long_demnames)
-  uval_t datatypes;                     ///< data types allowed in data carousel
+  uval_t        datatypes;              ///< data types allowed in data carousel
                                         ///< used in MakeData command.
-  int32 strtype;                        ///< current ascii string type
+  int32          strtype;               ///< current ascii string type
                                         ///< see nalt.hpp for string types
   EA64_ALIGN(align_strtype)
-  ushort af2;                           ///< \ref AF2_
+  ushort        af2;                    ///< \ref AF2_
 /// \defgroup AF2_ Analysis flags 2
 /// Used by idainfo::af2
 //@{
@@ -389,45 +379,46 @@ struct idainfo
 #define AF2_PURDAT      0x4000          ///< Control flow to data segment is ignored
 #define AF2_MEMFUNC     0x8000          ///< Try to guess member function types
 //@}
-  ushort namelen;                       ///< max name length (without zero byte)
-  ushort margin;                        ///< max length of data lines
-  ushort lenxref;                       ///< max length of line with xrefs
-  char lprefix[16];                     ///< prefix of local names
+  ushort        namelen;                ///< max name length (without zero byte)
+  ushort        margin;                 ///< max length of data lines
+  ushort        lenxref;                ///< max length of line with xrefs
+  char          lprefix[16];            ///< prefix of local names
                                         ///< if a new name has this prefix,
                                         ///< it will be automatically converted to a local name
-  uchar lprefixlen;                     ///< length of the lprefix
+  uchar         lprefixlen;             ///< length of the lprefix
   compiler_info_t cc;                   ///< Target compiler
-  uint32 database_change_count;         ///< incremented after each byte and regular
+  uint32        database_change_count;  ///< incremented after each byte and regular
                                         ///< segment modifications
-  uchar size_ldbl;                      ///< sizeof(long double) if different from \ph{tbyte_size}
-  uint32 appcall_options;               ///< appcall options, see idd.hpp
+  uchar         size_ldbl;              ///< sizeof(long double) if different from \ph{tbyte_size}
+  uint32        appcall_options;        ///< appcall options, see idd.hpp
 
-  char abiname[16];                     ///< ABI name. Processor specific field.
-  uint32 abibits;                       ///< ABI features. Depends on \ref inf{abiname}
-                                        ///< Processor modules may modify them in set_compiler
-
-#define ABI_8ALIGN4       0x00000001    ///< 4 byte alignment for 8byte scalars (__int64/double) inside structures?
-#define ABI_PACK_STKARGS  0x00000002    ///< do not align stack arguments to stack slots
-#define ABI_BIGARG_ALIGN  0x00000004    ///< use natural type alignment for argument if the alignment exceeds native word size
-                                        ///< (e.g. __int64 argument should be 8byte aligned on some 32bit platforms)
-#define ABI_STACK_LDBL    0x00000008    ///< long double areuments are passed on stack
-#define ABI_STACK_VARARGS 0x00000010    ///< varargs are always passed on stack (even when there are free registers)
-
-  bool is_mem_aligned4(void) const { return (abibits & ABI_8ALIGN4) != 0; }
-  bool pack_stkargs(void) const { return (abibits & ABI_PACK_STKARGS) != 0; }
-  bool big_arg_align(void) const { return (abibits & ABI_BIGARG_ALIGN) != 0; }
-  bool stack_ldbl() const { return (abibits & ABI_STACK_LDBL) != 0; }
-  bool stack_varargs() const { return (abibits & ABI_STACK_VARARGS) != 0; }
-
-  uchar refcmtnum;                      ///< Number of comment lines to
-                                        ///< generate for refs to ASCII string
-                                        ///< or demangled name
-                                        ///< 0 - such comments won't be
-                                        ///< generated at all
-
-  uchar reserved[34];                   ///< zero bytes for the future
+  uchar         reserved[55];           ///< 55 zero bytes for the future
                                         ///< total size: 256 bytes (for 32bit)
 
+  void init(void);
+  /// Init netnode ask user and upgrade the database in case it's and old one
+  static bool init_netnode(const char *file, size_t cachesize, bool can_modify);
+
+  bool retrieve(void);                  ///< Low level function to get this
+                                        ///< structure from the database
+  static int precheck_idb_version();    ///< Early version check, ask the user
+                                        ///< if the database is to be upgraded
+                                        ///< Returns: 0 if failed, version else
+
+  bool read(void);                      ///< High level function to get
+                                        ///< this structure from the database
+                                        ///< and convert to the current format
+  void write(void);                     ///< Write back to the database
+
+  static bool will_upgrade(int oldver); ///< Return FALSE if upgrade not allowed
+  static void approve_upgrade();        ///< Set flag: upgrade_approved
+
+  static void show_progress(uint32 x);  ///< Show an address on the autoanalysis indicator
+
+private:
+  static void convert_va_format();      ///< Patch VA v2.4 or lower
+
+  static bool upgrade_approved;         ///< TRUE if the user has approved database upgrade
 };
 
 idaman idainfo ida_export_data inf;     ///< program specific information
@@ -456,9 +447,9 @@ struct dual_text_options_t
   /// Initialize with default values
   void init(bool for_graph);
   /// Copy options to given inf object
-  void copy_to_inf(idainfo &_inf) const;
+  void copy_to_inf(idainfo &inf) const;
   /// Copy options from given inf object
-  void copy_from_inf(const idainfo &_inf);
+  void copy_from_inf(const idainfo &inf);
   /// Restore saved text options
   bool restore(bool for_graph);
   /// Save options to the database
@@ -574,9 +565,9 @@ inline char *idaapi ansi2idb(char *name)
 #endif
 
 /// Helper function for dual_text_options_t::copy_to_inf()
-idaman void ida_export dto_copy_to_inf(const dual_text_options_t *, idainfo *_inf);
+idaman void ida_export dto_copy_to_inf(const dual_text_options_t *, idainfo *inf);
 /// Helper function for dual_text_options_t::copy_from_inf()
-idaman void ida_export dto_copy_from_inf(dual_text_options_t *, const idainfo *_inf);
+idaman void ida_export dto_copy_from_inf(dual_text_options_t *, const idainfo *inf);
 /// Helper function for dual_text_options_t::init()
 idaman void ida_export dto_init(dual_text_options_t *dt, bool for_graph);
 

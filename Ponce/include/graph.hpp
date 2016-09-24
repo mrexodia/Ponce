@@ -177,7 +177,7 @@ struct edge_t
 {
   int src;  ///< source node number
   int dst;  ///< destination node number
-  idaapi edge_t(void) : src(0), dst(0) {}
+  idaapi edge_t(void) {}
   idaapi edge_t(int x, int y) : src(x), dst(y) {}
   bool idaapi operator < (const edge_t &y) const
     { return src < y.src || (src == y.src && dst < y.dst); }
@@ -248,7 +248,7 @@ struct graph_path_visitor_t
 struct point_t
 {
   int x, y;
-  point_t(void) : x(0), y(0) {}
+  point_t(void) {}
   point_t(int _x, int _y) : x(_x), y(_y) {}
   point_t &add(const point_t &r)
   {
@@ -304,7 +304,7 @@ struct rect_t
   int top;
   int right;
   int bottom;
-  rect_t(void) : left(0), top(0), right(0), bottom(0) {}
+  rect_t(void) {}
   rect_t(int l, int t, int r, int b) : left(l), top(t), right(r), bottom(b) {}
   rect_t(const point_t &p0, const point_t &p1)
     : left  (qmin(p0.x, p1.x)),
@@ -347,25 +347,17 @@ struct rect_t
   }
   void intersect(const rect_t &r)
   {
-    if ( left < r.left )
-      left = r.left;
-    if ( right > r.right )
-      right = r.right;
-    if ( top < r.top )
-      top = r.top;
-    if ( bottom > r.bottom )
-      bottom = r.bottom;
+    if ( left   < r.left   ) left   = r.left;
+    if ( right  > r.right  ) right  = r.right;
+    if ( top    < r.top    ) top    = r.top;
+    if ( bottom > r.bottom ) bottom = r.bottom;
   }
   void make_union(const rect_t &r)
   {
-    if ( left > r.left )
-      left = r.left;
-    if ( right < r.right )
-      right = r.right;
-    if ( top > r.top )
-      top = r.top;
-    if ( bottom < r.bottom )
-      bottom = r.bottom;
+    if ( left   > r.left   ) left   = r.left;
+    if ( right  < r.right  ) right  = r.right;
+    if ( top    > r.top    ) top    = r.top;
+    if ( bottom < r.bottom ) bottom = r.bottom;
   }
   bool empty(void) const
   {
@@ -396,8 +388,8 @@ struct rect_t
   bool idaapi operator != (const rect_t &r) const { return !(*this == r); }
   bool idaapi operator < (const rect_t &r) const;
 #ifdef VCL_H
-  const TRect &operator()(void) const { return *(TRect *)this; }
-        TRect &operator()(void)       { return *(TRect *)this; }
+  const TRect &operator()(void) const { return *(TRect *)this; };
+        TRect &operator()(void)       { return *(TRect *)this; };
   rect_t(const TRect &r) : left(r.left), top(r.top), right(r.right), bottom(r.bottom) {}
 #endif
 };
@@ -408,7 +400,7 @@ struct rect_t
 struct TPointDouble
 {
   double x, y;
-  TPointDouble(void) : x(0.0), y(0.0) {}
+  TPointDouble(void) {}
   TPointDouble(double a, double b) : x(a), y(b) {}
   TPointDouble(const point_t &r) : x(r.x), y(r.y) {}
   void add(const TPointDouble &r)
@@ -431,7 +423,7 @@ struct TPointDouble
     x /= d;
     y /= d;
   }
-  bool operator ==(const TPointDouble &r) const { return x == r.x && y == r.y; }  //-V550 An odd precise comparison: x == r.x
+  bool operator ==(const TPointDouble &r) const { return x == r.x && y == r.y; }
   bool operator !=(const TPointDouble &r) const { return !(*this == r); }
 };
 
@@ -457,15 +449,12 @@ struct edge_info_t
   int srcoff;         ///< source: edge port offset from the left
   int dstoff;         ///< destination: edge port offset from the left
   pointseq_t layout;  ///< describes geometry of edge
-#if !defined(_MSC_VER) || _MSC_VER >= 1600
   void idaapi reverse_layout(void) { std::reverse(&layout[0], &layout[layout.size()]); }
-#endif
   void idaapi add_layout_point(point_t p);
        idaapi edge_info_t(void) : color(-1), width(1), srcoff(-1), dstoff(-1) {}
 };
 
 /// Edge layout point
-//-V:edge_layout_point_t:690 lacks the '=' operator
 struct edge_layout_point_t
 {
   int pidx;      ///< index into edge_info_t::layout
@@ -498,7 +487,7 @@ struct selection_item_t
   bool is_node;            ///< represents a selected node?
   int node;                ///< node number (is_node = true)
   edge_layout_point_t elp; ///< edge layout point (is_node = false)
-  idaapi selection_item_t(void) : is_node(false), node(-1) {}
+  idaapi selection_item_t(void) {}
   idaapi selection_item_t(int n) : is_node(true), node(n) {}
   idaapi selection_item_t(edge_layout_point_t &_elp)
     : is_node(false), node(-1), elp(_elp) {}
@@ -613,24 +602,20 @@ struct interval_t
   bool empty(void) const { return x0 < x1; }
   void intersect(const interval_t &r)
   {
-    if ( x0 < r.x0 )
-      x0 = r.x0;
-    if ( x1 > r.x1 )
-      x1 = r.x1;
+    if ( x0 < r.x0 ) x0 = r.x0;
+    if ( x1 > r.x1 ) x1 = r.x1;
   }
   void make_union(const interval_t &r)
   {
-    if ( x0 > r.x0 )
-      x0 = r.x0;
-    if ( x1 < r.x1 )
-      x1 = r.x1;
+    if ( x0 > r.x0 ) x0 = r.x0;
+    if ( x1 < r.x1 ) x1 = r.x1;
   }
   void move_by(int shift)
   {
     x0 += shift;
     x1 += shift;
   }
-  interval_t(void) : x0(0), x1(0) {}
+  interval_t(void) {}
   interval_t(int y0, int y1)
   {
     x0 = qmin(y0, y1);
@@ -655,7 +640,7 @@ struct row_info_t
   int top;              ///< top y coord of the row
   int bottom;           ///< bottom y coord of the row
   int height(void) const { return bottom - top; }
-  row_info_t(void) : top(0), bottom(0) {}
+  row_info_t(void) : top(0) {}
 };
 typedef qvector<row_info_t> graph_row_info_t; ///< vector of row infos
 
@@ -786,7 +771,6 @@ public:
   idaapi abstract_graph_t(void)
     : rect_edges_made(false),
       current_layout(layout_none),
-      circle_radius(0),
       callback(NULL),
       callback_ud(NULL)
   {}
@@ -981,7 +965,7 @@ public:
   void idaapi set_custom_layout(void) const;
   bool idaapi get_graph_groups(void);
   void idaapi set_graph_groups(void) const;
-  virtual ea_t idaapi calc_group_ea(const intvec_t & /*nodes*/) { return BADADDR; }
+  virtual ea_t idaapi calc_group_ea(const intvec_t& /*nodes*/) { return BADADDR; }
 
   point_t idaapi calc_center_of(const intvec_t &nodes) const;
   void idaapi move_to_same_place(const intvec_t &collapsing_nodes, point_t p);
@@ -1384,7 +1368,7 @@ inline bool idaapi viewer_get_selection(graph_viewer_t *gv,
 
 /// Set height of node title bars (::grcode_set_titlebar_height)
 
-inline int idaapi viewer_set_titlebar_height(graph_viewer_t *gv,
+inline int  idaapi viewer_set_titlebar_height(graph_viewer_t *gv,
                                         int height)                          { return grentry(grcode_set_titlebar_height, gv, height); }
 
 
@@ -1398,27 +1382,27 @@ inline int idaapi viewer_set_titlebar_height(graph_viewer_t *gv,
 inline void idaapi delete_mutable_graph(mutable_graph_t *g)                  { grentry(grcode_delete_mutable_graph, g); }
 
 
-inline void idaapi mutable_graph_t::del_custom_layout(void)                   {        grentry(grcode_del_custom_layout, this); }
-inline void idaapi mutable_graph_t::set_custom_layout(void) const             {        grentry(grcode_set_custom_layout, this); }
-inline void idaapi mutable_graph_t::set_graph_groups(void) const              {        grentry(grcode_set_graph_groups, this); }
-inline void idaapi mutable_graph_t::clear(void)                               {        grentry(grcode_clear, this); }
-inline bool idaapi mutable_graph_t::create_digraph_layout(void)               { return grentry(grcode_create_digraph_layout, this) != 0; }
-inline bool idaapi abstract_graph_t::create_tree_layout(void)                 { return grentry(grcode_create_tree_layout, this) != 0; }
+inline void idaapi mutable_graph_t::del_custom_layout(void)                  {        grentry(grcode_del_custom_layout, this); }
+inline void idaapi mutable_graph_t::set_custom_layout(void) const            {        grentry(grcode_set_custom_layout, this); }
+inline void idaapi mutable_graph_t::set_graph_groups(void) const             {        grentry(grcode_set_graph_groups, this); }
+inline void idaapi mutable_graph_t::clear(void)                              {        grentry(grcode_clear, this); }
+inline bool idaapi mutable_graph_t::create_digraph_layout(void)              { return grentry(grcode_create_digraph_layout, this) != 0; }
+inline bool idaapi abstract_graph_t::create_tree_layout(void)                { return grentry(grcode_create_tree_layout, this) != 0; }
 inline bool idaapi abstract_graph_t::create_circle_layout(point_t c, int radius) { return grentry(grcode_create_circle_layout, this, c.x, c.y, radius) != 0; }
-inline int  idaapi mutable_graph_t::get_node_representative(int node)         { return grentry(grcode_get_node_representative, this, node); }
-inline int  idaapi mutable_graph_t::_find_subgraph_node(int gr, int n) const  { return grentry(grcode_find_subgraph_node, this, gr, n); }
-inline int  idaapi mutable_graph_t::create_group(const intvec_t &_nodes)      { return grentry(grcode_create_group, this, &_nodes); }
-inline bool idaapi mutable_graph_t::get_custom_layout(void)                   { return grentry(grcode_get_custom_layout, this) != 0; }
-inline bool idaapi mutable_graph_t::get_graph_groups(void)                    { return grentry(grcode_get_graph_groups, this) != 0; }
-inline bool idaapi mutable_graph_t::empty(void) const                         { return grentry(grcode_empty, this) != 0; }
-inline bool idaapi mutable_graph_t::is_visible_node(int node) const           { return grentry(grcode_is_visible_node, this, node) != 0; }
-inline bool idaapi mutable_graph_t::delete_group(int group)                   { return grentry(grcode_delete_group, this, group) != 0; }
-inline bool idaapi mutable_graph_t::change_group_visibility(int gr, bool exp) { return grentry(grcode_change_group_visibility, this, gr, exp) != 0; }
-inline bool idaapi mutable_graph_t::set_edge(edge_t e, const edge_info_t *ei) { return grentry(grcode_set_edge, this, e.src, e.dst, ei) != 0; }
-inline int  idaapi mutable_graph_t::node_qty(void) const                      { return grentry(grcode_node_qty, this); }
-inline rect_t &idaapi mutable_graph_t::nrect(int n)                           { rect_t *r; grentry(grcode_nrect, this, n, &r); return *r; }
+inline int  idaapi mutable_graph_t::get_node_representative(int node)        { return grentry(grcode_get_node_representative, this, node); }
+inline int  idaapi mutable_graph_t::_find_subgraph_node(int gr, int n) const { return grentry(grcode_find_subgraph_node, this, gr, n); }
+inline int  idaapi mutable_graph_t::create_group(const intvec_t &_nodes)     { return grentry(grcode_create_group, this, &_nodes); }
+inline bool idaapi mutable_graph_t::get_custom_layout(void)                  { return grentry(grcode_get_custom_layout, this) != 0; }
+inline bool idaapi mutable_graph_t::get_graph_groups(void)                   { return grentry(grcode_get_graph_groups, this) != 0; }
+inline bool idaapi mutable_graph_t::empty(void) const                        { return grentry(grcode_empty, this) != 0; }
+inline bool idaapi mutable_graph_t::is_visible_node(int node) const          { return grentry(grcode_is_visible_node, this, node) != 0; }
+inline bool idaapi mutable_graph_t::delete_group(int group)                  { return grentry(grcode_delete_group, this, group) != 0; }
+inline bool idaapi mutable_graph_t::change_group_visibility(int gr, bool exp){ return grentry(grcode_change_group_visibility, this, gr, exp) != 0; }
+inline bool idaapi mutable_graph_t::set_edge(edge_t e, const edge_info_t *ei){ return grentry(grcode_set_edge, this, e.src, e.dst, ei) != 0; }
+inline int  idaapi mutable_graph_t::node_qty(void) const                     { return grentry(grcode_node_qty, this); }
+inline rect_t &idaapi mutable_graph_t::nrect(int n)                          { rect_t *r; grentry(grcode_nrect, this, n, &r); return *r; }
 inline edge_infos_wrapper_t &idaapi edge_infos_wrapper_t::operator=(
-        const edge_infos_wrapper_t &other)                                    { grentry(grcode_copy_edge_infos, this, &other); return *this; }
+        const edge_infos_wrapper_t &other)                                   { grentry(grcode_copy_edge_infos, this, &other); return *this; }
 
 
 

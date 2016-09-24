@@ -285,7 +285,7 @@ idaman ssize_t ida_export tag_strlen(const char *line);
 /// \param buf      output buffer.
 ///                 if == NULL, then return -1.
 /// \param bufsize  size of output buffer.
-///                 \note passing 0 as bufsize parameter is now deprecated.
+///                 if == 0, then don't check size of output buffer.
 /// \return length of resulting string, -1 if error
 
 idaman ssize_t ida_export tag_remove(const char *instr, char *buf, size_t bufsize);

@@ -7,9 +7,6 @@
 
 #ifndef _EXPR_H
 #define _EXPR_H
-
-#include <idp.hpp>
-
 #pragma pack(push, 1)   // IDA uses 1 byte alignments!
 
 /*! \file expr.hpp
@@ -576,47 +573,6 @@ idaman THREAD_SAFE bool ida_export set_idc_func_ex(
         const char *args,
         int extfunc_flags);
 
-/// Possible syntax element highlighting style names
-enum syntax_highlight_style
-{
-  HF_DEFAULT = 0,
-  HF_KEYWORD1 = 1,
-  HF_KEYWORD2 = 2,
-  HF_KEYWORD3 = 3,
-  HF_STRING = 4,
-  HF_COMMENT = 5,
-  HF_PREPROC = 6,
-  HF_NUMBER = 7,
-
-  HF_MAX,
-};
-#define HF_FIRST HF_KEYWORD1
-
-struct highlighter_cbs_t
-{
-  virtual ~highlighter_cbs_t() {}
-  virtual void idaapi set_style(int32 /*start*/, int32 /*len*/, syntax_highlight_style /*style*/) {}
-  virtual int32 idaapi prev_block_state() { return 0; }
-  virtual int32 idaapi cur_block_state() { return 0; }
-  virtual void idaapi set_block_state(int32 /*state*/) {}
-};
-
-/// Base class for syntax highligters
-struct syntax_highlighter_t
-{
-public:
-  virtual ~syntax_highlighter_t() {}
-  /// Function for extlang syntax highlighting
-  /// \param context         implementation specific context. can be NULL
-  /// \param ighlighter_cbs  structure with set of callbacks
-  /// \param text            part of text to colorize
-  void (idaapi *highlight_block)(
-    void *context,
-    highlighter_cbs_t *highlighter_cbs,
-    const qstring &text);
-};
-
-
 //------------------------------------------------------------------------
 /// External language (to support third party language interpreters)
 struct extlang_t
@@ -773,8 +729,6 @@ struct extlang_t
         const char *file,
         char *errbuf,
         size_t errbufsize);
-
-  syntax_highlighter_t *highlighter; // Language syntax highlighter
 };
 typedef qvector<const extlang_t *> extlangs_t; ///< vector of external language descriptions
 
@@ -1259,8 +1213,8 @@ inline bool idaapi extlang_call_method_exists(void)
 {
   const extlang_t *el = extlang;
   return el != NULL
-      && el->size > qoffsetof(extlang_t, call_method)
-      && el->call_method != NULL;
+    && el->size > qoffsetof(extlang_t, call_method)
+    && el->call_method != NULL;
 }
 
 
@@ -1297,8 +1251,8 @@ inline bool idaapi extlang_run_statements_exists(const extlang_t *elang = NULL)
 {
   const extlang_t *el = elang == NULL ? extlang : elang;
   return el != NULL
-      && el->size > qoffsetof(extlang_t, run_statements)
-      && el->run_statements != NULL;
+    && el->size > qoffsetof(extlang_t, run_statements)
+    && el->run_statements != NULL;
 }
 
 /// Run statements using extlang.
@@ -1411,27 +1365,6 @@ idaman THREAD_SAFE uchar *ida_export get_idc_func_body(
 idaman void ida_export setup_lowcnd_regfuncs(idc_func_t *getreg, idc_func_t *setreg);
 
 //------------------------------------------------------------------------
-/// Extract type & data from the idc_value_t instance that
-/// was passed to parse_config_value().
-///
-/// \param vtype pointer to storage that will hold the type (\ref IDPOPT_T)
-/// \param vdata pointer to storage that contains the value (see \ref IDPOPT_T
-///              for what type of data is pointed to.)
-/// \param v the value holder
-/// \return true in case of success, false if 'v' is of unexpected type
-inline bool get_idptype_and_data(int *vtype, const void **vdata, const idc_value_t &v)
-{
-  switch ( v.vtype )
-  {
-    case VT_STR2:  *vtype = IDPOPT_STR, *vdata = v.c_str(); break;
-    case VT_LONG:  *vtype = IDPOPT_NUM; *vdata = &v.num; break;
-    case VT_WILD:  *vtype = IDPOPT_BIT; *vdata = &v.num; break;
-    case VT_INT64: *vtype = IDPOPT_I64; *vdata = &v.i64; break;
-    case VT_PVOID: *vtype = IDPOPT_CST; *vdata = v.pvoid; break;
-    default: return false;
-  }
-  return true;
-}
 
 
 

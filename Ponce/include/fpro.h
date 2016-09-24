@@ -138,7 +138,7 @@ idaman THREAD_SAFE int ida_export qrename(const char *oldfname, const char *newf
 /// \retval -4  write failure
 /// \retval -5  interrupted from the callback
 
-idaman THREAD_SAFE int ida_export qcopyfile(
+idaman THREAD_SAFE int   ida_export qcopyfile(
         const char *from,
         const char *to,
         bool overwrite = true,

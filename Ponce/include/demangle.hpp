@@ -43,7 +43,6 @@
 #define MT_MSFASTCALL 0x0000000A // A - __msfastcall (bc)
 #define MT_CLRCALL    0x0000000B // B - __clrcall (vc7)
 #define MT_DMDCALL    0x0000000C // C - __dcall (dm D language abi)
-#define MT_VECTORCALL 0x0000000D // D - __vectorcall (vc13)
 
 //   reserved
 #define MT_LOCALNAME  0x0000000F // f - might be function or data. Currently
@@ -65,10 +64,6 @@
                               // 255 - >= 255
 #define MT_PARSHF      8      // shift to PARMSK
 #define MT_PARMAX     0xFF    // Number limiter
-                              // ATT: when CC is __vectorcall and mode is 'C'
-                              //      real argscount is unknown. This number is
-                              //      total sizeof of all arguments divided to
-                              //      sizeof of defptr
 #define M_ELLIPSIS 0x00010000   // The function _certainly_ has '...'
 #define MT_VOIDARG  0x0001FF00  // If = 0, the func(void), i.e. no parameters
 #define M_STATIC   0x00020000   // static

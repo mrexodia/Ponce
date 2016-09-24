@@ -11,7 +11,6 @@
 #include <ua.hpp>
 #pragma pack(push, 4)
 
-
 /*! \file idd.hpp
 
   \brief Contains definition of the interface to IDD modules.
@@ -21,7 +20,7 @@
 */
 
 /// The IDD interface version number
-#define         IDD_INTERFACE_VERSION   20
+#define         IDD_INTERFACE_VERSION   19
 
 class idc_value_t;
 class tinfo_t;
@@ -305,7 +304,7 @@ struct exception_info_t
   qstring name;           ///< Exception standard name
   qstring desc;           ///< Long message used to display info about the exception
 
-  exception_info_t(void) : code(0), flags(0) {}
+  exception_info_t(void) {}
   exception_info_t(uint _code, uint32 _flags, const char *_name, const char *_desc)
     : code(_code), flags(_flags), name(_name), desc(_desc) {}
 };
@@ -677,30 +676,30 @@ struct debugger_t
   bool fake_memory(void) const
     { return (flags & DBG_FLAG_FAKE_MEMORY) != 0; }
 
-  const char **register_classes;             ///< Array of register class names
-  int register_classes_default;              ///< Mask of default printed register classes
-  register_info_t *_registers;               ///< Array of registers. Use registers() to access it
-  int registers_size;                        ///< Number of registers
+  const char    **register_classes;         ///< Array of register class names
+  int             register_classes_default; ///< Mask of default printed register classes
+  register_info_t *_registers;              ///< Array of registers. Use registers() to access it
+  int             registers_size;           ///< Number of registers
 
-  int memory_page_size;                      ///< Size of a memory page
+  int             memory_page_size;         ///< Size of a memory page
 
-  const uchar *bpt_bytes;                    ///< Array of bytes for a breakpoint instruction
-  uchar bpt_size;                            ///< Size of this array
-  uchar filetype;                            ///< for miniidbs: use this value
-                                             ///< for the file type after attaching
-                                             ///< to a new process
-  ushort resume_modes;                       ///< \ref DBG_RESMOD_
+  const uchar     *bpt_bytes;               ///< Array of bytes for a breakpoint instruction
+  uchar            bpt_size;                ///< Size of this array
+  uchar            filetype;                ///< for miniidbs: use this value
+                                            ///< for the file type after attaching
+                                            ///< to a new process
+  ushort           resume_modes;            ///< \ref DBG_RESMOD_
 /// \defgroup DBG_RESMOD_ Resume modes
 /// Used by debugger_t::resume_modes
 //@{
-#define DBG_RESMOD_STEP_INTO      0x0001     ///< ::RESMOD_INTO is available
-#define DBG_RESMOD_STEP_OVER      0x0002     ///< ::RESMOD_OVER is available
-#define DBG_RESMOD_STEP_OUT       0x0004     ///< ::RESMOD_OUT is available
-#define DBG_RESMOD_STEP_SRCINTO   0x0008     ///< ::RESMOD_SRCINTO is available
-#define DBG_RESMOD_STEP_SRCOVER   0x0010     ///< ::RESMOD_SRCOVER is available
-#define DBG_RESMOD_STEP_SRCOUT    0x0020     ///< ::RESMOD_SRCOUT is available
-#define DBG_RESMOD_STEP_USER      0x0040     ///< ::RESMOD_USER is available
-#define DBG_RESMOD_STEP_HANDLE    0x0080     ///< ::RESMOD_HANDLE is available
+#define DBG_RESMOD_STEP_INTO      0x0001    ///< ::RESMOD_INTO is available
+#define DBG_RESMOD_STEP_OVER      0x0002    ///< ::RESMOD_OVER is available
+#define DBG_RESMOD_STEP_OUT       0x0004    ///< ::RESMOD_OUT is available
+#define DBG_RESMOD_STEP_SRCINTO   0x0008    ///< ::RESMOD_SRCINTO is available
+#define DBG_RESMOD_STEP_SRCOVER   0x0010    ///< ::RESMOD_SRCOVER is available
+#define DBG_RESMOD_STEP_SRCOUT    0x0020    ///< ::RESMOD_SRCOUT is available
+#define DBG_RESMOD_STEP_USER      0x0040    ///< ::RESMOD_USER is available
+#define DBG_RESMOD_STEP_HANDLE    0x0080    ///< ::RESMOD_HANDLE is available
 //@}
   bool is_resmod_avail(int resmod) const
     { return (resume_modes & (1 << (resmod - 1))) != 0; }
@@ -768,13 +767,10 @@ struct debugger_t
   /// Attach to an existing running process.
   /// event_id should be equal to -1 if not attaching to a crashed process.
   /// This function is called from debthread.
-  /// \param pid               process id to attach
-  /// \param event_id          event to trigger upon attaching
-  /// \param dbg_proc_flags    \ref DBG_PROC_
   /// \retval  1  ok
   /// \retval  0  failed
   /// \retval -1  network error
-  int (idaapi *attach_process)(pid_t pid, int event_id, int dbg_proc_flags);
+  int (idaapi *attach_process)(pid_t pid, int event_id);
 
   /// Detach from the debugged process.
   /// May be called while the process is running or suspended.
@@ -1108,8 +1104,8 @@ struct debugger_t
 };
 
 #ifndef NO_OBSOLETE_FUNCS
-//DEPRECATED typedef thid_t thread_id_t;
-//DEPRECATED typedef pid_t process_id_t;
+DEPRECATED typedef thid_t thread_id_t;
+DEPRECATED typedef pid_t process_id_t;
 #define PROCESS_NO_THREAD 0          // No thread
 DEPRECATED struct idd_opinfo_old_t { ea_t addr; uval_t value;  bool modified; };
 idaman DEPRECATED error_t ida_export appcall(ea_t func_ea, thid_t tid, const type_t *type, const p_list *fields, int argnum, idc_value_t *argv, idc_value_t *r);

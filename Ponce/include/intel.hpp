@@ -1,13 +1,24 @@
 /*
  *      Interactive disassembler (IDA).
- *      Copyright (c) 1990-2015 Hex-Rays
+ *      Copyright (c) 1990-2008 Hex-Rays
  *      ALL RIGHTS RESERVED.
  *
  */
 
 #ifndef _INTEL_HPP
 #define _INTEL_HPP
+
+#include "../module/idaidp.hpp"
+#include <idd.hpp>
+#include <dbg.hpp>
+#include <ieee.h>
+#include <ints.hpp>
+#include <fixup.hpp>
+#include <frame.hpp>
+#include <struct.hpp>
+#include <srarea.hpp>
 #include <typeinf.hpp>
+#include <demangle.hpp>
 #include <allins.hpp>
 
 #pragma pack(push, 4)
@@ -33,12 +44,6 @@ inline bool tasm_ideal(void)  { return (ash.flag2 & AS2_IDEALDSCR) != 0; }
 #define aux_natad       0x1000  // addressing mode is not overridden by prefix
 #define aux_fpemu       0x2000  // FP emulator instruction
 #define aux_vexpr       0x4000  // VEX-encoded instruction
-#define aux_bnd         0x8000  // MPX-encoded instruction
-
-//---------------------------------
-// Intel 80x86 cmd.auxpref2 bits
-#define aux2_evex       0x01    // EVEX-encoded instruction
-#define aux2_xop        0x02    // XOP-encoded instruction
 
 //---------------------------------
 // operand types and other customization:
@@ -49,8 +54,6 @@ inline bool tasm_ideal(void)  { return (ash.flag2 & AS2_IDEALDSCR) != 0; }
 #define o_mmxreg        o_idpspec4      // IDP specific type
 #define o_xmmreg        o_idpspec5      // xmm register
 #define o_ymmreg        o_idpspec5+1    // ymm register
-#define o_zmmreg        o_idpspec5+2    // zmm register
-#define o_kreg          o_idpspec5+3    // opmask register
 
 // 04.10.97: For o_mem,o_near,o_far we keep segment information as
 // segrg - number of segment register to use
@@ -66,19 +69,7 @@ inline bool tasm_ideal(void)  { return (ash.flag2 & AS2_IDEALDSCR) != 0; }
 #define sib             specflag2
 #define rex             insnpref        // REX byte for 64-bit mode, or bits from the VEX byte if vexpr()
 
-// Op6 is used for opmask registers in EVEX.
-// specflags from Op6 are used to extend cmd.
-#define auxpref2        Op6.specflag1   // 8 bits for extended auxpref
-#define evex_flags      Op6.specflag2   // bits from the EVEX byte if evexpr()
-
 #define cr_suff         specflag1       // o_crreg: D suffix for cr registers (used for CR8D)
-
-// bits in cmd.evex_flags:
-const int EVEX_R = 0x01;           // High-16 register specifier modifier
-const int EVEX_L = 0x02;           // Vector length/RC
-const int EVEX_z = 0x04;           // Zeroing/Merging
-const int EVEX_b = 0x08;           // Broadcast/RC/SAE Context
-const int EVEX_V = 0x10;           // High-16 NDS/VIDX register specifier
 
 // bits in cmd.rex:
 const int REX_W = 8;               // 64-bit operand size
@@ -204,87 +195,6 @@ enum RegNo
   R_ymm14 = 95,
   R_ymm15 = 96,
 
-  R_bnd0 = 97, // MPX registers
-  R_bnd1 = 98,
-  R_bnd2 = 99,
-  R_bnd3 = 100,
-
-  R_xmm16 = 101, // AVX-512 extended XMM registers
-  R_xmm17 = 102,
-  R_xmm18 = 103,
-  R_xmm19 = 104,
-  R_xmm20 = 105,
-  R_xmm21 = 106,
-  R_xmm22 = 107,
-  R_xmm23 = 108,
-  R_xmm24 = 109,
-  R_xmm25 = 110,
-  R_xmm26 = 111,
-  R_xmm27 = 112,
-  R_xmm28 = 113,
-  R_xmm29 = 114,
-  R_xmm30 = 115,
-  R_xmm31 = 116,
-
-  R_ymm16 = 117, // AVX-512 extended YMM registers
-  R_ymm17 = 118,
-  R_ymm18 = 119,
-  R_ymm19 = 120,
-  R_ymm20 = 121,
-  R_ymm21 = 122,
-  R_ymm22 = 123,
-  R_ymm23 = 124,
-  R_ymm24 = 125,
-  R_ymm25 = 126,
-  R_ymm26 = 127,
-  R_ymm27 = 128,
-  R_ymm28 = 129,
-  R_ymm29 = 130,
-  R_ymm30 = 131,
-  R_ymm31 = 132,
-
-  R_zmm0 = 133, // AVX-512 ZMM registers
-  R_zmm1 = 134,
-  R_zmm2 = 135,
-  R_zmm3 = 136,
-  R_zmm4 = 137,
-  R_zmm5 = 138,
-  R_zmm6 = 139,
-  R_zmm7 = 140,
-  R_zmm8 = 141,
-  R_zmm9 = 142,
-  R_zmm10 = 143,
-  R_zmm11 = 144,
-  R_zmm12 = 145,
-  R_zmm13 = 146,
-  R_zmm14 = 147,
-  R_zmm15 = 148,
-  R_zmm16 = 149,
-  R_zmm17 = 150,
-  R_zmm18 = 151,
-  R_zmm19 = 152,
-  R_zmm20 = 153,
-  R_zmm21 = 154,
-  R_zmm22 = 155,
-  R_zmm23 = 156,
-  R_zmm24 = 157,
-  R_zmm25 = 158,
-  R_zmm26 = 159,
-  R_zmm27 = 160,
-  R_zmm28 = 161,
-  R_zmm29 = 162,
-  R_zmm30 = 163,
-  R_zmm31 = 164,
-
-  R_k0 = 165, // AVX-512 opmask registers
-  R_k1 = 166,
-  R_k2 = 167,
-  R_k3 = 168,
-  R_k4 = 169,
-  R_k5 = 160,
-  R_k6 = 171,
-  R_k7 = 172,
-
   R_last,
 };
 
@@ -292,7 +202,7 @@ inline bool is_segreg(int r) { return r >= R_es && r <= R_gs; }
 inline bool is_fpureg(int r) { return r >= R_st0 && r <= R_st7; }
 inline bool is_mmxreg(int r) { return r >= R_mm0 && r <= R_mm7; }
 inline bool is_xmmreg(int r) { return r >= R_xmm0 && r <= R_xmm15; }
-inline bool is_ymmreg(int r) { return r >= R_ymm0 && r <= R_ymm15; }
+inline bool is_ymm_reg(int r) { return r >= R_ymm0 && r <= R_ymm15; }
 
 int cvt_to_wholereg(int _reg, bool allow_high_byte_regs); // byte reg -> whole reg
 int calc_dbg_reg_index(const char *name);
@@ -382,14 +292,12 @@ inline bool insn_default_opsize_64(void)
   return false;
 }
 
-inline bool mode16(void)  { return (cmd.auxpref & (aux_use32|aux_use64)) == 0; } // 16-bit mode?
-inline bool mode32(void)  { return (cmd.auxpref & aux_use32) != 0; } // 32-bit mode?
-inline bool mode64(void)  { return (cmd.auxpref & aux_use64) != 0; } // 64-bit mode?
-inline bool natad(void)   { return (cmd.auxpref & aux_natad) != 0; } // natural address size (no prefixes)?
-inline bool natop(void)   { return (cmd.auxpref & aux_natop) != 0; } // natural operand size (no prefixes)?
-inline bool vexpr(void)   { return (cmd.auxpref & aux_vexpr) != 0; } // VEX encoding used
-inline bool evexpr(void)  { return (cmd.auxpref2 & aux2_evex) != 0; } // EVEX encoding used
-inline bool xopexpr(void) { return (cmd.auxpref2 & aux2_xop) != 0; } // XOP encoding used
+inline bool mode16(void){ return (cmd.auxpref & (aux_use32|aux_use64)) == 0; } // 16-bit mode?
+inline bool mode32(void){ return (cmd.auxpref & aux_use32) != 0; } // 32-bit mode?
+inline bool mode64(void){ return (cmd.auxpref & aux_use64) != 0; } // 64-bit mode?
+inline bool natad(void) { return (cmd.auxpref & aux_natad) != 0; } // natural address size (no prefixes)?
+inline bool natop(void) { return (cmd.auxpref & aux_natop) != 0; } // natural operand size (no prefixes)?
+inline bool vexpr(void) { return (cmd.auxpref & aux_vexpr) != 0; } // VEX encoding used
 
 inline bool ad16(void)          // is current addressing 16-bit?
 {
@@ -442,17 +350,9 @@ inline bool op64(void)          // is current operand size 64-bit?
 #endif
 }
 
-inline bool op256(void)        // is VEX.L == 1 or EVEX.L'L == 01?
+inline bool op256(void)        // is VEX.L set?
 {
-  return (cmd.rex & VEX_L) != 0
-      && (vexpr()
-       || xopexpr()
-       || evexpr() && (cmd.evex_flags & EVEX_L) == 0);
-}
-
-inline bool op512(void)        // is EVEX.L'L == 10?
-{
-  return evexpr() && (cmd.rex & VEX_L) == 0 && (cmd.evex_flags & EVEX_L) != 0;
+  return vexpr() && (cmd.rex & VEX_L) != 0;
 }
 
 inline bool is_vsib(void)  // does instruction use VSIB variant of the sib byte?
@@ -467,99 +367,9 @@ inline bool is_vsib(void)  // does instruction use VSIB variant of the sib byte?
     case NN_vpgatherdq:
     case NN_vpgatherqd:
     case NN_vpgatherqq:
-
-    case NN_vscatterdps:
-    case NN_vscatterdpd:
-    case NN_vscatterqps:
-    case NN_vscatterqpd:
-    case NN_vpscatterdd:
-    case NN_vpscatterdq:
-    case NN_vpscatterqd:
-    case NN_vpscatterqq:
-
-    case NN_vgatherpf0dps:
-    case NN_vgatherpf0qps:
-    case NN_vgatherpf0dpd:
-    case NN_vgatherpf0qpd:
-    case NN_vgatherpf1dps:
-    case NN_vgatherpf1qps:
-    case NN_vgatherpf1dpd:
-    case NN_vgatherpf1qpd:
-
-    case NN_vscatterpf0dps:
-    case NN_vscatterpf0qps:
-    case NN_vscatterpf0dpd:
-    case NN_vscatterpf0qpd:
-    case NN_vscatterpf1dps:
-    case NN_vscatterpf1qps:
-    case NN_vscatterpf1dpd:
-    case NN_vscatterpf1qpd:
       return true;
   }
   return false;
-}
-
-inline regnum_t vsib_index_fixreg(regnum_t index)
-{
-  switch ( cmd.itype )
-  {
-    case NN_vscatterdps:
-    case NN_vscatterqps:
-    case NN_vscatterqpd:
-    case NN_vpscatterdd:
-    case NN_vpscatterqd:
-    case NN_vpscatterqq:
-
-    case NN_vpgatherdd:
-    case NN_vpgatherqd:
-    case NN_vpgatherqq:
-    case NN_vgatherdps:
-    case NN_vgatherqps:
-    case NN_vgatherqpd:
-      if ( index > 15 )
-        index += op512() ? R_zmm0 : op256() ? (R_ymm16 - 16) : (R_xmm16 - 16);
-      else
-        index += op512() ? R_zmm0 : op256() ? R_ymm0 : R_xmm0;
-      break;
-
-    case NN_vscatterdpd:
-    case NN_vpscatterdq:
-
-    case NN_vgatherdpd:
-    case NN_vpgatherdq:
-      if ( index > 15 )
-        index += op512() ? (R_ymm16 - 16) : (R_xmm16 - 16);
-      else
-        index += op512() ? R_ymm0 : R_xmm0;
-      break;
-
-    case NN_vgatherpf0dps:
-    case NN_vgatherpf0qps:
-    case NN_vgatherpf0qpd:
-    case NN_vgatherpf1dps:
-    case NN_vgatherpf1qps:
-    case NN_vgatherpf1qpd:
-
-    case NN_vscatterpf0dps:
-    case NN_vscatterpf0qps:
-    case NN_vscatterpf0qpd:
-    case NN_vscatterpf1dps:
-    case NN_vscatterpf1qps:
-    case NN_vscatterpf1qpd:
-      index += R_zmm0;
-      break;
-
-    case NN_vgatherpf0dpd:
-    case NN_vgatherpf1dpd:
-    case NN_vscatterpf0dpd:
-    case NN_vscatterpf1dpd:
-      if ( index > 15 )
-        index += R_ymm16 - 16;
-      else
-        index += R_ymm0;
-      break;
-  }
-  return index;
 }
 
 inline int sib_base(const op_t &x)                    // get extended sib base
@@ -576,15 +386,11 @@ inline regnum_t sib_index(const op_t &x)                   // get extended sib i
 {
   regnum_t index = regnum_t((x.sib >> 3) & 7);
 #ifdef __EA64__
-  if ( (cmd.rex & REX_X) != 0 )
+  if ( cmd.rex & REX_X )
     index |= 8;
 #endif
   if ( is_vsib() )
-  {
-    if ( (cmd.evex_flags & EVEX_V) != 0 )
-      index |= 16;
-    index = vsib_index_fixreg(index);
-  }
+    index += op256() ? R_ymm0 : R_xmm0;
   return index;
 }
 
@@ -703,7 +509,12 @@ inline void del_ret_target(ea_t ea)
   intel_node.altdel(ea, ret_tag);
 }
 
-extern uint32 idpflags;                 // name: "$ idpflags"
+extern bool loading_complete;
+extern bgcolor_t prolog_color;
+extern bgcolor_t epilog_color;
+extern bgcolor_t switch_color;
+extern int max_simplex_size;
+extern uint32 idpflags;                  // name: "$ idpflags"
 
 #define AFIDP_PUSH      0x0001          // push seg; push num; is converted to offset
 #define AFIDP_NOP       0x0002          // db 90h after jmp is converted to nop
@@ -733,21 +544,24 @@ extern uint32 idpflags;                 // name: "$ idpflags"
                                         //      call <func>
                                         //      int 3 <- this is likely a no-return guard
 
-inline bool should_af_push(void)     { return (idpflags & AFIDP_PUSH) != 0; }
-inline bool should_af_nop(void)      { return (idpflags & AFIDP_NOP) != 0; }
-inline bool should_af_movoff(void)   { return (idpflags & AFIDP_MOVOFF) != 0; }
-inline bool should_af_movoff2(void)  { return (idpflags & AFIDP_MOVOFF2) != 0; }
-inline bool should_af_zeroins(void)  { return (idpflags & AFIDP_ZEROINS) != 0; }
-inline bool should_af_brtti(void)    { return (idpflags & AFIDP_BRTTI) != 0; }
-inline bool should_af_urtti(void)    { return (idpflags & AFIDP_UNKRTTI) != 0; }
-inline bool should_af_fexp(void)     { return (idpflags & AFIDP_EXPFUNC) != 0; }
-inline bool should_af_difbase(void)  { return (idpflags & AFIDP_DIFBASE) != 0; }
-inline bool should_af_nopref(void)   { return (idpflags & AFIDP_NOPREF) != 0; }
-inline bool should_af_vxd(void)      { return (idpflags & AFIDP_NOVXD) == 0; }
-inline bool should_af_fpemu(void)    { return (idpflags & AFIDP_NOFPEMU) == 0; }
-inline bool should_af_showrip(void)  { return (idpflags & AFIDP_SHOWRIP) != 0; }
-inline bool should_af_seh(void)      { return (idpflags & AFIDP_NOSEH) == 0; }
+inline bool should_af_push(void)   { return (idpflags & AFIDP_PUSH) != 0; }
+inline bool should_af_nop(void)    { return (idpflags & AFIDP_NOP) != 0; }
+inline bool should_af_movoff(void) { return (idpflags & AFIDP_MOVOFF) != 0; }
+inline bool should_af_movoff2(void){ return (idpflags & AFIDP_MOVOFF2) != 0; }
+inline bool should_af_zeroins(void){ return (idpflags & AFIDP_ZEROINS) != 0; }
+inline bool should_af_brtti(void)  { return (idpflags & AFIDP_BRTTI) != 0; }
+inline bool should_af_urtti(void)  { return (idpflags & AFIDP_UNKRTTI) != 0; }
+inline bool should_af_fexp(void)   { return (idpflags & AFIDP_EXPFUNC) != 0; }
+inline bool should_af_difbase(void){ return (idpflags & AFIDP_DIFBASE) != 0; }
+inline bool should_af_nopref(void) { return (idpflags & AFIDP_NOPREF) != 0; }
+inline bool should_af_vxd(void)    { return (idpflags & AFIDP_NOVXD) == 0; }
+inline bool should_af_fpemu(void)  { return (idpflags & AFIDP_NOFPEMU) == 0; }
+inline bool should_af_showrip(void){ return (idpflags & AFIDP_SHOWRIP) != 0; }
+inline bool should_af_seh(void)    { return (idpflags & AFIDP_NOSEH) == 0; }
 inline bool should_af_int3stop(void) { return (idpflags & AFIDP_INT3STOP) != 0; }
+
+inline int indent_spaces(size_t sz) { int len = inf.indent - sz;
+                                         return (len < 1) ? 1 : len; }
 
 // the second operand of lea instruction should not be treated as memory reference
 // unless there is cs: prefix or the user has specified 'offset' flag
@@ -797,7 +611,38 @@ inline bool is_volatile_reg(int r)
       && r != R_r15;
 }
 
+
+
 //------------------------------------------------------------------
+inline sel_t getDS(ea_t EA) { return get_segreg(EA,R_ds); }
+inline sel_t getES(ea_t EA) { return get_segreg(EA,R_es); }
+inline sel_t getSS(ea_t EA) { return get_segreg(EA,R_ss); }
+inline sel_t getFS(ea_t EA) { return get_segreg(EA,R_fs); }
+inline sel_t getGS(ea_t EA) { return get_segreg(EA,R_gs); }
+
+//------------------------------------------------------------------
+
+void idaapi intel_header(void);
+void idaapi intel_footer(void);
+
+void idaapi intel_assumes(ea_t ea);
+void idaapi intel_segstart(ea_t ea);
+void idaapi intel_segend(ea_t ea);
+
+void idaapi intel_out(void);
+void idaapi gen_stkvar_def(char *buf, size_t bufsize, const member_t *mptr, sval_t v);
+ssize_t idaapi get_type_name(flags_t flag, ea_t ea_or_id, char *buf, size_t bufsize);
+int idaapi is_align_insn(ea_t ea);
+ea_t get_segval(const op_t &x);
+ea_t get_mem_ea(const op_t &x);
+int get_imm_outf(const op_t &x);
+int get_displ_outf(const op_t &x);
+
+void idaapi pc_data(ea_t ea);
+int  idaapi pc_ana(void);
+int  idaapi pc_emu(void);
+bool idaapi pc_outop(op_t &op);
+
 struct pushreg_t
 {
   ea_t     ea;    // instruction ea
@@ -808,7 +653,7 @@ struct pushreg_t
 
 struct pushinfo_t
 {
-  enum { PUSHINFO_VERSION = 4 };
+  enum { PUSHINFO_VERSION = 3 };
   int flags;
 #define PINF_SEHCALL    0x0001  // call to SEH_prolog is present
 #define PINF_SEHMAN     0x0002  // Manual SEH setup
@@ -860,8 +705,6 @@ struct pushinfo_t
                                 // see PINF_BPOFF for that
   int xmm_nsaved;               // number of saved xmm regs
   int reg_nsaved;               // number of saved general purpose regs
-
-  qvector<pushreg_t> msi;       // register save on stack instructions
   int cb;                       // // size of this structure
 
   pushinfo_t(void)
@@ -891,13 +734,129 @@ enum spec_func_type_t
 
 spec_func_type_t get_spec_func_type(ea_t callee, sval_t *p_delta);
 
+int spoils(const uint32 *regs, int n);
+inline bool spoils(int _reg)
+{
+  uint32 r = _reg;
+  return spoils(&r, 1) != -1;
+}
 inline int pc_shadow_area_size()
 {
   return (inf.is_64bit() && default_compiler() == COMP_MS) ? 4 * 8 : 0;
 }
+bool find_reg_value(int _reg, sval_t *v, bool only_lea = false);
+bool idaapi is_switch ( switch_info_ex_t *si );
+bool idaapi equal_ops(const op_t &x, const op_t &y);
+int  idaapi sp_based(const op_t &x);
+bool is_sp_based(const op_t &x);
+bool idaapi create_func_frame(func_t *pfn);
+int  idaapi is_jump_func(func_t *pfn, ea_t *jump_target, ea_t *func_pointer);
+bool is_alloca_probe(const char *name);
+bool is_stack_changing_func(const char *name);
+bool is_stack_changing_func(ea_t ea);
+void check_new_name(ea_t ea, const char *name);
+bool verify_sp(func_t *pfn);
+ea_t find_callee(bool *p_is_ptr=NULL);
+int pc_calc_purged_from_type(const tinfo_t &tif);
+int pc_calc_purged_from_type(const func_type_data_t &fti);
+bool pc_calc_arglocs(func_type_data_t *fti);
+bool pc_calc_varglocs(
+        func_type_data_t *fti,
+        regobjs_t *regargs,
+        int nfixed);
+bool pc_compare_arglocs(const argloc_t &v1, const argloc_t &v2);
+bool pc_calc_retloc(const tinfo_t &tif, cm_t cc, argloc_t *retloc);
+bool pc_use_stkvar_type(ea_t ea, const funcarg_t &fa);
+int pc_use_regarg_type(ea_t ea, const funcargvec_t &rargs);
+void use_pc_arg_types(
+        ea_t ea,
+        func_type_data_t *fti,
+        funcargvec_t *rargs);
+int get_varcall_regs(callregs_t *callregs);
+int get_fastcall_regs(callregs_t *callregs);
+int get_thiscall_regs(callregs_t *callregs);
+int calc_cdecl_purged_bytes(ea_t ea);
+sval_t calc_sp_delta(void);
+uval_t analyze_frame(
+        func_t *pfn,
+        bool *p_bpused,
+        uval_t *p_fpd,
+        uval_t *p_preregs,
+        uval_t *p_postregs,
+        sval_t *p_argsize,
+        sval_t sym_jmps[2]);
+void handle_pending_frame_analyses(void);
+void del_additional_frame_info(func_t *pfn);
+bool calc_func_call_delta(func_t *caller, ea_t callee, sval_t *p_delta, spec_func_type_t *p_functype);
+sval_t calc_ebp_phrase(func_t *pfn, op_t &x);
+bool is_ret_itype(ushort itype);
+bool is_pc_return(bool strict);
+bool is_move_insn(void);
+void setup_til(void);
+bool loader_is_xbe(void);
+bool is_userland_app(void);
+bool is_userland_pe(void);
+bool is_efi_pe(void);
+//------------------------------
+struct vxd_info       // loaded from ida.int
+{
+  ushort sp_off;      // bytes purge upon return
+  ushort prm_pos;     // offset in strings to params (0 if none)
+  ushort cmt_pos;     // offset in strings to comment (0 if none)
+  char   strings[MAXSTR]; // name [param] [comment]
+};
 
-struct regval_t;
+bool is_vxd_interrupt(void);
+bool vxd_information(vxd_info *vx);
+void pc_move_segm(ea_t from, const segment_t *s);
+void pc_erase_info(ea_t ea1, ea_t ea2);
+
 typedef const regval_t &idaapi getreg_t(const char *name, const regval_t *regvalues);
+
+#ifdef NO_OBSOLETE_FUNCS
+bool pc_get_operand_info(
+        ea_t ea,
+        int n,
+        int tid,
+        getreg_t *getreg,
+        const regval_t *regvalues,
+        idd_opinfo_t *opinf);
+#endif
+bool calc_opval(
+        op_t &op,
+        int tid,
+        getreg_t *getreg,
+        const regval_t *rv,
+        idd_opinfo_t *opinf);
+bool calc_sreg_base(int tid, int sreg_value, ea_t *base);
+uval_t getr(int _reg, char dtyp, getreg_t *getreg, const regval_t *rv);
+//------------------------------
+bool borland_template(va_list va);
+int  borland_coagulate(va_list va);
+void borland_signature(void);
+//-------------------------------
+ea_t get_codeseq_target(ea_t ea, ea_t eea);
+void cover_func_finalize(func_t *pf);
+void compiler_finalize(void);
+bool is_sane_insn(int reason);
+int  may_be_func(bool creating_chunks=false);
+bool validate_flirt_func(ea_t ea);
+bool might_change_sp(ea_t ea);
+void parse_func_seh(func_t *pfn);
+void reattach_handler_block(ea_t ea, ea_t handler_start = BADADDR);
+bool label_seh_table(ea_t from, ea_t to);
+int map_to_fullreg(int regnum);
+ssize_t pc_get_reg_name(int _reg, size_t width, char *buf, size_t bufsize, int reghi);
+ssize_t pc_get_one_reg_name(int _reg, size_t width, char *outbuf, size_t bufsize);
+void parse_linux_syscall(char *params);
+int is_get_pc_thunk(ea_t *p_end=NULL);
+//----------------------------------------------------------------------
+bool is_segment_normal(ea_t ea);
+bool is_seh_entry(ea_t ea);
+bool is_local_label(ea_t ea);
+void del_func_seh(func_t *pfn);
+
+#define INFO_TAG  'B'
 
 // Structure where information about a mmx/xmm/ymm type is returned
 struct mmtype_t
@@ -954,16 +913,18 @@ namespace pc_module_t
                         // Returns: number of found types+1
                         //          -1-type exists but is wrong
                         // If name==NULL, initialize all mmx/xmm/ymm types
-    is_get_pc_thunk,    // Detect get_pc_thunk calls
-                        // in: const insn_t *ins
-                        //     RegNo *p_reg,
-                        //     ea_t *p_end
-                        // returns: 2-found, -1-not found, 1-not implemented
   };
 }
 
 //-------------------------------------------------------------------------
-// Don't use the following define's with underscores at the start!
+
+//
+//      Don't use the following define's with underscores at the start!
+//
+
+extern int procnum;     // internal processor number
+extern uint32 pflag;
+
 #define _PT_486p        0x00000001
 #define _PT_486r        0x00000002
 #define _PT_386p        0x00000004
@@ -1013,24 +974,23 @@ namespace pc_module_t
 //   The following values mean 'is exactly XXX processor?'
 //
 
-#define PT_ismmx        (_PT_mmx            )
-#define PT_is686        (_PT_686r | _PT_686p)
-#define PT_is586        (_PT_586r | _PT_586p)
-#define PT_is486        (_PT_486r | _PT_486p)
-#define PT_is386        (_PT_386r | _PT_386p)
-#define PT_is286        (_PT_286r | _PT_286p)
-#define PT_is086        (_PT_086)
+#define PT_ismmx        ( _PT_mmx             )
+#define PT_is686        ( _PT_686r | _PT_686p )
+#define PT_is586        ( _PT_586r | _PT_586p )
+#define PT_is486        ( _PT_486r | _PT_486p )
+#define PT_is386        ( _PT_386r | _PT_386p )
+#define PT_is286        ( _PT_286r | _PT_286p )
+#define PT_is086        ( _PT_086 )
 
 //---------------------------------------------------------------------
 inline bool isProtected(uint32 type)
 {
-  return (type
-        & (_PT_286p
-         | _PT_386p
-         | _PT_486p
-         | _PT_586p
-         | _PT_686p
-         | _PT_pii)) != 0;
+   return (type & (_PT_286p |
+                   _PT_386p |
+                   _PT_486p |
+                   _PT_586p |
+                   _PT_686p |
+                   _PT_pii    )) != 0;
 }
 
 inline bool isAMD(uint32 type)   { return (type & PT_k7  ) != 0; }

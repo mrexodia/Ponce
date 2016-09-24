@@ -47,9 +47,9 @@ struct string_info_t
   ea_t ea;
   int length;
   int type;
-  string_info_t() : ea(BADADDR), length(0), type(0) {}
-  string_info_t(ea_t _ea) : ea(_ea), length(0), type(0) {}
-  bool operator<(const string_info_t &string_info) const { return ea < string_info.ea; }
+  string_info_t() : ea(BADADDR), length(0), type(0) { }
+  string_info_t(ea_t _ea) : ea(_ea), length(0), type(0) { }
+  bool operator<(const string_info_t& string_info) const { return ea < string_info.ea; }
 };
 DECLARE_TYPE_AS_MOVABLE(string_info_t);
 
@@ -75,7 +75,3 @@ idaman size_t ida_export get_strlist_qty(void);
 idaman bool ida_export get_strlist_item(int n, string_info_t *si);
 
 
-
-
-#pragma pack(pop)
-#endif // _STRLIST_HPP

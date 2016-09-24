@@ -9,7 +9,6 @@
 #define _PRODIR_H
 #pragma pack(push, 1)
 
-
 /*! \file prodir.h
 
   \brief Unified interface to qfindfirst64(),qfindnext64(),qfindclose64() functions.
@@ -111,7 +110,6 @@
     unsigned short ff_ftime;
     unsigned short ff_fdate;
     char           ff_name[MAXPATH];
-    qffblk_t(void) : ff_reserved(0) {}
   };
 #endif
 

@@ -53,7 +53,6 @@ public:
 };
 
 /// Information about a structure type (assembly level)
-//-V:struc_t:730 not all members of a class are initialized inside the constructor
 class struc_t
 {
 protected:
@@ -233,11 +232,10 @@ idaman ea_t ida_export get_struc_first_offset(const struc_t *sptr);
 
 inline ea_t get_max_offset(struc_t *sptr)
 {
-  if ( sptr == NULL )
-    return 0; // just to avoid GPF
+  if ( sptr == NULL ) return 0; // just to avoid GPF
   return sptr->is_union()
-       ? sptr->memqty
-       : get_struc_size(sptr);
+                ? sptr->memqty
+                : get_struc_size(sptr);
 }
 
 //@}
@@ -503,7 +501,6 @@ idaman smt_code_t ida_export set_member_tinfo2(
 #define SET_MEMTI_COMPATIBLE  0x0002 ///< new type must be compatible with the old
 #define SET_MEMTI_FUNCARG     0x0004 ///< mptr is function argument (can not create arrays)
 #define SET_MEMTI_BYTIL       0x0008 ///< new type was created by the type subsystem
-#define SET_MEMTI_USERTI      0x0010 ///< user-specified type
 //@}
 
 
@@ -546,12 +543,12 @@ inline bool is_dummy_member_name(const char *name)
 /// Check if the specified member id points to a struct member
 
 inline member_t *idaapi get_member_by_id(
-        qstring *out_mname, // note: id 'out_mname' is important for SWiG
+        qstring *out,
         tid_t mid,
         struc_t **sptr_place)
 {
-  if ( get_member_fullname(out_mname, mid) > 0 )
-    return get_member_by_fullname(out_mname->begin(), sptr_place);
+  if ( get_member_fullname(out, mid) > 0 )
+    return get_member_by_fullname(out->begin(), sptr_place);
   return NULL;
 }
 
@@ -588,11 +585,11 @@ struct ida_local struct_field_visitor_t
 //--------------------------------------------------------------------------
 /// Visit structure fields in a stroff expression or in a reference to a struct data variable.
 /// This function can be used to enumerate all components of an expression like 'a.b.c'.
-/// \param sfv           visitor object
-/// \param path          struct path (path[0] contains the initial struct id)
-/// \param plen          len
-/// \param[in,out] disp  offset into structure
-/// \param appzero       should visit field at offset zero?
+/// \param sfv      visitor object
+/// \param path     struct path (path[0] contains the initial struct id)
+/// \param plen     len
+/// \param disp     offset into structure
+/// \param appzero  should visit field at offset zero?
 
 idaman flags_t ida_export visit_stroff_fields(
         struct_field_visitor_t &sfv,

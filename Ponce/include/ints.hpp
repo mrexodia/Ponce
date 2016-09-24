@@ -30,7 +30,7 @@ class WorkReg;
 /// \return size of comment or -1
 
 idaman ssize_t ida_export get_predef_insn_cmt(
-        const insn_t &ins,
+        const insn_t &cmd,
         char *buf,
         size_t bufsize);
 

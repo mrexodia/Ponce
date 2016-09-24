@@ -65,7 +65,7 @@ struct loader_t
   /// To get this unique number, please contact the author.
   /// If the return value is ORed with #ACCEPT_FIRST, then this format
   /// should be placed first in the "load file" dialog box
-  int (idaapi *accept_file)(linput_t *li,
+  int (idaapi* accept_file)(linput_t *li,
                             char fileformatname[MAX_FILE_FORMAT_NAME],
                             int n);
 
@@ -80,7 +80,7 @@ struct loader_t
   /// \param neflags         \ref NEF_
   ///
   /// If this function fails, loader_failure() should be called
-  void (idaapi *load_file)(linput_t *li,
+  void (idaapi* load_file)(linput_t *li,
                            ushort neflags,
                            const char *fileformatname);
 /// \defgroup NEF_ Load file flags
@@ -122,7 +122,7 @@ struct loader_t
   ///                 - 1: ok, can create file of this type
   ///
   /// If fp != NULL, then this function should create the output file
-  int (idaapi *save_file)(FILE *fp, const char *fileformatname);
+  int (idaapi* save_file)(FILE *fp, const char *fileformatname);
 
   /// Take care of a moved segment (fix up relocations, for example).
   /// This function may be absent.
@@ -134,7 +134,7 @@ struct loader_t
   /// \param  fileformatname  the file format
   /// \retval 1  ok
   /// \retval 0  failure
-  int (idaapi *move_segm)(ea_t from,
+  int (idaapi* move_segm)(ea_t from,
                           ea_t to,
                           asize_t size,
                           const char *fileformatname);
@@ -172,7 +172,7 @@ AS_PRINTF(1, 2) NORETURN inline void loader_failure(const char *format=NULL, ...
 #ifdef __NT__
 #ifdef __EA64__
 #ifdef __X64__
-#define LOADER_EXT "lx64"
+#define LOADER_EXT "x64"
 #else
 #define LOADER_EXT "l64"
 #endif
@@ -196,7 +196,7 @@ AS_PRINTF(1, 2) NORETURN inline void loader_failure(const char *format=NULL, ...
 #ifdef __MAC__
 #ifdef __EA64__
 #ifdef __X64__
-#define LOADER_EXT "lx64"
+#define LOADER_EXT "lm64"
 #else
 #define LOADER_EXT "lmc64"
 #endif
@@ -567,7 +567,7 @@ public:
                                 ///< the kernel sets it automatically.
 //@}
 
-  int (idaapi *init)(void);     ///< Initialize plugin - returns \ref PLUGIN_INIT
+  int (idaapi* init)(void);     ///< Initialize plugin - returns \ref PLUGIN_INIT
 /// \defgroup PLUGIN_INIT Plugin initialization codes
 /// Return values for plugin_t::init()
 //@{
@@ -577,9 +577,9 @@ public:
 #define PLUGIN_KEEP  2  ///< Plugin agrees to work with the current database and wants to stay in the memory
 //@}
 
-  void (idaapi *term)(void);    ///< Terminate plugin. This function will be called
+  void (idaapi* term)(void);    ///< Terminate plugin. This function will be called
                                 ///< when the plugin is unloaded. May be NULL.
-  void (idaapi *run)(int arg);  ///< Invoke plugin
+  void (idaapi* run)(int arg);  ///< Invoke plugin
   const char *comment;          ///< Long comment about the plugin.
                                 ///< it could appear in the status line
                                 ///< or as a hint
@@ -687,7 +687,7 @@ idaman const char *ida_export get_plugin_options(const char *plugin);
 #ifdef __NT__
 #ifdef __EA64__
 #ifdef __X64__
-#define PLUGIN_EXT  "px64"
+#define PLUGIN_EXT  "x64"
 #else
 #define PLUGIN_EXT  "p64"
 #endif
@@ -709,7 +709,7 @@ idaman const char *ida_export get_plugin_options(const char *plugin);
 #ifdef __MAC__
 #ifdef __EA64__
 #ifdef __X64__
-#define PLUGIN_EXT  "px64"
+#define PLUGIN_EXT  "pm64"
 #else
 #define PLUGIN_EXT  "pmc64"
 #endif
@@ -787,7 +787,7 @@ struct idp_desc_t
   idp_names_t names;    ///< processor names
   bool      is_script;  ///< the processor module is a script
   bool      checked;    ///< internal, for cache management
-  idp_desc_t(): mtime(time_t(-1)), is_script(false), checked(false) {}
+  idp_desc_t(): is_script(false), checked(false) {}
 };
 DECLARE_TYPE_AS_MOVABLE(idp_desc_t);
 typedef qvector<idp_desc_t> idp_descs_t; ///< vector of processor module descriptions
@@ -829,7 +829,7 @@ idaman int ida_export enum_plugins(
 #ifdef __NT__
 #ifdef __EA64__
 #ifdef __X64__
-#define IDP_EXT  "ix64"
+#define IDP_EXT  "x64"
 #else
 #define IDP_EXT  "w64"
 #endif
@@ -851,7 +851,7 @@ idaman int ida_export enum_plugins(
 #ifdef __MAC__
 #ifdef __EA64__
 #ifdef __X64__
-#define IDP_EXT  "ix64"
+#define IDP_EXT  "im64"
 #else
 #define IDP_EXT  "imc64"
 #endif
@@ -1141,17 +1141,103 @@ idaman bool ida_export save_database_ex(
 #define DBFL_TEMP       0x08            ///< temporary database
 //@}
 
+//
+//      KERNEL ONLY functions & data
+//
 /// \cond
 idaman ida_export_data char command_line_file[QMAXPATH];  // full path to the file specified in the command line
 idaman ida_export_data char database_idb[QMAXPATH];       // full path of IDB file
 idaman ida_export_data char database_id0[QMAXPATH];       // full path of ID0 file
 idaman bool ida_export is_database_ext(const char *ext);  // check the file extension
 
+extern uint32 ida_database_memory;       // Database buffer size in bytes.
+extern char ida_workdir[];              // Work directory for database files.
+
 idaman uint32 ida_export_data database_flags; // for close_database() - see 'Database flags'
 
 inline bool is_temp_database(void) { return (database_flags & DBFL_TEMP) != 0; }
 
-//--------------------------------------------------------------------------
+extern bool pe_create_idata;
+extern bool pe_load_resources;
+extern bool pe_create_flat_group;
+extern bool initializing;
+extern int highest_processor_level;
+extern qstrvec_t cpp_namespaces;
+extern int max_trusted_idb_count;
+
+// database check codes
+typedef int dbcheck_t;
+const dbcheck_t
+  DBCHK_NONE = 0,               // database doesn't exist
+  DBCHK_OK   = 1,               // database exists
+  DBCHK_BAD  = 2,               // database exists but we can't use it
+  DBCHK_NEW  = 3;               // database exists but we the user asked to destroy it
+
+dbcheck_t check_database(const char *file);
+
+//------------------------------------------------------------------------
+// Generate an IDC file (unload the database in text form)
+//      fp        - the output file handle
+//      onlytypes - if true then generate idc about enums, structs and
+//                  other type definitions used in the program
+// returns: 1-ok, 0-failed
+
+int local_gen_idc_file(FILE *fp, ea_t ea1, ea_t ea2, bool onlytypes);
+
+
+//------------------------------------------------------------------------
+// Output to a file all lines controlled by place 'pl'
+// These functions are for the kernel only.
+
+class place_t;
+int32 print_all_places(FILE *fp, const place_t *pl, html_line_cb_t *line_cb = NULL);
+
+extern html_line_cb_t save_text_line;
+int32 idaapi print_all_structs(FILE *fp, html_line_cb_t *line_cb = NULL);
+int32 idaapi print_all_enums(FILE *fp, html_line_cb_t *line_cb = NULL);
+
+void idaapi no_disk_space_handler(bool again, int64 size);
+int open_database(
+        bool isnew,
+        const char *file,
+        uint64 input_size,
+        bool is_temp_database);       // returns 'waspacked'
+bool get_workbase_fname(char *buf, size_t bufsize, const char *ext);
+void close_database(void);                      // see database_flags
+bool compress_btree(const char *btree_file);    // (internal) compress .ID0
+bool get_input_file_from_archive(
+        char *filename,
+        size_t namesize,
+        bool is_remote,
+        char **temp_file_ptr);
+bool loader_move_segm(
+        ea_t from,
+        ea_t to,
+        asize_t size,
+        bool keep);
+int generate_ida_copyright(FILE *fp, const char *cmt, html_line_cb_t *line_cb);
+void clear_plugin_options(void);
+bool is_in_loader(void);
+bool is_embedded_dbfile_ext(const char *ext);
+void get_ids_filename(
+        char *buf,
+        size_t bufsize,
+        const char *idsname,
+        const char *ostype,
+        bool *use_ordinals,
+        char **autotils,
+        int maxtils);
+bool add_plugin_option(const char *plugin_options); // format: plugin_name:options
+size_t get_plugins_path(char *buf, size_t bufsize);
+
+// Kernel only, plugins should not use this
+#if !defined(__IDP__) || defined(__UI__)
+// since uninitialized enums are forbidden in C++, define dev_code_t as int
+typedef int dev_code_t;
+idaman int ida_export gen_dev_event(dev_code_t code, ...);
+#endif
+/// \endcond
+
 #ifndef NO_OBSOLETE_FUNCS
 idaman DEPRECATED bool ida_export save_database(const char *outfile, bool delete_unpacked);
 idaman DEPRECATED char *ida_export get_idp_desc(const char *file, char *buf, size_t bufsize);

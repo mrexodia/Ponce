@@ -37,7 +37,6 @@ typedef tid_t enum_t;   // #include <enum.hpp>
 /// Exit with an error message if not enough disk space.
 /// \param startEA  should be lower than endEA.
 /// \param endEA    does not belong to the range.
-/// \param stt      ::storage_type_t
 /// \return 0 if ok, otherwise an error code
 
 idaman error_t ida_export enable_flags(ea_t startEA, ea_t endEA, storage_type_t stt);
@@ -53,9 +52,6 @@ idaman error_t ida_export disable_flags(ea_t startEA, ea_t endEA);
 
 
 /// Change flag storage type for address range.
-/// \param startEA  should be lower than endEA.
-/// \param endEA    does not belong to the range.
-/// \param stt      ::storage_type_t
 /// \return error code
 
 idaman error_t ida_export change_storage_type(ea_t startEA, ea_t endEA, storage_type_t stt);
@@ -338,6 +334,7 @@ idaman bool ida_export clrFlbits(ea_t EA, flags_t bits);
 /// Do flags contain byte value?
 
 inline bool idaapi hasValue(flags_t F)  { return (F & FF_IVL) != 0; }
+inline bool idaapi f_hasValue(flags_t f, void *) { return hasValue(f); } ///< \copydoc hasValue()
 
 
 /// Delete byte value from flags. The corresponding byte becomes
@@ -774,7 +771,7 @@ inline bool idaapi f_isNotTail(flags_t F, void *) { return isNotTail(F); }  ///<
 
 /// Does flag denote unexplored byte?
 
-inline bool idaapi isUnknown(flags_t F) { return (F & MS_CLS) == FF_UNK; }
+inline bool idaapi isUnknown(flags_t F){return (F & MS_CLS) == FF_UNK;  }
 
 
 /// Does flag denote start of instruction OR data?
@@ -913,24 +910,24 @@ inline bool idaapi f_has_name(flags_t f, void *) { return has_name(f); }        
 
 /// Does the current byte have dummy (auto-generated, with special prefix) name?
 
-inline bool idaapi has_dummy_name(flags_t F) { return (F & FF_ANYNAME) == FF_LABL; }
+inline bool idaapi has_dummy_name(flags_t F){ return (F & FF_ANYNAME) == FF_LABL; }
 inline bool idaapi f_has_dummy_name(flags_t f, void *) { return has_dummy_name(f); }    ///< \copydoc has_dummy_name()
 
 
 /// Does the current byte have auto-generated (no special prefix) name?
 
-inline bool idaapi has_auto_name(flags_t F) { return (F & FF_ANYNAME) == FF_ANYNAME; }
+inline bool idaapi has_auto_name(flags_t F){ return (F & FF_ANYNAME) == FF_ANYNAME; }
 
 
 /// Does the current byte have any name?
 
-inline bool idaapi has_any_name(flags_t F) { return (F & FF_ANYNAME) != 0; }
+inline bool idaapi has_any_name(flags_t F){ return (F & FF_ANYNAME) != 0; }
 
 
 /// Does the current byte have user-specified name?
 
-inline bool idaapi has_user_name(flags_t F) { return (F & FF_ANYNAME) == FF_NAME; }
-inline bool idaapi f_has_user_name(flags_t F, void *) { return has_user_name(F); }       ///< \copydoc has_user_name()
+inline bool idaapi has_user_name(flags_t F){ return (F & FF_ANYNAME) == FF_NAME; }
+inline bool idaapi f_has_user_name(flags_t F, void *){ return has_user_name(F); }       ///< \copydoc has_user_name()
 
 // signness deals with the form of operands of the current instruction/data.
 // inverted sign means the following:
@@ -1172,18 +1169,18 @@ inline flags_t get_optype_flags1(flags_t F) { return F & MS_1TYPE; }
                   OR the second operand satisfies the condition
 */
 //@{
-idaman bool ida_export isDefArg(flags_t F, int n);        ///< is defined?
-idaman bool ida_export isOff(flags_t F, int n);           ///< is offset?
-idaman bool ida_export isChar(flags_t F, int n);          ///< is character constant?
-idaman bool ida_export isSeg(flags_t F, int n);           ///< is segment?
-idaman bool ida_export isEnum(flags_t F, int n);          ///< is enum?
-idaman bool ida_export isFop(flags_t F, int n);           ///< is forced operand? (use is_forced_operand())
-idaman bool ida_export isStroff(flags_t F, int n);        ///< is struct offset?
-idaman bool ida_export isStkvar(flags_t F, int n);        ///< is stack variable?
-idaman bool ida_export isFltnum(flags_t F, int n);        ///< is floating point number?
-idaman bool ida_export isCustFmt(flags_t F, int n);       ///< is custom data format?
-idaman bool ida_export isNum(flags_t F, int n);           ///< is number (bin,oct,dec,hex)?
-idaman bool ida_export isVoid(ea_t ea, flags_t F, int n); ///< is 'void' operand?
+idaman bool ida_export isDefArg(flags_t F,int n);          ///< is defined?
+idaman bool ida_export isOff(flags_t F,int n);             ///< is offset?
+idaman bool ida_export isChar(flags_t F,int n);            ///< is character constant?
+idaman bool ida_export isSeg(flags_t F,int n);             ///< is segment?
+idaman bool ida_export isEnum(flags_t F,int n);            ///< is enum?
+idaman bool ida_export isFop(flags_t F,int n);             ///< is forced operand? (use is_forced_operand())
+idaman bool ida_export isStroff(flags_t F,int n);          ///< is struct offset?
+idaman bool ida_export isStkvar(flags_t F,int n);          ///< is stack variable?
+idaman bool ida_export isFltnum(flags_t F,int n);          ///< is floating point number?
+idaman bool ida_export isCustFmt(flags_t F,int n);         ///< is custom data format?
+idaman bool ida_export isNum(flags_t F,int n);             ///< is number (bin,oct,dec,hex)?
+idaman bool ida_export isVoid(ea_t ea,flags_t F,int n);    ///< is 'void' operand?
 //@}
 
 /// Should processor module create xrefs from the operand?.
@@ -1299,7 +1296,7 @@ idaman bool ida_export is_forced_operand(ea_t ea, int n);
 */
 //@{
 inline flags_t idaapi charflag(void) { return FF_1CHAR|FF_0CHAR; }      ///< see \ref FF_opbits
-inline flags_t idaapi offflag (void) { return FF_1OFF |FF_0OFF;  }      ///< see \ref FF_opbits
+inline flags_t idaapi offflag (void) { return FF_1OFF |FF_0OFF ; }      ///< see \ref FF_opbits
 inline flags_t idaapi enumflag(void) { return FF_1ENUM|FF_0ENUM; }      ///< see \ref FF_opbits
 inline flags_t idaapi stroffflag(void) { return FF_1STRO|FF_0STRO; }    ///< see \ref FF_opbits
 inline flags_t idaapi stkvarflag(void) { return FF_1STK|FF_0STK; }      ///< see \ref FF_opbits
@@ -1393,7 +1390,6 @@ idaman int ida_export getRadixEA(ea_t ea,int n);
 #define FF_3BYTE    0xC0000000LU         ///< 3-byte data (only with support from the processor module)
 #define FF_CUSTOM   0xD0000000LU         ///< custom data type
 #define FF_YWRD     0xE0000000LU         ///< ymm word (32 bytes/256 bits)
-#define FF_ZWRD     0xF0000000LU         ///< zmm word (64 bytes/512 bits)
 //@}
 
 /// \defgroup FF_datafuncs1 Functions: examine data bits
@@ -1405,7 +1401,6 @@ inline flags_t idaapi dwrdflag(void) { return FF_DATA|FF_DWRD; }          ///< G
 inline flags_t idaapi qwrdflag(void) { return FF_DATA|FF_QWRD; }          ///< Get a flags_t representing a quad word
 inline flags_t idaapi owrdflag(void) { return FF_DATA|FF_OWRD; }          ///< Get a flags_t representing a octaword
 inline flags_t idaapi ywrdflag(void) { return FF_DATA|FF_YWRD; }          ///< Get a flags_t representing a ymm word
-inline flags_t idaapi zwrdflag(void) { return FF_DATA|FF_ZWRD; }          ///< Get a flags_t representing a zmm word
 inline flags_t idaapi tbytflag(void) { return FF_DATA|FF_TBYT; }          ///< Get a flags_t representing a tbyte
 inline flags_t idaapi asciflag(void) { return FF_DATA|FF_ASCI; }          ///< Get a flags_t representing ascii data
 inline flags_t idaapi struflag(void) { return FF_DATA|FF_STRU; }          ///< Get a flags_t representing a struct
@@ -1422,7 +1417,6 @@ inline bool idaapi isDwrd  (flags_t F)   { return isData(F) && (F & DT_TYPE) == 
 inline bool idaapi isQwrd  (flags_t F)   { return isData(F) && (F & DT_TYPE) == FF_QWRD; }      ///< #FF_QWRD
 inline bool idaapi isOwrd  (flags_t F)   { return isData(F) && (F & DT_TYPE) == FF_OWRD; }      ///< #FF_OWRD
 inline bool idaapi isYwrd  (flags_t F)   { return isData(F) && (F & DT_TYPE) == FF_YWRD; }      ///< #FF_YWRD
-inline bool idaapi isZwrd  (flags_t F)   { return isData(F) && (F & DT_TYPE) == FF_ZWRD; }      ///< #FF_ZWRD
 inline bool idaapi isTbyt  (flags_t F)   { return isData(F) && (F & DT_TYPE) == FF_TBYT; }      ///< #FF_TBYT
 inline bool idaapi isFloat (flags_t F)   { return isData(F) && (F & DT_TYPE) == FF_FLOAT; }     ///< #FF_FLOAT
 inline bool idaapi isDouble(flags_t F)   { return isData(F) && (F & DT_TYPE) == FF_DOUBLE; }    ///< #FF_DOUBLE
@@ -1492,7 +1486,6 @@ inline bool idaapi doDwrd(ea_t ea, asize_t length)     { return do_data_ex(ea, F
 inline bool idaapi doQwrd(ea_t ea, asize_t length)     { return do_data_ex(ea, FF_QWRD, length, BADNODE); }      ///< Convert to quadword
 inline bool idaapi doOwrd(ea_t ea, asize_t length)     { return do_data_ex(ea, FF_OWRD, length, BADNODE); }      ///< Convert to octaword/xmm word
 inline bool idaapi doYwrd(ea_t ea, asize_t length)     { return do_data_ex(ea, FF_YWRD, length, BADNODE); }      ///< Convert to ymm word
-inline bool idaapi doZwrd(ea_t ea, asize_t length)     { return do_data_ex(ea, FF_ZWRD, length, BADNODE); }      ///< Convert to zmm word
 inline bool idaapi doTbyt(ea_t ea, asize_t length)     { return do_data_ex(ea, FF_TBYT, length, BADNODE); }      ///< Convert to tbyte
 inline bool idaapi doFloat(ea_t ea, asize_t length)    { return do_data_ex(ea, FF_FLOAT, length, BADNODE); }     ///< Convert to float
 inline bool idaapi doDouble(ea_t ea, asize_t length)   { return do_data_ex(ea, FF_DOUBLE, length, BADNODE); }    ///< Convert to double
@@ -1824,7 +1817,7 @@ struct data_format_t
   /// \param ud           user-defined data
   /// \param out          output buffer. may be NULL
   /// \param value        value to print. may not be NULL
-  /// \param size         size of value in 8-bit bytes
+  /// \param size size    of value in bytes
   /// \param current_ea   current address (BADADDR if unknown)
   /// \param operand_num  current operand number
   /// \param dtid         custom data type id (0-standard built-in data type)
@@ -2036,7 +2029,7 @@ idaman ea_t ida_export find_byte(ea_t sEA, asize_t size, uchar value, int bin_se
 
 /// Find reverse a byte with the specified value (only 8-bit value from the database).
 /// example: ea=4 size=3 will inspect addresses 6, 5, and 4
-/// \param sEA                the lower address of the search range
+/// \param sEA                linear address
 /// \param size               number of bytes to inspect
 /// \param value              value to find
 /// \param bin_search_flags   combination of \ref BIN_SEARCH_
@@ -2078,29 +2071,8 @@ idaman ea_t ida_export bin_search(
 #define BIN_SEARCH_CASE         0x01 ///< case sensitive
 #define BIN_SEARCH_NOCASE       0x00 ///< case insensitive
 #define BIN_SEARCH_NOBREAK      0x02 ///< don't check for Ctrl-Break
-#define BIN_SEARCH_INITED       0x04 ///< find_byte, find_byter: any initilized value
 //@}
 
-
-/// Find the next initialized address
-
-inline ea_t idaapi next_inited(ea_t ea, ea_t maxea)
-{
-  if ( ea >= maxea )
-    return BADADDR;
-  ++ea;
-  return find_byte(ea, maxea-ea, 0, BIN_SEARCH_INITED);
-}
-
-/// Find the previous initialized address
-
-inline ea_t idaapi prev_inited(ea_t ea, ea_t minea)
-{
-  if ( ea <= minea )
-    return BADADDR;
-  --ea;
-  return find_byter(minea, ea-minea, 0, BIN_SEARCH_INITED);
-}
 
 /// Compare 'len' bytes of the program starting from 'ea' with 'image'.
 /// \param ea          linear address
@@ -2277,7 +2249,6 @@ inline ea_t idaapi get_item_head(ea_t ea)
 #undef FF_QWRD
 #undef FF_OWRD
 #undef FF_YWRD
-#undef FF_ZWRD
 #undef FF_FLOAT
 #undef FF_DOUBLE
 #undef FF_TBYT
@@ -2310,16 +2281,6 @@ idaman DEPRECATED bool ida_export set_typeinfo(ea_t ea, int n, flags_t flag, con
 // same as get_ascii_contents2, but always convert Unicode to ASCII
 idaman DEPRECATED bool ida_export get_ascii_contents(ea_t ea, size_t len, int32 type, char *buf, size_t bufsize);
 #endif
-
-// byte array to hex string
-inline ssize_t get_hex_string(char *buf, size_t bufsize, const uchar *bytes, size_t len)
-{
-  const char *const start = buf;
-  const char *const end   = buf + bufsize;
-  for ( size_t i = 0; i < len; i++ )
-    buf += ::qsnprintf(buf, end - buf, "%02X", *bytes++);
-  return buf - start;
-}
 
 
 

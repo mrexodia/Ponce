@@ -182,316 +182,262 @@ class ulonglong
 inline longlong::longlong(ulonglong x) { l=low(x); h=high(x); }
 
 //---------------------------------------------------------------------------
-inline longlong operator+(const longlong &x, const longlong &y)
-{
+inline longlong operator+(const longlong &x, const longlong &y) {
   int32  h = x.h + y.h;
   uint32 l = x.l + y.l;
-  if ( l < x.l )
-    h++;
+  if ( l < x.l ) h++;
   return make_longlong(l,h);
 }
 
 //---------------------------------------------------------------------------
-inline longlong operator-(const longlong &x, const longlong &y)
-{
+inline longlong operator-(const longlong &x, const longlong &y) {
   int32  h = x.h - y.h;
   uint32 l = x.l - y.l;
-  if ( l > x.l )
-    h--;
+  if ( l > x.l ) h--;
   return make_longlong(l,h);
 }
 
 //---------------------------------------------------------------------------
-inline longlong operator|(const longlong &x, const longlong &y)
-{
+inline longlong operator|(const longlong &x, const longlong &y) {
   return make_longlong(x.l | y.l,
                        x.h | y.h);
 }
 
 //---------------------------------------------------------------------------
-inline longlong operator&(const longlong &x, const longlong &y)
-{
+inline longlong operator&(const longlong &x, const longlong &y) {
   return make_longlong(x.l & y.l,
                        x.h & y.h);
 }
 
 //---------------------------------------------------------------------------
-inline longlong operator^(const longlong &x, const longlong &y)
-{
+inline longlong operator^(const longlong &x, const longlong &y) {
   return make_longlong(x.l ^ y.l,
                        x.h ^ y.h);
 }
 
 //---------------------------------------------------------------------------
-inline longlong &longlong::operator+=(const longlong &y)
-{
-  return *this = *this + y;
+inline longlong &longlong::operator+=(const longlong &y) {
+  return (*this = *this + y);
 }
 
 //---------------------------------------------------------------------------
-inline longlong &longlong::operator-=(const longlong &y)
-{
-  return *this = *this - y;
+inline longlong &longlong::operator-=(const longlong &y) {
+  return (*this = *this - y);
 }
 
 //---------------------------------------------------------------------------
-inline longlong &longlong::operator|=(const longlong &y)
-{
-  return *this = *this | y;
+inline longlong &longlong::operator|=(const longlong &y) {
+  return (*this = *this | y);
 }
 
 //---------------------------------------------------------------------------
-inline longlong &longlong::operator&=(const longlong &y)
-{
-  return *this = *this & y;
+inline longlong &longlong::operator&=(const longlong &y) {
+  return (*this = *this & y);
 }
 
 //---------------------------------------------------------------------------
-inline longlong &longlong::operator^=(const longlong &y)
-{
-  return *this = *this ^ y;
+inline longlong &longlong::operator^=(const longlong &y) {
+  return (*this = *this ^ y);
 }
 
 //---------------------------------------------------------------------------
-inline longlong &longlong::operator/=(const longlong &y)
-{
-  return *this = *this / y;
+inline longlong &longlong::operator/=(const longlong &y) {
+  return (*this = *this / y);
 }
 
 //---------------------------------------------------------------------------
-inline longlong &longlong::operator%=(const longlong &y)
-{
-  return *this = *this % y;
+inline longlong &longlong::operator%=(const longlong &y) {
+  return (*this = *this % y);
 }
 
 //---------------------------------------------------------------------------
-inline longlong &longlong::operator*=(const longlong &y)
-{
-  return *this = *this * y;
+inline longlong &longlong::operator*=(const longlong &y) {
+  return (*this = *this * y);
 }
 
 //---------------------------------------------------------------------------
-inline longlong &longlong::operator<<=(int cnt)
-{
-  return *this = *this << cnt;
+inline longlong &longlong::operator<<=(int cnt) {
+  return (*this = *this << cnt);
 }
 
 //---------------------------------------------------------------------------
-inline longlong &longlong::operator>>=(int cnt)
-{
-  return *this = *this >> cnt;
+inline longlong &longlong::operator>>=(int cnt) {
+  return (*this = *this >> cnt);
 }
 
 //---------------------------------------------------------------------------
-inline longlong &longlong::operator++(void)
-{
-  if ( ++l == 0 )
-    ++h;
+inline longlong &longlong::operator++(void) {
+  if ( ++l == 0 ) ++h;
   return *this;
 }
 
 //---------------------------------------------------------------------------
-inline longlong &longlong::operator--(void)
-{
-  if ( l-- == 0 )
-    --h;
+inline longlong &longlong::operator--(void) {
+  if ( l-- == 0 ) --h;
   return *this;
 }
 
 //---------------------------------------------------------------------------
-inline longlong operator-(const longlong &x)
-{
+inline longlong operator-(const longlong &x) {
   return ~x + 1;
 }
 
 //---------------------------------------------------------------------------
-inline longlong operator/(const longlong &x, const longlong &y)
-{
+inline longlong operator/(const longlong &x, const longlong &y) {
   longlong remainder,quotient;
   llong_div(x,y,remainder,quotient);
   return quotient;
 }
 
 //---------------------------------------------------------------------------
-inline longlong operator%(const longlong &x, const longlong &y)
-{
+inline longlong operator%(const longlong &x, const longlong &y) {
   longlong remainder,quotient;
   llong_div(x,y,remainder,quotient);
   return remainder;
 }
 
 //---------------------------------------------------------------------------
-inline longlong operator*(const longlong &x, const longlong &y)
-{
+inline longlong operator*(const longlong &x, const longlong &y) {
   return llong_mul(ulonglong(x),ulonglong(y));
 }
 
 //---------------------------------------------------------------------------
-inline longlong operator>>(const longlong &x, int cnt)
-{
+inline longlong operator>>(const longlong &x, int cnt) {
   return shift_right(ulonglong(x),cnt,1);
 }
 
 //---------------------------------------------------------------------------
-inline longlong operator<<(const longlong &x, int cnt)
-{
+inline longlong operator<<(const longlong &x, int cnt) {
   return shift_left(ulonglong(x),cnt,1);
 }
 
 //---------------------------------------------------------------------------
-inline ulonglong operator+(const ulonglong &x, const ulonglong &y)
-{
+inline ulonglong operator+(const ulonglong &x, const ulonglong &y) {
   int32  h = x.h + y.h;
   uint32 l = x.l + y.l;
-  if ( l < x.l )
-    h++;
+  if ( l < x.l ) h++;
   return make_ulonglong(l,h);
 }
 
 //---------------------------------------------------------------------------
-inline ulonglong operator-(const ulonglong &x, const ulonglong &y)
-{
+inline ulonglong operator-(const ulonglong &x, const ulonglong &y) {
   int32  h = x.h - y.h;
   uint32 l = x.l - y.l;
-  if ( l > x.l )
-    h--;
+  if ( l > x.l ) h--;
   return make_ulonglong(l,h);
 }
 
 //---------------------------------------------------------------------------
-inline ulonglong operator|(const ulonglong &x, const ulonglong &y)
-{
+inline ulonglong operator|(const ulonglong &x, const ulonglong &y) {
   return make_ulonglong(x.l | y.l,
                         x.h | y.h);
 }
 
 //---------------------------------------------------------------------------
-inline ulonglong operator&(const ulonglong &x, const ulonglong &y)
-{
+inline ulonglong operator&(const ulonglong &x, const ulonglong &y) {
   return make_ulonglong(x.l & y.l,
                         x.h & y.h);
 }
 
 //---------------------------------------------------------------------------
-inline ulonglong operator^(const ulonglong &x, const ulonglong &y)
-{
+inline ulonglong operator^(const ulonglong &x, const ulonglong &y) {
   return make_ulonglong(x.l ^ y.l,
                         x.h ^ y.h);
 }
 
 //---------------------------------------------------------------------------
-inline ulonglong &ulonglong::operator+=(const ulonglong &y)
-{
-  return *this = *this + y;
+inline ulonglong &ulonglong::operator+=(const ulonglong &y) {
+  return (*this = *this + y);
 }
 
 //---------------------------------------------------------------------------
-inline ulonglong &ulonglong::operator-=(const ulonglong &y)
-{
-  return *this = *this - y;
+inline ulonglong &ulonglong::operator-=(const ulonglong &y) {
+  return (*this = *this - y);
 }
 
 //---------------------------------------------------------------------------
-inline ulonglong &ulonglong::operator|=(const ulonglong &y)
-{
-  return *this = *this | y;
+inline ulonglong &ulonglong::operator|=(const ulonglong &y) {
+  return (*this = *this | y);
 }
 
 //---------------------------------------------------------------------------
-inline ulonglong &ulonglong::operator&=(const ulonglong &y)
-{
-  return *this = *this & y;
+inline ulonglong &ulonglong::operator&=(const ulonglong &y) {
+  return (*this = *this & y);
 }
 
 //---------------------------------------------------------------------------
-inline ulonglong &ulonglong::operator^=(const ulonglong &y)
-{
-  return *this = *this ^ y;
+inline ulonglong &ulonglong::operator^=(const ulonglong &y) {
+  return (*this = *this ^ y);
 }
 
 //---------------------------------------------------------------------------
-inline ulonglong &ulonglong::operator/=(const ulonglong &y)
-{
-  return *this = *this / y;
+inline ulonglong &ulonglong::operator/=(const ulonglong &y) {
+  return (*this = *this / y);
 }
 
 //---------------------------------------------------------------------------
-inline ulonglong &ulonglong::operator%=(const ulonglong &y)
-{
-  return *this = *this % y;
+inline ulonglong &ulonglong::operator%=(const ulonglong &y) {
+  return (*this = *this % y);
 }
 
 //---------------------------------------------------------------------------
-inline ulonglong &ulonglong::operator*=(const ulonglong &y)
-{
-  return *this = *this * y;
+inline ulonglong &ulonglong::operator*=(const ulonglong &y) {
+  return (*this = *this * y);
 }
 
 //---------------------------------------------------------------------------
-inline ulonglong &ulonglong::operator<<=(int cnt)
-{
-  return *this = *this << cnt;
+inline ulonglong &ulonglong::operator<<=(int cnt) {
+  return (*this = *this << cnt);
 }
 
 //---------------------------------------------------------------------------
-inline ulonglong &ulonglong::operator>>=(int cnt)
-{
-  return *this = *this >> cnt;
+inline ulonglong &ulonglong::operator>>=(int cnt) {
+  return (*this = *this >> cnt);
 }
 
 //---------------------------------------------------------------------------
-inline ulonglong &ulonglong::operator++(void)
-{
-  if ( ++l == 0 )
-    ++h;
+inline ulonglong &ulonglong::operator++(void) {
+  if ( ++l == 0 ) ++h;
   return *this;
 }
 
 //---------------------------------------------------------------------------
-inline ulonglong &ulonglong::operator--(void)
-{
-  if ( l-- == 0 )
-    --h;
+inline ulonglong &ulonglong::operator--(void) {
+  if ( l-- == 0 ) --h;
   return *this;
 }
 
 //---------------------------------------------------------------------------
-inline ulonglong operator-(const ulonglong &x)
-{
+inline ulonglong operator-(const ulonglong &x) {
   return ~x + 1;
 }
 
 //---------------------------------------------------------------------------
-inline ulonglong operator/(const ulonglong &x, const ulonglong &y)
-{
+inline ulonglong operator/(const ulonglong &x, const ulonglong &y) {
   longlong remainder,quotient;
   llong_udiv(x,y,remainder,quotient);
   return quotient;
 }
 
 //---------------------------------------------------------------------------
-inline ulonglong operator%(const ulonglong &x, const ulonglong &y)
-{
+inline ulonglong operator%(const ulonglong &x, const ulonglong &y) {
   longlong remainder,quotient;
   llong_udiv(x,y,remainder,quotient);
   return remainder;
 }
 
 //---------------------------------------------------------------------------
-inline ulonglong operator*(const ulonglong &x, const ulonglong &y)
-{
+inline ulonglong operator*(const ulonglong &x, const ulonglong &y) {
   return llong_mul(x,y);
 }
 
 //---------------------------------------------------------------------------
-inline ulonglong operator>>(const ulonglong &x, int cnt)
-{
+inline ulonglong operator>>(const ulonglong &x, int cnt) {
   return shift_right(x,cnt,0);
 }
 
 //---------------------------------------------------------------------------
-inline ulonglong operator<<(const ulonglong &x, int cnt)
-{
+inline ulonglong operator<<(const ulonglong &x, int cnt) {
   return shift_left(x,cnt,0);
 }
 
@@ -528,7 +474,6 @@ inline longlong  high     (const int128 &x) { return ulonglong(x>>64); }
 
 #else
 #ifdef __cplusplus
-//-V:uint128:730 not all members of a class are initialized inside the constructor
 class uint128
 {
   ulonglong l;
@@ -576,7 +521,6 @@ public:
   friend int operator<=(const uint128 &x, const uint128 &y) { return x.h < y.h || (x.h == y.h && x.l <= y.l); }
 };
 
-//-V:int128:730 not all members of a class are initialized inside the constructor
 class int128
 {
   ulonglong l;
@@ -630,8 +574,7 @@ inline uint128 make_uint128(ulonglong ll,longlong hh) { return uint128(ll, hh); 
 idaman THREAD_SAFE void ida_export swap128(uint128 *x);
 
 //---------------------------------------------------------------------------
-inline uint128 operator+(const uint128 &x, const uint128 &y)
-{
+inline uint128 operator+(const uint128 &x, const uint128 &y) {
   ulonglong h = x.h + y.h;
   ulonglong l = x.l + y.l;
   if ( l < x.l )
@@ -640,8 +583,7 @@ inline uint128 operator+(const uint128 &x, const uint128 &y)
 }
 
 //---------------------------------------------------------------------------
-inline uint128 operator-(const uint128 &x, const uint128 &y)
-{
+inline uint128 operator-(const uint128 &x, const uint128 &y) {
   ulonglong h = x.h - y.h;
   ulonglong l = x.l - y.l;
   if ( l > x.l )
@@ -650,103 +592,88 @@ inline uint128 operator-(const uint128 &x, const uint128 &y)
 }
 
 //---------------------------------------------------------------------------
-inline uint128 operator|(const uint128 &x, const uint128 &y)
-{
-  return uint128(x.l | y.l, x.h | y.h);
+inline uint128 operator|(const uint128 &x, const uint128 &y) {
+  return uint128(x.l | y.l,
+                        x.h | y.h);
 }
 
 //---------------------------------------------------------------------------
-inline uint128 operator&(const uint128 &x, const uint128 &y)
-{
-  return uint128(x.l & y.l, x.h & y.h);
+inline uint128 operator&(const uint128 &x, const uint128 &y) {
+  return uint128(x.l & y.l,
+                        x.h & y.h);
 }
 
 //---------------------------------------------------------------------------
-inline uint128 operator^(const uint128 &x, const uint128 &y)
-{
-  return uint128(x.l ^ y.l, x.h ^ y.h);
+inline uint128 operator^(const uint128 &x, const uint128 &y) {
+  return uint128(x.l ^ y.l,
+                        x.h ^ y.h);
 }
 
 //---------------------------------------------------------------------------
-inline uint128 &uint128::operator+=(const uint128 &y)
-{
-  return *this = *this + y;
+inline uint128 &uint128::operator+=(const uint128 &y) {
+  return (*this = *this + y);
 }
 
 //---------------------------------------------------------------------------
-inline uint128 &uint128::operator-=(const uint128 &y)
-{
-  return *this = *this - y;
+inline uint128 &uint128::operator-=(const uint128 &y) {
+  return (*this = *this - y);
 }
 
 //---------------------------------------------------------------------------
-inline uint128 &uint128::operator|=(const uint128 &y)
-{
-  return *this = *this | y;
+inline uint128 &uint128::operator|=(const uint128 &y) {
+  return (*this = *this | y);
 }
 
 //---------------------------------------------------------------------------
-inline uint128 &uint128::operator&=(const uint128 &y)
-{
-  return *this = *this & y;
+inline uint128 &uint128::operator&=(const uint128 &y) {
+  return (*this = *this & y);
 }
 
 //---------------------------------------------------------------------------
-inline uint128 &uint128::operator^=(const uint128 &y)
-{
-  return *this = *this ^ y;
+inline uint128 &uint128::operator^=(const uint128 &y) {
+  return (*this = *this ^ y);
 }
 
 //---------------------------------------------------------------------------
-inline uint128 &uint128::operator/=(const uint128 &y)
-{
-  return *this = *this / y;
+inline uint128 &uint128::operator/=(const uint128 &y) {
+  return (*this = *this / y);
 }
 
 //---------------------------------------------------------------------------
-inline uint128 &uint128::operator%=(const uint128 &y)
-{
-  return *this = *this % y;
+inline uint128 &uint128::operator%=(const uint128 &y) {
+  return (*this = *this % y);
 }
 
 //---------------------------------------------------------------------------
-inline uint128 &uint128::operator*=(const uint128 &y)
-{
-  return *this = *this * y;
+inline uint128 &uint128::operator*=(const uint128 &y) {
+  return (*this = *this * y);
 }
 
 //---------------------------------------------------------------------------
-inline uint128 &uint128::operator<<=(int cnt)
-{
-  return *this = *this << cnt;
+inline uint128 &uint128::operator<<=(int cnt) {
+  return (*this = *this << cnt);
 }
 
 //---------------------------------------------------------------------------
-inline uint128 &uint128::operator>>=(int cnt)
-{
-  return *this = *this >> cnt;
+inline uint128 &uint128::operator>>=(int cnt) {
+  return (*this = *this >> cnt);
 }
 
 //---------------------------------------------------------------------------
-inline uint128 &uint128::operator++(void)
-{
-  if ( ++l == 0 )
-    ++h;
+inline uint128 &uint128::operator++(void) {
+  if ( ++l == 0 ) ++h;
   return *this;
 }
 
 //---------------------------------------------------------------------------
-inline uint128 &uint128::operator--(void)
-{
-  if ( l == 0 )
-    --h;
+inline uint128 &uint128::operator--(void) {
+  if ( l == 0 ) --h;
   --l;
   return *this;
 }
 
 //---------------------------------------------------------------------------
-inline uint128 operator-(const uint128 &x)
-{
+inline uint128 operator-(const uint128 &x) {
   return ~x + 1;
 }
 

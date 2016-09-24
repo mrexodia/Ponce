@@ -21,10 +21,7 @@
 
 #ifndef __KERNWIN_HPP
 #define __KERNWIN_HPP
-#include "pro.h"
 #pragma pack(push, 1)           // IDA uses 1 byte alignments!
-
-typedef int mmmchar;
 
 #ifndef SWIG
 typedef uchar color_t;          ///< see <lines.hpp>
@@ -32,10 +29,7 @@ typedef uval_t bmask_t;         ///< see <enum.hpp>
 typedef tid_t enum_t;           ///< see <enum.hpp>
 struct areavec_t;               ///< see <area.hpp>
 class location_t;               ///< see <moves.hpp>
-struct lochist_entry_t;         ///< see <moves.hpp>
 struct strwinsetup_t;           ///< see <strlist.hpp>
-struct renderer_info_t;         ///< see <moves.hpp>
-struct segm_move_infos_t;       ///< see <moves.hpp>
 #endif // SWIG
 
 /// Message box kinds
@@ -133,13 +127,10 @@ enum vme_button_t
 //-------------------------------------------------------------------------
 /// \defgroup SETMENU_ Set menu flags
 /// Passed as 'flags' parameter to attach_action_to_menu()
-/// In case menupath == NULL new item will be added to the end of menu even when
-/// SETMENU_APP is not set. SETMENU_FIRST can be used to change this behaviour
 //@{
-#define SETMENU_POSMASK     0x3
+#define SETMENU_POSMASK     0x1
 #define SETMENU_INS         0x0 ///< add menu item before the specified path (default)
 #define SETMENU_APP         0x1 ///< add menu item after the specified path
-#define SETMENU_FIRST       0x2 ///< add item to the beginning of menu
 //@}
 
 #ifndef SWIG
@@ -167,9 +158,9 @@ union callui_t
   segreg_area_t *sraptr;
 };
 
-/// Events marked as 'ui:' should be used as a parameter to callui().
+/// Events marked as '*' should be used as a parameter to callui().
 /// (See convenience functions like get_screen_ea())
-/// Events marked as 'cb:' are designed to be callbacks and should not
+/// Events marked as 'cb' are designed to be callbacks and should not
 /// be used in callui(). The user may hook to ::HT_UI events to catch them
 
 enum ui_notification_t
@@ -206,16 +197,16 @@ enum ui_notification_t
                         ///< \param none
                         ///< \return void
 
-  ui_old_jumpto,        ///< ui: Jump to the specified address.
+  ui_old_jumpto,        ///< * Jump to the specified address.
                         ///< \param ea          (::ea_t) address to jump to
                         ///< \param operand_num (int) -1: don't change x coord
                         ///< \return bool success
 
-  ui_readsel,           ///< ui: see read_selection()
+  ui_readsel,           ///< * see read_selection()
 
-  ui_unmarksel,         ///< ui: see unmark_selection()
+  ui_unmarksel,         ///< * see unmark_selection()
 
-  ui_screenea,          ///< ui: see get_screen_ea()
+  ui_screenea,          ///< * see get_screen_ea()
 
   ui_saving,            ///< cb: The kernel is flushing its buffers to the disk.
                         ///< The user interface should save its state.
@@ -227,26 +218,26 @@ enum ui_notification_t
                         ///< \param none
                         ///< \return void
 
-  ui_refreshmarked,     ///< ui: see refresh_idaview()
+  ui_refreshmarked,     ///< * see refresh_idaview()
 
-  ui_refresh,           ///< ui: see refresh_idaview_anyway()
+  ui_refresh,           ///< * see refresh_idaview_anyway()
 
-  ui_choose,            ///< ui: Allow the user to choose an object.
+  ui_choose,            ///< * Allow the user to choose an object.
                         ///< Always use the helper inline functions for this code.
                         ///< See \ref ui_choose_funcs for a list of such functions.
                         ///< \param type  (::choose_type_t) type of chooser to display
                         ///< \param ... other parameters depend on the given type
                         ///< \return depends on the given type
 
-  ui_close_chooser,     ///< ui: see close_chooser()
+  ui_close_chooser,     ///< * see close_chooser()
 
-  ui_banner,            ///< ui: see banner(int)
+  ui_banner,            ///< * see banner(int)
 
-  ui_setidle,           ///< ui: Set a function to call at idle times.
+  ui_setidle,           ///< * Set a function to call at idle times.
                         ///< \param func  (int (*)(void)) pointer to function that will be called
                         ///< \return void
 
-  ui_noabort,           ///< ui: Disable 'abort' menu item - the database was not compressed.
+  ui_noabort,           ///< * Disable 'abort' menu item - the database was not compressed.
                         ///< \param none
                         ///< \return void
 
@@ -255,50 +246,50 @@ enum ui_notification_t
                         ///< \param none
                         ///< \return void
 
-  ui_mbox,              ///< ui: Show a message box.
+  ui_mbox,              ///< * Show a message box.
                         ///< \param kind    (::mbox_kind_t)
                         ///< \param format  (const char *) format of message body
                         ///< \param va      (va_list]) format args
                         ///< \return void
 
-  ui_beep,              ///< ui: see beep()
+  ui_beep,              ///< * see beep()
 
-  ui_msg,               ///< ui: Show a message in the message window. Also see ::ui_umsg.
+  ui_msg,               ///< * Show a message in the message window. Also see ::ui_umsg.
                         ///< \param format  (const char *) format of message body
                         ///< \param va      (va_list) format args
                         ///< \return number of bytes output
 
-  ui_askyn,             ///< ui: see askbuttons_c()
+  ui_askyn,             ///< * see askbuttons_c()
 
-  ui_askfile,           ///< ui: see askfile_c()
+  ui_askfile,           ///< * see askfile_c()
 
-  ui_form,              ///< ui: see \ref FORM_C
+  ui_form,              ///< * see \ref FORM_C
 
-  ui_close_form,        ///< ui: see close_form()
+  ui_close_form,        ///< * see close_form()
 
-  ui_clearbreak,        ///< ui: Clear ctrl-break flag.
+  ui_clearbreak,        ///< * Clear ctrl-break flag.
                         ///< NB: this call is also used to get ida version
                         ///< \param none
                         ///< \return void
 
-  ui_wasbreak,          ///< ui: see wasBreak()
+  ui_wasbreak,          ///< * see wasBreak()
 
-  ui_asktext,           ///< ui: see asktext()
+  ui_asktext,           ///< * see asktext()
 
-  ui_askstr,            ///< ui: see askstr()
+  ui_askstr,            ///< * see askstr()
 
-  ui_askident,          ///< ui: see askident()
+  ui_askident,          ///< * see askident()
 
-  ui_askaddr,           ///< ui: see askaddr()
+  ui_askaddr,           ///< * see askaddr()
 
-  ui_askseg,            ///< ui: see askseg()
+  ui_askseg,            ///< * see askseg()
 
-  ui_asklong,           ///< ui: see asklong()
+  ui_asklong,           ///< * see asklong()
 
   ui_obsolete_showauto, ///< OBSOLETE. Use showAuto()
   ui_obsolete_setstate, ///< OBSOLETE. Use setStat()
 
-  ui_add_idckey,        ///< ui: see add_idc_hotkey()
+  ui_add_idckey,        ///< * see add_idc_hotkey()
 
 /// \defgroup IDCHK_ IDC hotkey error codes
 /// return values for add_idc_hotkey()
@@ -309,28 +300,28 @@ enum ui_notification_t
 #define IDCHK_MAX       -3      ///< too many IDC hotkeys
 //@}
 
-  ui_del_idckey,        ///< ui: see ui_del_idckey()
+  ui_del_idckey,        ///< * see ui_del_idckey()
 
-  ui_old_get_marker,    ///< ui: OBSOLETE - Get pointer to function.
+  ui_old_get_marker,    ///< * OBSOLETE - Get pointer to function.
                         ///< "void mark_idaview_for_refresh(ea_t ea)"
                         ///< This function will be called by the kernel when the
                         ///< database is changed
                         ///< \param none
                         ///< \return vptr: (idaapi*marker)(ea_t ea) or NULL
 
-  ui_analyzer_options,  ///< ui: see analyzer_options()
+  ui_analyzer_options,  ///< * see analyzer_options()
 
-  ui_is_msg_inited,     ///< ui: see is_msg_inited()
+  ui_is_msg_inited,     ///< * see is_msg_inited()
 
-  ui_load_file,         ///< ui: see ui_load_new_file()
+  ui_load_file,         ///< * see ui_load_new_file()
 
-  ui_run_dbg,           ///< ui: see ui_run_debugger()
+  ui_run_dbg,           ///< * see ui_run_debugger()
 
-  ui_get_cursor,        ///< ui: see get_cursor()
+  ui_get_cursor,        ///< * see get_cursor()
 
-  ui_get_curline,       ///< ui: see get_curline()
+  ui_get_curline,       ///< * see get_curline()
 
-  ui_get_hwnd,          ///< ui: Get HWND of the main IDA window.
+  ui_get_hwnd,          ///< * Get HWND of the main IDA window.
                         ///< \param none
                         ///< \return HWND or NULL:
                         ///<   - txt version: NULL
@@ -338,9 +329,9 @@ enum ui_notification_t
                         ///<   - qt version under windows: HWND
                         ///<   - HWND is returned in result.vptr
 
-  ui_copywarn,          ///< ui: see display_copyright_warning()
+  ui_copywarn,          ///< * see display_copyright_warning()
 
-  ui_getvcl,            ///< ui: Get VCL variables.
+  ui_getvcl,            ///< * Get VCL variables.
                         ///< \param app     (TApplication **)
                         ///< \param screen  (TScreen **)
                         ///< \param mouse   (TMouse **)
@@ -350,23 +341,23 @@ enum ui_notification_t
   ui_idp_event,         ///< cb: A processor module event has been generated (idp.hpp, idp_notify).
                         ///< This event should not be used as a parameter to callui().
                         ///< The kernel uses it to notify the ui about the events
-                        ///< \param event_mode (int) one of \ph{idp_notify}
+                        ///< \param event_mode (\ph{idp_notify})
                         ///< \param va         (va_list)
                         ///< \return int code; code==0 - process the event.
                         ///<         otherwise return code as the result
 
-  ui_lock_range_refresh,///< ui: Lock the ui_range refreshes.
+  ui_lock_range_refresh,///< * Lock the ui_range refreshes.
                         ///< The ranges will not be refreshed until the corresponding
                         ///< ::ui_unlock_range_refresh is issued.
                         ///< \param none
                         ///< \return void
 
-  ui_unlock_range_refresh,///< ui: Unlock the ::ui_range refreshes.
+  ui_unlock_range_refresh,///< * Unlock the ::ui_range refreshes.
                         ///< If the number of locks is back to zero, then refresh the ranges.
                         ///< \param none
                         ///< \return void
 
-  ui_setbreak,          ///< ui: see setBreak()
+  ui_setbreak,          ///< * see setBreak()
 
   ui_genfile_callback,  ///< cb: handle html generation.
                         ///< \param html_header_cb_t **
@@ -374,14 +365,14 @@ enum ui_notification_t
                         ///< \param html_line_cb_t **
                         ///< \return void
 
-  ui_open_url,          ///< ui: see open_url()
+  ui_open_url,          ///< * see open_url()
 
-  ui_hexdumpea,         ///< ui: Return the current address in a hex view.
+  ui_hexdumpea,         ///< * Return the current address in a hex view.
                         ///< \param result       (::ea_t *)
                         ///< \param hexdump_num  (int)
                         ///< \return void
 
-  ui_set_xml,           ///< ui: set/update one or more XML values.
+  ui_set_xml,           ///< * set/update one or more XML values.
                         ///< \note obsolete, not supported anymore
                         ///< The 'name' element or attribute (use @XXX for an attribute)
                         ///< is created in all XML elements returned by the evaluation of the
@@ -393,38 +384,38 @@ enum ui_notification_t
                         ///< \param value  (const char *)
                         ///< \return bool
 
-  ui_get_xml,           ///< ui: return an XML value by evaluating the 'path' XPath expression.
+  ui_get_xml,           ///< * return an XML value by evaluating the 'path' XPath expression.
                         ///< \note obsolete, not supported anymore
                         ///< \param path   (const char *)
                         ///< \param value  (::idc_value_t *)
                         ///< \return bool
 
-  ui_del_xml,           ///< ui: delete XML values corresponding to the evaluation of the
+  ui_del_xml,           ///< * delete XML values corresponding to the evaluation of the
                         ///< 'path' XPath expression.
                         ///< \note obsolete, not supported anymore
                         ///< \param path  (const char *)
                         ///< \return bool
 
-  ui_push_xml,          ///< ui: push an XML element on a stack whose uppermost element will be
+  ui_push_xml,          ///< * push an XML element on a stack whose uppermost element will be
                         ///< used to evaluate future relative XPath expressions.
                         ///< \note obsolete, not supported anymore
                         ///< \param path  (const char *)
                         ///< \return bool
 
-  ui_pop_xml,           ///< ui: pop the uppermost XML element from the stack.
+  ui_pop_xml,           ///< * pop the uppermost XML element from the stack.
                         ///< \note obsolete, not supported anymore
                         ///< \param none
                         ///< \return bool
 
-  ui_get_key_code,      ///< ui: see get_key_code()
+  ui_get_key_code,      ///< * see get_key_code()
 
-  ui_setup_plugins_menu,///< ui: setup plugins submenu
+  ui_setup_plugins_menu,///< * setup plugins submenu
                         ///< \param none
                         ///< \return void
 
-  ui_refresh_navband,   ///< ui: see refresh_navband()
+  ui_refresh_navband,   ///< * see refresh_navband()
 
-  ui_obsolete_new_custom_viewer,
+  ui_new_custom_viewer, ///< * see create_custom_viewer(), also ::ui_new_ea_viewer
 
   ui_obsolete_add_menu_item, ///< See ::ui_register_action/::ui_attach_action_to_menu
 
@@ -444,11 +435,11 @@ enum ui_notification_t
                         ///< \retval true debugger menu has been added
                         ///< \retval false debugger menu will be removed
 
-  ui_get_curplace,      ///< ui: see get_custom_viewer_place()
+  ui_get_curplace,      ///< * see get_custom_viewer_place()
 
-  ui_create_tform,      ///< ui: see create_tform()
+  ui_create_tform,      ///< * see create_tform()
 
-  ui_open_tform,        ///< ui: see open_tform()
+  ui_open_tform,        ///< * see open_tform()
 
 /// \defgroup FORM_OPEN Form open flags
 /// passed as options to OpenForm_c() and open_tform()
@@ -472,7 +463,7 @@ enum ui_notification_t
 #define FORM_NOT_CLOSED_BY_ESC 0x200 ///< override idagui.cfg:CLOSED_BY_ESC: esc will not close
 //@}
 
-  ui_close_tform,       ///< ui: see close_tform()
+  ui_close_tform,       ///< * see close_tform()
 
 /// \defgroup FORM_CLOSE Form close flags
 /// passed as options to close_tform()
@@ -483,13 +474,13 @@ enum ui_notification_t
 #define FORM_CLOSE_LATER    0x8 ///< assign the deletion of the form to the UI loop ///< \return void
 //@}
 
-  ui_switchto_tform,    ///< ui: see switchto_tform()
+  ui_switchto_tform,    ///< * see switchto_tform()
 
-  ui_find_tform,        ///< ui: see find_tform()
+  ui_find_tform,        ///< * see find_tform()
 
-  ui_get_current_tform, ///< ui: see get_current_tform()
+  ui_get_current_tform, ///< * see get_current_tform()
 
-  ui_get_tform_handle,  ///< ui: Get tform handle.
+  ui_get_tform_handle,  ///< * Get tform handle.
                         ///< \note obsolete, not supported
                         ///< \param form  (TForm *)
                         ///< \return HWND
@@ -502,16 +493,14 @@ enum ui_notification_t
   ui_tform_visible,     ///< TForm is displayed on the screen.
                         ///< Use this event to populate the window with controls
                         ///< \param form  (TForm *)
-                        ///< \param HWND  (void *) a HWND or QWidget*
+                        ///< \param HWND  (HWND or QWidget*)
                         ///< In unix, always work with QWigdet*
                         ///< In windows, use HWND if FORM_QWIDGET was not specified in open_tform()
                         ///< \return void
 
   ui_tform_invisible,   ///< TForm is being closed.
                         ///< Use this event to destroy the window controls
-                        ///< \param form  (TForm *)
-                        ///< \param HWND  (void *) a HWND or QWidget*
-                        ///< \return void
+                        ///< params/return same as ::ui_tform_visible
 
   ui_get_ea_hint,       ///< cb: ui wants to display a simple hint for an address.
                         ///< Use this event to generate a custom hint
@@ -523,22 +512,22 @@ enum ui_notification_t
 
   ui_get_item_hint,     ///< cb: ui wants to display multiline hint for an item.
                         ///< See also more generic ::ui_get_custom_viewer_hint
-                        ///< \param ea                    (ea_t) or item id like a structure or enum member
+                        ///< \param ea (ea_t, or item id like a structure or enum member)
                         ///< \param max_lines             (int) maximal number of lines
                         ///< \param[out] important_lines  (int *) number of important lines. if zero, output is ignored
                         ///< \param[out] hint             (::qstring *) the output string
                         ///< \return true if generated a hint
 
-  ui_set_nav_colorizer, ///< ui: see set_nav_colorizer()
+  ui_set_nav_colorizer, ///< * see set_nav_colorizer()
 
   ui_refresh_custom_viewer,
-                        ///< ui: see refresh_custom_viewer()
+                        ///< * see refresh_custom_viewer()
 
   ui_destroy_custom_viewer,
-                        ///< ui: see destroy_custom_viewer()
+                        ///< * see destroy_custom_viewer()
 
   ui_jump_in_custom_viewer,
-                        ///< ui: see jumpto()
+                        ///< * see jumpto()
 
   ui_obsolete_set_custom_viewer_popup,
                         ///< see ::ui_attach_action_to_popup
@@ -550,11 +539,11 @@ enum ui_notification_t
                         ///< see ::ui_set_custom_viewer_handlers
 
   ui_get_custom_viewer_curline,
-                        ///< ui: see get_custom_viewer_curline()
+                        ///< * see get_custom_viewer_curline()
 
-  ui_get_current_viewer,///< ui: see get_current_viewer()
+  ui_get_current_viewer,///< * see get_current_viewer()
 
-  ui_is_idaview,        ///< ui: see is_idaview()
+  ui_is_idaview,        ///< * see is_idaview()
 
   ui_get_custom_viewer_hint,
                         ///< cb: ui wants to display a hint for a viewer (idaview or custom).
@@ -565,10 +554,10 @@ enum ui_notification_t
                         ///< \param[out] hint             (::qstring *) the output string
                         ///< \return true if generated a hint
 
-  ui_readsel2,          ///< ui: see readsel2()
+  ui_readsel2,          ///< * see readsel2()
 
   ui_set_custom_viewer_range,
-                        ///< ui: set_custom_viewer_range()
+                        ///< * set_custom_viewer_range()
 
   ui_database_inited,   ///< cb: database initialization has completed.
                         ///< the kernel is about to run idc scripts
@@ -583,14 +572,14 @@ enum ui_notification_t
                         ///< \return void
 
   ui_set_custom_viewer_handler,
-                        ///< ui: see set_custom_viewer_handler().
+                        ///< * see set_custom_viewer_handler().
                         ///< also see other examples in \ref ui_scvh_funcs
 
-  ui_refresh_chooser,   ///< ui: see refresh_chooser()
+  ui_refresh_chooser,   ///< * see refresh_chooser()
 
   ui_obsolete_add_chooser_cmd,
 
-  ui_open_builtin,      ///< ui: open a window of a built-in type. see \ref ui_open_builtin_funcs
+  ui_open_builtin,      ///< * open a window of a built-in type. see \ref ui_open_builtin_funcs
 
   ui_preprocess,        ///< cb: ida ui is about to handle a user command.
                         ///< \param name  (const char *) ui command name.
@@ -601,13 +590,13 @@ enum ui_notification_t
   ui_postprocess,       ///< cb: an ida ui command has been handled
 
   ui_set_custom_viewer_mode,
-                        ///< ui: switch between graph/text modes.
+                        ///< * switch between graph/text modes.
                         ///< \param custom_viewer  (TCustomControl *)
                         ///< \param graph_view     (bool)
                         ///< \param silent         (bool)
                         ///< \return bool success
 
-  ui_gen_disasm_text,   ///< ui: see gen_disasm_text()
+  ui_gen_disasm_text,   ///< * see gen_disasm_text()
 
   ui_gen_idanode_text,  ///< cb: generate disassembly text for a node.
                         ///< Plugins may intercept this event and provide
@@ -618,22 +607,22 @@ enum ui_notification_t
                         ///< \param text  (text_t *)
                         ///< \return bool text_has_been_generated
 
-  ui_install_cli,       ///< ui: see:
+  ui_install_cli,       ///< * see:
                         ///< install_command_interpreter(),
                         ///< remove_command_interpreter()
 
-  ui_execute_sync,      ///< ui: see execute_sync()
+  ui_execute_sync,      ///< * see execute_sync()
 
   ui_enable_input_hotkeys,
-                        ///< ui: enable or disable alphanumeric hotkeys - they can interfere with user input.
+                        ///< * enable or disable alphanumeric hotkeys - they can interfere with user input.
                         ///< \note obsolete, not supported
                         ///< \param enable (bool)
                         ///< \return bool new_state
 
-  ui_get_chooser_obj,   ///< ui: see get_chooser_obj()
+  ui_get_chooser_obj,   ///< * see get_chooser_obj()
 
   ui_enable_chooser_item_attrs,
-                        ///< ui: see enable_chooser_item_attrs()
+                        ///< * see enable_chooser_item_attrs()
 
   ui_get_chooser_item_attrs,
                         ///< cb: get item-specific attributes for a chooser.
@@ -643,7 +632,7 @@ enum ui_notification_t
                         ///< \param attrs           (::chooser_item_attrs_t *)
                         ///< \return void
 
-  ui_set_dock_pos,      ///< ui: see set_dock_pos()
+  ui_set_dock_pos,      ///< * see set_dock_pos()
 
 /// \defgroup DP_ Docking positions
 /// passed as 'orient' parameter to set_dock_pos()
@@ -661,21 +650,21 @@ enum ui_notification_t
 #define DP_FLOATING        0x0080 ///< Make src_form floating
 //@}
 
-  ui_get_opnum,         ///< ui: see get_opnum()
+  ui_get_opnum,         ///< * see get_opnum()
 
   ui_install_custom_datatype_menu,
-                        ///< ui: install/remove custom data type menu item.
+                        ///< * install/remove custom data type menu item.
                         ///< \param dtid     (int) data type id
                         ///< \param install  (bool)
                         ///< \return success
 
   ui_install_custom_optype_menu,
-                        ///< ui: install/remove custom operand type menu item.
+                        ///< * install/remove custom operand type menu item.
                         ///< \param fid      (int) format id
                         ///< \param install  (bool)
                         ///< \return success
 
-  ui_get_range_marker,  ///< ui: Get pointer to function.
+  ui_get_range_marker,  ///< * Get pointer to function.
                         ///< see mark_range_for_refresh(ea_t, asize_t).
                         ///< This function will be called by the kernel when the
                         ///< database is changed
@@ -683,20 +672,20 @@ enum ui_notification_t
                         ///< \return vptr: (idaapi*marker)(ea_t ea, asize_t) or NULL
 
   ui_get_highlighted_identifier,
-                        ///< ui: see get_highlighted_identifier()
+                        ///< * see get_highlighted_identifier()
 
-  ui_lookup_key_code,   ///< ui: see lookup_key_code()
+  ui_lookup_key_code,   ///< * see lookup_key_code()
 
   ui_load_custom_icon_file,
-                        ///< ui: see load_custom_icon(const char *)
+                        ///< * see load_custom_icon(const char *)
 
-  ui_load_custom_icon,  ///< ui: see load_custom_icon(const void *, unsigned int, const char *)
+  ui_load_custom_icon,  ///< * see load_custom_icon(const void *, unsigned int, const char *)
 
-  ui_free_custom_icon,  ///< ui: see free_custom_icon()
+  ui_free_custom_icon,  ///< * see free_custom_icon()
 
-  ui_process_action,    ///< ui: see process_ui_action()
+  ui_process_action,    ///< * see process_ui_action()
 
-  ui_new_code_viewer,   ///< ui: see create_code_viewer()
+  ui_new_code_viewer,   ///< * see create_code_viewer()
 
 /// \defgroup CDVF_ Code viewer flags
 /// passed as 'flags' parameter to create_code_viewer()
@@ -706,33 +695,33 @@ enum ui_notification_t
 #define CDVF_STATUSBAR      0x0004    ///< keep the status bar in the custom viewer
 //@}
 
-  ui_addons,            ///< ui: see \ref ui_addons_funcs
+  ui_addons,            ///< * see \ref ui_addons_funcs
 
   ui_execute_ui_requests,
-                        ///< ui: see execute_ui_requests(ui_request_t, ...)
+                        ///< * see execute_ui_requests(ui_request_t, ...)
 
   ui_execute_ui_requests_list,
-                        ///< ui: see execute_ui_requests(ui_requests_t)
+                        ///< * see execute_ui_requests(ui_requests_t)
 
-  ui_register_timer,    ///< ui: see register_timer()
+  ui_register_timer,    ///< * see register_timer()
 
-  ui_unregister_timer,  ///< ui: see unregister_timer()
+  ui_unregister_timer,  ///< * see unregister_timer()
 
   ui_take_database_snapshot,
-                        ///< ui: see take_database_snapshot()
+                        ///< * see take_database_snapshot()
 
   ui_restore_database_snapshot,
-                        ///< ui: see restore_database_snapshot()
+                        ///< * see restore_database_snapshot()
 
   ui_set_code_viewer_line_handlers,
-                        ///< ui: see set_code_viewer_line_handlers()
+                        ///< * see set_code_viewer_line_handlers()
 
   ui_refresh_custom_code_viewer,
-                        ///< ui: Refresh custom code viewer.
+                        ///< * Refresh custom code viewer.
                         ///< \param TCustomControl *code_viewer
                         ///< \return void
 
-  ui_new_source_viewer, ///< ui: Create new source viewer.
+  ui_new_source_viewer, ///< * Create new source viewer.
                         ///< \param parent    (TWinControl *)
                         ///< \param custview  (TCustomControl *)
                         ///< \param path      (const char *)
@@ -749,99 +738,99 @@ enum ui_notification_t
 #define SVF_LINES_BYPTR 0x0001   ///< remember the 'lines' ptr. do not make a copy of '*lines'
 //@}
 
-  ui_get_tab_size,      ///< ui: see get_tab_size()
+  ui_get_tab_size,      ///< * see get_tab_size()
 
-  ui_set_menu_item_icon,///< ui: see set_menu_item_icon()
+  ui_set_menu_item_icon,///< * see set_menu_item_icon()
 
-  ui_repaint_qwidget,   ///< ui: see repaint_custom_viewer()
+  ui_repaint_qwidget,   ///< * see repaint_custom_viewer()
 
-  ui_enable_menu_item,  ///< ui: see enable_menu_item()
+  ui_enable_menu_item,  ///< * see enable_menu_item()
 
   ui_custom_viewer_set_userdata,
-                        ///< ui: Change ::place_t user data for a custom view.
+                        ///< * Change ::place_t user data for a custom view.
                         ///< \param custom_viewer  (TCustomControl *)
                         ///< \param user_data      (void *)
                         ///< \return old user_data
 
   ui_obsolete_new_ea_viewer,
 
-  ui_jumpto,            ///< ui: see jumpto(ea_t, int, int)
+  ui_jumpto,            ///< * see jumpto(ea_t, int, int)
 
-  ui_choose_info,       ///< ui: see choose3()
+  ui_choose_info,       ///< * see choose3()
 
   ui_cancel_exec_request,
-                        ///< ui: see cancel_exec_request()
+                        ///< * see cancel_exec_request()
 
-  ui_show_form,         ///< ui: see OpenForm_cv()
+  ui_show_form,         ///< * see OpenForm_cv()
 
   ui_unrecognized_config_directive,
-                        ///< ui: Possibly handle an extra config directive,
+                        ///< * Possibly handle an extra config directive,
                         ///<   passed through '-d' or '-D'.
                         ///< \param directive  (const char *) The config directive
                         ///< \return char * - one of \ref IDPOPT_RET
 
   ui_obsolete_add_chooser_menu_cb,
 
-  ui_get_viewer_name,   ///< ui: see get_viewer_name()
+  ui_get_viewer_name,   ///< * see get_viewer_name()
 
-  ui_get_output_cursor, ///< ui: see get_output_cursor()
+  ui_get_output_cursor, ///< * see get_output_cursor()
 
   ui_get_output_curline,
-                        ///< ui: see get_output_curline()
+                        ///< * see get_output_curline()
 
   ui_get_output_selected_text,
-                        ///< ui: see get_output_selected_text()
+                        ///< * see get_output_selected_text()
 
   ui_obsolete_add_output_popup, ///< see ::ui_attach_action_to_popup
 
-  ui_get_tform_idaview, ///< ui: see get_tform_idaview()
+  ui_get_tform_idaview, ///< * see get_tform_idaview()
 
-  ui_get_renderer_type, ///< ui: see get_view_renderer_type()
+  ui_get_renderer_type, ///< * see get_view_renderer_type()
 
-  ui_set_renderer_type, ///< ui: see set_view_renderer_type()
+  ui_set_renderer_type, ///< * see set_view_renderer_type()
 
-  ui_askfile2,          ///< ui: see askfile2_c()
+  ui_askfile2,          ///< * see askfile2_c()
 
   ui_get_viewer_user_data,
-                        ///< ui: see get_viewer_user_data()
+                        ///< * see get_viewer_user_data()
 
   ui_get_viewer_place_type,
-                        ///< ui: see get_viewer_place_type()
+                        ///< * see get_viewer_place_type()
 
-  ui_obsolete_new_ea_viewer2,
+  ui_new_ea_viewer,     ///< * see create_ea_viewer()
 
   ui_ea_viewer_history_push_and_jump,
-                        ///< ui: see ea_viewer_history_push_and_jump()
+                        ///< * see ea_viewer_history_push_and_jump()
 
   ui_ea_viewer_history_info,
-                        ///< ui: see get_ea_viewer_history_info()
+                        ///< * see get_ea_viewer_history_info()
 
   ui_register_action,
-                        ///< ui: see register_action()
+                        ///< * see register_action()
 
   ui_unregister_action,
-                        ///< ui: see unregister_action()
+                        ///< * see unregister_action()
 
   ui_attach_action_to_menu,
-                        ///< ui: see attach_action_to_menu()
+                        ///< * see attach_action_to_menu()
 
   ui_detach_action_from_menu,
-                        ///< ui: see detach_action_from_menu()
+                        ///< * see detach_action_from_menu()
 
   ui_attach_action_to_popup,
-                        ///< ui: see attach_action_to_popup()
+                        ///< * see attach_action_to_popup()
 
   ui_detach_action_from_popup,
-                        ///< ui: see detach_action_from_popup()
+                        ///< * see detach_action_from_popup()
 
   ui_attach_dynamic_action_to_popup,
-                        ///< ui: see create attach_dynamic_action_to_popup()
+                        ///< * see create attach_dynamic_action_to_popup()
 
   ui_attach_action_to_toolbar,
-                        ///< ui: see attach_action_to_toolbar()
+                        ///< * see attach_action_to_toolbar()
 
   ui_detach_action_from_toolbar,
-                        ///< ui: see detach_action_from_toolbar()
+                        ///< * see detach_action_from_toolbar()
 
   ui_updating_actions,  ///< cb: IDA is about to update all actions. If your plugin
                         ///< needs to perform expensive operations more than once
@@ -869,7 +858,7 @@ enum ui_notification_t
                         ///< \param popup_handle  (TPopupMenu *)
                         ///< \return void
                         ///<
-                        ///< ui: see ui_finish_populating_tform_popup
+                        ///< * see ui_finish_populating_tform_popup
 
   ui_finish_populating_tform_popup,
                         ///< cb: IDA is about to be done populating the
@@ -880,20 +869,20 @@ enum ui_notification_t
                         ///< \param popup_handle  (TPopupMenu *)
                         ///< \return void
                         ///<
-                        ///< ui: see ui_populating_tform_popup
+                        ///< * see ui_populating_tform_popup
 
   ui_update_action_attr,
-                        ///< ui: see \ref ui_uaa_funcs
+                        ///< * see \ref ui_uaa_funcs
 
-  ui_get_action_attr,   ///< ui: see \ref ui_gaa_funcs
+  ui_get_action_attr,   ///< * see \ref ui_gaa_funcs
 
-  ui_plugin_loaded,     ///< cb: The plugin was loaded in memory.
+  ui_plugin_loaded,     ///< * The plugin was loaded in memory.
                         ///< \param plugin_info  (const ::plugin_info_t *)
 
-  ui_plugin_unloading,  ///< cb: The plugin is about to be unloaded
+  ui_plugin_unloading,  ///< * The plugin is about to be unloaded
                         ///< \param plugin_info  (const ::plugin_info_t *)
 
-  ui_get_tform_type,    ///< ui: see get_tform_type()
+  ui_get_tform_type,    ///< * see get_tform_type()
 
   ui_current_tform_changed,
                         ///< cb: The currently-active TForm changed.
@@ -901,9 +890,9 @@ enum ui_notification_t
                         ///< \param prev_form (TForm *)
                         ///< \return void
 
-  ui_get_tform_title,   ///< ui: see get_tform_title()
+  ui_get_tform_title,   ///< * see get_tform_title()
 
-  ui_umsg,              ///< ui: Show a message in the message window.
+  ui_umsg,              ///< * Show a message in the message window.
                         ///< All strings ('format', and those that will be used for
                         ///< '%s' format specifiers) MUST be utf-8-encoded strings.
                         ///< See also: ::ui_msg
@@ -911,35 +900,13 @@ enum ui_notification_t
                         ///< \param va      (va_list)
                         ///< \return number of bytes output
 
-  ui_obsolete_set_custom_viewer_handlers2,
+  ui_set_custom_viewer_handlers,
+                        ///< * see set_custom_viewer_handlers()
 
   ui_get_user_strlist_options,
-                        ///< ui: see get_user_strlist_options()
+                        ///< * see get_user_strlist_options()
 
-  ui_askqstr,           ///< ui: see askqstr()
-
-  ui_new_custom_viewer, ///< ui: see create_viewer()
-
-  // custom viewer navigation flags
-#define CVNF_LAZY (1 << 0) ///< try and move the cursor to a line displaying the
-                           ///< place_t if possible. This might disregard the Y
-                           ///< position in case of success
-#define CVNF_JUMP (1 << 1) ///< push the current position in this viewer's
-                           ///< lochist_t before going to the new location
-#define CVNF_ACT  (1 << 2) ///< activate (i.e., switch to) the viewer.
-                           ///< Activation is performed before the new
-                           ///< lochist_entry_t instance is actually copied
-                           ///< to the viewer's lochist_t (otherwise, if the
-                           ///< viewer was invisible its on_location_changed()
-                           ///< handler wouldn't be called.)
-  ui_custom_viewer_jump,///< ui: set the current location, and have the viewer display it
-                        ///< \param v     (TCustomControl *)
-                        ///< \param loc   (const lochist_entry_t *)
-                        ///< \param flags (uint32) or'ed combination of CVNF_* values
-                        ///< \return success
-
-  ui_set_custom_viewer_handlers,
-                        ///< ui: see set_custom_viewer_handlers()
+  ui_askqstr,           ///< * see askqstr()
 
   ui_last,              ///< the last notification code
 
@@ -1295,7 +1262,7 @@ public:
   /// \param ud       pointer to user-defined context data. Is supplied by ::linearray_t
   /// \param out_buf  the output buffer
   /// \param bufsize  size of the output buffer
-  virtual void idaapi print(void *ud, char *out_buf, size_t bufsize) const = 0;
+  virtual void idaapi print(void *ud, char *out_buf, size_t bufsize) const  = 0;
 
   /// Map the location to a number.
   /// This mapping is used to draw the vertical scrollbar.
@@ -1375,62 +1342,8 @@ public:
         int maxsize,
         int *default_lnnum,
         color_t *pfx_color,
-        bgcolor_t *bgcolor) const                                      = 0;
-
-  /// Serialize this instance.
-  /// It is fundamental that all instances of a particular subclass
-  /// of of place_t occupy the same number of bytes when serialized.
-  /// \param out   buffer to serialize into
-  virtual void idaapi serialize(bytevec_t *out) const                  = 0;
-
-  /// De-serialize into this instance.
-  /// 'pptr' should be incremented by as many bytes as
-  /// de-serialization consumed.
-  /// \param pptr pointer to a serialized representation of a place_t of this type.
-  /// \param end pointer to end of buffer.
-  /// \return whether de-serialization was successful
-  virtual bool idaapi deserialize(const uchar **pptr, const uchar *end)= 0;
-
-  /// Get the place's ID (i.e., the value returned by register_place_class())
-  /// \return the id
-  virtual int idaapi id() const                                        = 0;
-
-  /// Get this place type name.
-  /// All instances of a given class must return the same string.
-  /// \return the place type name. Please try and pick something that is
-  ///         not too generic, as it might clash w/ other plugins. A good
-  ///         practice is to prefix the class name with the name
-  ///         of your plugin. E.g., "myplugin:srcplace_t".
-  virtual const char *idaapi name() const                              = 0;
-
-  /// Map the location to an ea_t.
-  /// \return the corresponding ea_t, or BADADDR;
-  virtual ea_t idaapi toea() const { return BADADDR; }
-
-  /// Rebase the place instance
-  /// \param infos the segments that were moved
-  /// \return true if place was rebased, false otherwise
-  virtual bool idaapi rebase(const segm_move_infos_t & /*infos*/ ) { return true; }
-
-  /// Visit this place, possibly 'unhiding' a section of text.
-  /// If entering that place required some expanding, a place_t
-  /// should be returned that represents that section, plus some
-  /// flags for later use by 'leave()'.
-  /// \param out_flags flags to be used together with the place_t that is
-  ///                  returned, in order to restore the section to its
-  ///                  original state when leave() is called.
-  /// \return a place_t corresponding to the beginning of the section
-  ///         of text that had to be expanded. That place_t's leave() will
-  ///         be called with the flags contained in 'out_flags' when the user
-  ///         navigates away from it.
-  virtual place_t *idaapi enter(uint32 * /*out_flags*/) const { return NULL; }
-
-  /// Leave this place, possibly 'hiding' a section of text that was
-  /// previously expanded (at enter()-time.)
-  virtual void idaapi leave(uint32 /*flags*/) const {}
+        bgcolor_t *bgcolor) const                = 0;
 };
-
-#define DEFAULT_PLACE_LNNUM short(-1)
 
 #ifndef SWIG
 /// compare places and their lnnums
@@ -1438,30 +1351,20 @@ idaman int ida_export l_compare(const place_t *t1, const place_t *t2);
 
 //--------------------------------------------------------------------------
 /// Helper to define exported functions for ::place_t implementations
-#define define_place_exported_functions(classname)                                                      \
-class classname;                                                                                        \
-idaman void        ida_export classname ## __print(const classname *,void*,char*, size_t);              \
-idaman uval_t      ida_export classname ## __touval(const classname *,void*);                           \
-idaman place_t *   ida_export classname ## __clone(const classname *);                                  \
-idaman void        ida_export classname ## __copyfrom(classname *,const place_t*);                      \
-idaman place_t *   ida_export classname ## __makeplace(const classname *,void*,uval_t,short);           \
-idaman int         ida_export classname ## __compare(const classname *,const place_t*);                 \
-idaman void        ida_export classname ## __adjust(classname *,void*);                                 \
-idaman bool        ida_export classname ## __prev(classname *,void*);                                   \
-idaman bool        ida_export classname ## __next(classname *,void*);                                   \
-idaman bool        ida_export classname ## __beginning(const classname *,void*);                        \
-idaman bool        ida_export classname ## __ending(const classname *,void*);                           \
-idaman int         ida_export classname ## __generate(const classname *,void*,char**,int,int*,color_t*,bgcolor_t*);\
-idaman void        ida_export classname ## __serialize(const classname *, bytevec_t *out);              \
-idaman bool        ida_export classname ## __deserialize(classname *, const uchar **, const uchar *);   \
-idaman int         ida_export classname ## __id(const classname *);                                     \
-idaman const char *ida_export classname ## __name(const classname *);                                   \
-idaman ea_t        ida_export classname ## __toea(const classname *);                                   \
-idaman place_t *   ida_export classname ## __enter(const classname *, uint32 *);                        \
-idaman void        ida_export classname ## __leave(const classname *, uint32);                          \
-idaman bool        ida_export classname ## __rebase(classname *, const segm_move_infos_t &);
-
-
+#define define_place_exported_functions(classname)                                  \
+class classname;                                                                    \
+idaman void     ida_export classname ## __print(const classname *,void*,char*, size_t);    \
+idaman uval_t   ida_export classname ## __touval(const classname *,void*);                 \
+idaman place_t *ida_export classname ## __clone(const classname *);                        \
+idaman void     ida_export classname ## __copyfrom(classname *,const place_t*);            \
+idaman place_t *ida_export classname ## __makeplace(const classname *,void*,uval_t,short); \
+idaman int      ida_export classname ## __compare(const classname *,const place_t*);       \
+idaman void     ida_export classname ## __adjust(classname *,void*);                       \
+idaman bool     ida_export classname ## __prev(classname *,void*);                         \
+idaman bool     ida_export classname ## __next(classname *,void*);                         \
+idaman bool     ida_export classname ## __beginning(const classname *,void*);              \
+idaman bool     ida_export classname ## __ending(const classname *,void*);                 \
+idaman int      ida_export classname ## __generate(const classname *,void*,char**,int,int*,color_t*,bgcolor_t*);
 
 /// Helper to define virtual functions in ::place_t implementations
 #define define_place_virtual_functions(class)                           \
@@ -1475,7 +1378,7 @@ idaman bool        ida_export classname ## __rebase(classname *, const segm_move
         {        class ## __copyfrom(this,from); }                      \
   place_t *idaapi makeplace(void *ud,uval_t x,short _lnnum) const       \
         { return class ## __makeplace(this,ud,x,_lnnum); }              \
-  int idaapi compare(const place_t *t2) const                           \
+  int  idaapi compare(const place_t *t2) const                          \
         { return class ## __compare(this,t2); }                         \
   void idaapi adjust(void *ud)                                          \
         {        class ## __adjust(this,ud); }                          \
@@ -1489,30 +1392,10 @@ idaman bool        ida_export classname ## __rebase(classname *, const segm_move
         { return class ## __ending(this,ud); }                          \
   int idaapi generate (void *ud,char *lines[],int maxsize,int *_lnnum,  \
                        color_t *pfx_color, bgcolor_t *bg_color) const   \
-        {                                                               \
-          return class ## __generate(this,ud,lines,maxsize,_lnnum,      \
-                                                 pfx_color, bg_color);  \
-        }                                                               \
-  void idaapi serialize(bytevec_t *out) const                           \
-       { class ## __serialize(this, out); }                             \
-  bool idaapi deserialize(const uchar **pptr, const uchar *end)         \
-       { return class ## __deserialize(this, pptr, end); }              \
-  int idaapi id() const                                                 \
-       { return class ## __id(this); }                                  \
-  const char * idaapi name() const                                      \
-       { return class ## __name(this); }                                \
-  ea_t idaapi toea() const                                              \
-       { return class ## __toea(this); }                                \
-  place_t *idaapi enter(uint32 *out_flags) const                        \
-       { return class ## __enter(this, out_flags); }                    \
-  void idaapi leave(uint32 flags) const                                 \
-       { return class ## __leave(this, flags); }                        \
-  bool idaapi rebase(const segm_move_infos_t &infos)                    \
-       { return class ## __rebase(this, infos); }
+        { return class ## __generate(this,ud,lines,maxsize,_lnnum,      \
+                                                pfx_color, bg_color); }
 
 define_place_exported_functions(simpleline_place_t)
-
-
 #endif // SWIG
 
 //--------------------------------------------------------------------------
@@ -1576,8 +1459,7 @@ public:
 define_place_exported_functions(idaplace_t)
 #endif // SWIG
 /// A location in a disassembly view
-class idaplace_t : public place_t
-{
+class idaplace_t : public place_t {
 public:
   ea_t ea; ///< address
   idaplace_t(void) {} ///< Constructor
@@ -1591,8 +1473,7 @@ public:
 define_place_exported_functions(enumplace_t)
 #endif // SWIG
 /// A location in an enum view
-class enumplace_t : public place_t
-{
+class enumplace_t : public place_t {
 public:
   size_t idx;           ///< enum serial number
   bmask_t bmask;        ///< enum member bitmask
@@ -1612,8 +1493,7 @@ public:
 define_place_exported_functions(structplace_t)
 #endif // SWIG
 /// A location in a struct view
-class structplace_t : public place_t
-{
+class structplace_t : public place_t {
 public:
   uval_t idx;             ///< struct serial number
   uval_t offset;          ///< offset within struct
@@ -1622,133 +1502,16 @@ public:
   define_place_virtual_functions(structplace_t);
 };
 
-#define PCF_EA_CAPABLE 0x00000001
-
-//-------------------------------------------------------------------------
-idaman int ida_export internal_register_place_class(
-        const place_t *tmplate,
-        int flags,
-        const plugin_t *owner,
-        int sdk_version);
-
-
-
-//-------------------------------------------------------------------------
-/// Register information about a place_t class.
-///
-/// The kernel will not take ownership, nor delete the 'tmplate' instance.
-/// Therefore, it's up to the plugin to handle it (the recommended way
-/// of doing it is to pass address of a const static instance.)
-/// In addition, the place_t will be automatically unregistered when the owner
-/// plugin is unloaded from memory.
-/// \param tmplate the place_t template
-/// \param flags   or'ed combination of PCF_* flags
-/// \param owner   the owner plugin of the place_t type. Cannot be NULL.
-/// \return the place_t ID, or -1 if an error occured.
-inline int register_place_class(
-        const place_t *tmplate,
-        int flags,
-        const plugin_t *owner)
+#ifndef SWIG
+/// The saved struct view position in the database
+struct saved_structplace_t
 {
-  return internal_register_place_class(tmplate, flags, owner, IDA_SDK_VERSION);
-}
-
-//-------------------------------------------------------------------------
-/// Get information about a previously-registered place_t class.
-/// See also register_place_class().
-/// \param out_flags       output flags (can be NULL)
-/// \param out_sdk_version sdk version the place was created with (can be NULL)
-/// \param id              place class ID
-/// \return the place_t template, or NULL if not found
-idaman const place_t *ida_export get_place_class(
-        int *out_flags,
-        int *out_sdk_version,
-        int id);
-
-//-------------------------------------------------------------------------
-/// See get_place_class()
-inline const place_t *get_place_class_template(int id)
-{
-  return get_place_class(NULL, NULL, id);
-}
-
-//-------------------------------------------------------------------------
-/// See get_place_class()
-inline bool is_place_class_ea_capable(int id)
-{
-  int flags;
-  if ( get_place_class(&flags, NULL, id) == NULL )
-    return false;
-  return (flags & PCF_EA_CAPABLE) != 0;
-}
-
-//-------------------------------------------------------------------------
-/// Get the place class ID for the place that has been registered as 'name'.
-/// \param name the class name
-/// \return the place class ID, or -1 if not found
-idaman int ida_export get_place_class_id(const char *name);
-
-namespace Controls
-{
-  class TWinControl;
-  class TCustomControl; // ptr to custom ida viewer
-}
-using Controls::TWinControl;
-using Controls::TCustomControl;
-
-//-------------------------------------------------------------------------
-/// Converts from an entry with a given place type, to another entry,
-/// with another place type, to be used with the view 'view'. Typically
-/// used when views are synchronized.
-/// The 'renderer_info_t' part of 'dst' will be pre-filled with
-/// the current renderer_info_t of 'view', while the 'place_t' instance
-/// will always be NULL.
-typedef bool idaapi lochist_entry_cvt_t(
-        lochist_entry_t *dst,
-        const lochist_entry_t &src,
-        TCustomControl *view);
-
-//-------------------------------------------------------------------------
-/// Register a converter, that will be used for the following reasons:
-/// - determine what view can be synchronized with what other view
-/// - when views are synchronized, convert the location from one view,
-///   into an appropriate location in the other view
-/// - if one of p1 or p2 is "idaplace_t", and the other is PCF_EA_CAPABLE,
-///   then the converter will also be called when the user wants to jump to
-///   an address (e.g., by pressing "g"). In that case, from's place_t's lnnum
-///   will be set to -1 (i.e., can be used to descriminate between proper
-///   synchronizations, and jump to's if needed.)
-///
-/// Note: the converter can be used to convert in both directions, and can be
-/// called with its 'from' being of the class of 'p1', or 'p2'.
-/// If you want your converter to work in only one direction (e.g., from
-/// 'my_dictionary_place_t' -> 'my_definition_place_t'), you can have it
-/// return false when it is called with a lochist_entry_t's whose place is
-/// of type 'my_definition_place_t'.
-///
-/// Note: Whenever one of the 'p1' or 'p2' places is unregistered,
-/// corresponding converters will be automatically unregistered as well.
-///
-/// \param p1 the name of the first place_t class this converter can convert from/to
-/// \param p2 the name of the second place_t class this converter can convert from/to
-/// \param cvt the converter
-idaman void ida_export register_loc_converter(
-        const char *p1,
-        const char *p2,
-        lochist_entry_cvt_t *cvt);
-
-//-------------------------------------------------------------------------
-/// Search for a place converter from lochist_entry_t's with places of type
-/// 'p1' to lochist_entry_t's with places of type 'p2'.
-/// \param p1 the name of the place_t class to convert from
-/// \param p2 the name of the place_t class to convert to
-/// \return a converter, or NULL if none found
-idaman lochist_entry_cvt_t *ida_export lookup_loc_converter(
-        const char *p1,
-        const char *p2);
-
-
-
+  ushort lnnum;  ///< line number
+  ushort x,y;    ///< cursor position
+  uval_t idx;    ///< struct serial number
+  uval_t offset; ///< offset within struct
+};
+#endif // SWIG
 
 //----------------------------------------------------------------------
 /// A position in a text window
@@ -1757,23 +1520,20 @@ class twinpos_t
 public:
   place_t *at;                                    ///< location in view
   int x;                                          ///< cursor x
-  twinpos_t(void)              { at=NULL; x=0; }  ///< Constructor
-  twinpos_t(place_t *t)        { at=t; x=0; }     ///< Constructor
-  twinpos_t(place_t *t,int x0) { at=t; x=x0; }    ///< Constructor
+  twinpos_t(void)                 {}              ///< Constructor
+  twinpos_t(place_t *t)           { at=t; }       ///< Constructor
+  twinpos_t(place_t *t,int x0)    { at=t; x=x0; } ///< Constructor
   DEFINE_MEMORY_ALLOCATION_FUNCS()
   /// compare two twinpos_t's with '!='
-  bool operator != (const twinpos_t &r) const
+  bool operator != (const twinpos_t &r)
   {
-    if ( x != r.x )
-      return true;
-    if ( (at == NULL) != (r.at == NULL) )
-      return true;
-    if ( at != NULL && (at->compare(r.at) != 0 || at->lnnum != r.at->lnnum) )
-      return true;
+    if ( x != r.x ) return true;
+    if ( (at == NULL) != (r.at == NULL) ) return true;
+    if ( at != NULL && (at->compare(r.at) != 0 || at->lnnum != r.at->lnnum) ) return true;
     return false;
   }
   /// compare two twinpos_t's with '=='
-  bool operator == (const twinpos_t &r) const { return !(*this != r); }
+  bool operator == (const twinpos_t &r) { return !(*this != r); }
 };
 
 #ifndef SWIG
@@ -1786,15 +1546,8 @@ public:
   color_t prefix_color;    ///< line prefix color
   bgcolor_t bg_color;      ///< line background color
   bool is_default;         ///< is this the default line of the current location?
-  twinline_t(void)         ///< Constructor
-  {
-    at           = NULL;
-    line         = NULL;
-    prefix_color = 1;
-    bg_color     = DEFCOLOR;
-    is_default   = false;
-  }
-  twinline_t(place_t *t, char *l, color_t pc, bgcolor_t bc) ///< Constructor
+  twinline_t(void) {}      ///< Constructor
+  twinline_t(place_t *t,char *l,color_t pc, bgcolor_t bc) ///< Constructor
   {
     at           = t;
     line         = l;
@@ -1827,7 +1580,7 @@ DECLARE_LINEARRAY_HELPERS(idaman)
 class linearray_t
 {
   DECLARE_LINEARRAY_HELPERS(friend)
-  int _set_place(const place_t *new_at);
+  int   _set_place(const place_t *new_at);
   char *_down     (void);
   char *_up       (void);
 
@@ -1865,7 +1618,7 @@ public:
   /// Get the current place.
   /// If called before down(), then returns place of line which will be returned by down().
   /// If called after up(), then returns place if line returned by up().
-  place_t *get_place    (void) const         { return at; }
+  place_t* get_place    (void) const         { return at; }
 
   /// Get current background color.
   /// (the same behavior as with get_place(): good before down() and after up())
@@ -2054,7 +1807,6 @@ idaman uint32 ida_export_data debug;
 #define IDA_DEBUG_APPCALL       0x00020000      ///< appcall
 #define IDA_DEBUG_SRCDBG        0x00040000      ///< source debugging
 #define IDA_DEBUG_ACCESSIBILITY 0x00080000      ///< accessibility
-#define IDA_DEBUG_INTERNET      0x00100000      ///< internet connection
 #define IDA_DEBUG_ALWAYS        0xFFFFFFFF      ///< everything
 //@}
 
@@ -2240,24 +1992,13 @@ const chooser_event_t
 #define IS_SEL(n)           (!IS_CHOOSER_EVENT(n))
 //@}
 
-/// \defgroup CHITEM_ Chooser item property bits
-/// used by chooser_item_attrs_t::flags
-//@{
-#define CHITEM_BOLD   0x0001 ///< display the item in bold
-#define CHITEM_ITALIC 0x0002 ///< display the item in italic
-#define CHITEM_UNDER  0x0004 ///< underline the item
-#define CHITEM_STRIKE 0x0008 ///< strikeout the item
-#define CHITEM_GRAY   0x0010 ///< gray out the item
-//@}
-
+#ifndef SWIG
 /// \name Chooser title
 /// prefixes to be used in the chooser title
 //@{
 #define CHOOSER_NOMAINMENU  "NOMAINMENU\n"   ///< do not display main menu
 #define CHOOSER_NOSTATUSBAR "NOSTATUSBAR\n"  ///< do not display status bar
 //@}
-
-#ifndef SWIG
 
 /// Callback passed to functions in \ref choosers
 typedef uint32 idaapi chooser_cb_t(void *obj, uint32 n);
@@ -2269,6 +2010,15 @@ struct chooser_item_attrs_t
                         ///< the callback must check this field and fill only
                         ///< the existing fields. the first 2 fields always exist:
   int flags;            ///< \ref CHITEM_
+/// \defgroup CHITEM_ Chooser item property bits
+/// used by chooser_item_attrs_t::flags
+//@{
+#define CHITEM_BOLD   0x0001 ///< display the item in bold
+#define CHITEM_ITALIC 0x0002 ///< display the item in italic
+#define CHITEM_UNDER  0x0004 ///< underline the item
+#define CHITEM_STRIKE 0x0008 ///< strikeout the item
+#define CHITEM_GRAY   0x0010 ///< gray out the item
+//@}
   bgcolor_t color;      ///< item color
   void reset(void)      ///< restore to defaults
   {
@@ -2385,7 +2135,7 @@ struct textctrl_info_t
 #define TXTF_FIXEDFONT  0x0020 ///< the control uses IDA's fixed font
 //@}
    uint16  tabsize;            ///< how many spaces a single tab will indent
-   textctrl_info_t(): cb(sizeof(textctrl_info_t)), flags(0), tabsize(0) {} ///< Constructor
+   textctrl_info_t(): cb(sizeof(textctrl_info_t)), flags(0), tabsize(0) { } ///< Constructor
 };
 
 /// \defgroup choosers Functions: generic list choosers
@@ -2423,7 +2173,7 @@ struct textctrl_info_t
 ///
 /// \retval -1    the chooser was already open and is now active (only for non-modal choosers)
 /// \retval  0    the chooser was created but the user refused to choose anything
-/// \retval else  index of the selected item (1-based)
+/// \retval else  number of them selected item
 
 uint32 choose(
         int flags,
@@ -2442,7 +2192,7 @@ uint32 choose(
         void (idaapi*edit)(void *obj,uint32 n)=NULL,
         void (idaapi*enter)(void * obj,uint32 n)=NULL,
         void (idaapi*destroy)(void *obj)=NULL,
-        const char *const *popup_names=NULL,
+        const char * const *popup_names=NULL,
         int (idaapi*get_icon)(void *obj,uint32 n)=NULL);
 
 
@@ -2463,7 +2213,7 @@ inline uint32 choose(
         void (idaapi*edit)(void *obj,uint32 n)=NULL,
         void (idaapi*enter)(void * obj,uint32 n)=NULL,
         void (idaapi*destroy)(void *obj)=NULL,
-        const char *const *popup_names=NULL,
+        const char * const *popup_names=NULL,
         int (idaapi*get_icon)(void *obj,uint32 n)=NULL)
 {
   return choose(CH_MODAL,-1,-1,-1,-1, obj, width, sizer,
@@ -2487,7 +2237,7 @@ uint32 choose2(
         int ncol,
         const int *widths,
         uint32 (idaapi*sizer)(void *obj),
-        void (idaapi*getl)(void *obj,uint32 n,char *const *arrptr),
+        void (idaapi*getl)(void *obj,uint32 n,char * const *arrptr),
         const char *title,
         int icon,
         uint32 deflt=-1,
@@ -2497,7 +2247,7 @@ uint32 choose2(
         void (idaapi*edit)(void *obj,uint32 n)=NULL,
         void (idaapi*enter)(void * obj,uint32 n)=NULL,
         void (idaapi*destroy)(void *obj)=NULL,
-        const char *const *popup_names=NULL,
+        const char * const *popup_names=NULL,
         int (idaapi*get_icon)(void *obj,uint32 n)=NULL);
 
 
@@ -2519,7 +2269,7 @@ inline uint32 choose2(
         void (idaapi*edit)(void *,uint32)=NULL,
         void (idaapi*enter)(void *,uint32)=NULL,
         void (idaapi*destroy)(void *)=NULL,
-        const char *const *popup_names=NULL,
+        const char * const *popup_names=NULL,
         int (idaapi*get_icon)(void *obj,uint32 n)=NULL)
 {
   return choose2(CH_MODAL,-1,-1,-1,-1, obj, ncol, widths,
@@ -2568,6 +2318,14 @@ inline nav_colorizer_t *set_nav_colorizer(nav_colorizer_t *func)
   return (nav_colorizer_t *)(callui(ui_set_nav_colorizer, func).vptr);
 }
 
+namespace Controls
+{
+  class TWinControl;
+  class TCustomControl; // ptr to custom ida viewer
+}
+using Controls::TWinControl;
+using Controls::TCustomControl;
+
 /// Custom viewer & code viewer handler types
 enum custom_viewer_handler_id_t
 {
@@ -2602,13 +2360,6 @@ enum custom_viewer_handler_id_t
 /// state & 16 => Mouse right button is pressed   \n
 /// state & 32 => Mouse middle button is pressed  \n
 /// state & 128 => Meta is pressed (OSX only)
-#define VES_SHIFT        (1 << 0)
-#define VES_ALT          (1 << 1)
-#define VES_CTRL         (1 << 2)
-#define VES_MOUSE_LEFT   (1 << 3)
-#define VES_MOUSE_RIGHT  (1 << 4)
-#define VES_MOUSE_MIDDLE (1 << 5)
-#define VES_META         (1 << 7)
 typedef int view_event_state_t;
 
 //-------------------------------------------------------------------------
@@ -2670,11 +2421,6 @@ struct renderer_pos_info_t
             ///< When in flat mode: Line number, starting from the top.
 
   short sx; ///< the number of chars that are scrolled (flat mode only)
-
-  bool operator == (const renderer_pos_info_t &r) const
-    { return node == r.node && cx == r.cx && cy == r.cy && sx == r.sx; }
-  bool operator != (const renderer_pos_info_t &r) const
-    { return !(*this == r); }
 };
 
 //-------------------------------------------------------------------------
@@ -2795,126 +2541,6 @@ typedef void idaapi custom_viewer_close_t(TCustomControl *cv, void *ud);
 /// If the return value != -1, it is treated as a help context to display (from ida.hlp)
 
 typedef int idaapi custom_viewer_help_t(TCustomControl *cv, void *ud);
-
-
-/// Fine-tune loc->place() according to the x position.
-///
-/// You can consider that the place_t object is a 'row cursor' in the
-/// list of lines that fill the screen. But, it is only a 'vertical'
-/// cursor: e.g., the simpleline_place_t has the 'n' mumber, which
-/// specifies what line the place_t corresponds to, in the backing
-/// strvec_t instance.
-////
-/// However, some views have a place that can be sensitive to the X
-/// coordinates of the view's cursor. Think of the "Hex View-1", or
-/// the "Pseudocode-A" views: when moving the cursor on the X axis,
-/// the 'row cursor' will not change (since we are moving on the same
-/// line), but the corresponding 'ea_t' might.
-///
-/// For such tricky situations, we provide the following callback, that
-/// will provide the ability to update the place_t's internal state so
-/// that it really reflects the current cursor position.
-/// Most custom viewers will not need to implement this, but if some data
-/// in your place_t instances is dependent upon the X coordinate of the
-/// cursor, you'll probably want to.
-///
-/// Called whenever the user moves the cursor around (mouse, keyboard)
-///
-/// Note that this callback shouldn't touch the 'renderer_info_t' part of
-/// 'loc': doing so will result in undefined behavior.
-
-typedef void idaapi custom_viewer_adjust_place_t(TCustomControl *v, lochist_entry_t *loc, void *ud);
-
-
-/// Does the line pointed to by pline include pitem, and if so at what X coordinate?
-///
-/// place_t instances can be considered as a 'cursor' in a set of lines (see
-/// custom_viewer_adjust_place_t), but they can be 'tuned' to
-/// correctly represent the current position (e.g., hexrays decompiler plugins
-/// tune its place_t instances so they contain the real, current 'ea_t', that
-/// corresponds to the C-like expression that's shown at the X coordinate
-/// within that line.)
-///
-/// But then, when the viewer has to determine whether a certain twinline_t
-/// in fact displays the current place, the sublcass's implementation of
-/// place_t::compare() might lead it to think that the current twinline_t's
-/// place_t is not correct (e.g., because the 'ea_t' has been fine-tuned
-/// according to the caret's X coordinates.)
-///
-/// Thus, if your plugin implements custom_viewer_adjust_place_t,
-/// you probably want to implement this as well, or refreshes might be
-/// unnecessarily frequent, leading to a worse user experience.
-///
-/// This is typically called when the user moves the cursor around.
-/// return
-///    -1 if pitem is not included in pline
-///    -2 pitem points to the entire line
-///    >= 0 for the X coordinate within the pline, where pitem points
-
-typedef int idaapi custom_viewer_get_place_xcoord_t(TCustomControl *v, const place_t *pline, const place_t *pitem, void *ud);
-
-
-enum locchange_reason_t
-{
-  lcr_unknown,
-  lcr_goto,
-  lcr_user_switch, // user pressed <Space>
-  lcr_auto_switch, // automatic switch
-  lcr_jump,
-  lcr_navigate,    // navigate back & forward
-  lcr_scroll,      // user used scrollbars
-  lcr_internal,    // misc. other reasons
-};
-
-#define LCMD_SYNC (1 << 0)
-class locchange_md_t // location change metadata
-{
-  uchar cb;
-  uchar r;
-  uchar f;
-  uchar reserved;
-
-public:
-  locchange_md_t(locchange_reason_t _reason, bool _sync)
-    : cb(sizeof(*this)), r(uchar(_reason)), f(_sync ? LCMD_SYNC : 0), reserved(0) {}
-  locchange_reason_t reason() const { return locchange_reason_t(r); }
-  bool is_sync() const { return (f & LCMD_SYNC) != 0; }
-};
-CASSERT(sizeof(locchange_md_t) == sizeof(uint32));
-DECLARE_TYPE_AS_MOVABLE(locchange_md_t);
-
-/// The user asked to navigate to the given location.
-///
-/// This gives the view the possibility of declining the move.
-/// Reasons for this can be:
-///  - the location cannot be displayed,
-///  - going there requires a long-running operation, that can be
-///    canceled by the user (e.g., in case of the hexrays plugins:
-///    during decompilation of the target function.)
-///  - ...
-///
-/// This is called before the new location is committed to the view's history.
-///
-/// return
-///    0 if the move is accepted
-///    != 0 otherwise
-
-typedef int idaapi custom_viewer_can_navigate_t(
-        TCustomControl *v,
-        const lochist_entry_t *now,
-        const locchange_md_t &md,
-        void *ud);
-
-
-/// The viewer's location (i.e., place, or cursor) changed.
-
-typedef void idaapi custom_viewer_location_changed_t(
-        TCustomControl *v,
-        const lochist_entry_t *was,
-        const lochist_entry_t *now,
-        const locchange_md_t &md,
-        void *ud);
-
 
 // Code viewer handlers for the lineinfo widget located to the left of the text.
 
@@ -3054,7 +2680,7 @@ struct exec_request_t
   virtual int idaapi execute(void) = 0;
 
   /// Constructor
-  exec_request_t(void) : code(0), sem(NULL) {}
+  exec_request_t(void) : sem(NULL) {}
 
   /// Destructor
   // FIXME: windows: gcc compiled plugins can not use exec_request_t because the destructor
@@ -3093,6 +2719,11 @@ public:
 
 /// Snapshot restoration completion callback. see restore_database_snapshot()
 typedef void (idaapi *ss_restore_cb_t)(const char *errmsg, void *ud);
+
+/// Fill loc with the current location data
+typedef void idaapi fillloc_t(location_t *loc, void *ud);
+/// Jump to the specified location
+typedef void idaapi jumploc_t(location_t *loc, int uijmp_flags, void *ud);
 
 /// \defgroup UIJMP_ Jump flags
 /// passed as 'uijmp_flags' parameter to jumpto()
@@ -3328,56 +2959,6 @@ typedef bool idaapi menu_item_callback_t(void *ud);
 /// see action_desc_t::owner and #ACTION_DESC_LITERAL_OWNER
 #define CURPROC_ACTION_OWNER ((const plugin_t *) 1)
 
-
-#ifndef SWIG
-// Handlers to be used with create_custom_viewer()
-class custom_viewer_handlers_t
-{
-  int cb;
-public:
-  custom_viewer_handlers_t(
-          custom_viewer_keydown_t *_keyboard = NULL,
-          custom_viewer_popup_t *_popup = NULL,
-          custom_viewer_mouse_moved_t *_mouse_moved = NULL,
-          custom_viewer_click_t *_click = NULL,
-          custom_viewer_dblclick_t *_dblclick = NULL,
-          custom_viewer_curpos_t *_curpos = NULL,
-          custom_viewer_close_t *_close = NULL,
-          custom_viewer_help_t *_help = NULL,
-          custom_viewer_adjust_place_t *_adjust_place = NULL,
-          custom_viewer_get_place_xcoord_t *_get_place_xcoord = NULL,
-          custom_viewer_location_changed_t *_location_changed = NULL,
-          custom_viewer_can_navigate_t *_can_navigate = NULL)
-    : cb(sizeof(*this)),
-      keyboard(_keyboard),
-      popup(_popup),
-      mouse_moved(_mouse_moved),
-      click(_click),
-      dblclick(_dblclick),
-      curpos(_curpos),
-      close(_close),
-      help(_help),
-      adjust_place(_adjust_place),
-      get_place_xcoord(_get_place_xcoord),
-      location_changed(_location_changed),
-      can_navigate(_can_navigate)
-  {}
-  custom_viewer_keydown_t *keyboard;
-  custom_viewer_popup_t *popup;
-  custom_viewer_mouse_moved_t *mouse_moved;
-  custom_viewer_click_t *click;
-  custom_viewer_dblclick_t *dblclick;
-  custom_viewer_curpos_t *curpos;
-  custom_viewer_close_t *close;
-  custom_viewer_help_t *help;
-  custom_viewer_adjust_place_t *adjust_place;
-  custom_viewer_get_place_xcoord_t *get_place_xcoord;
-  custom_viewer_location_changed_t *location_changed;
-  custom_viewer_can_navigate_t *can_navigate;
-};
-#endif // SWIG
-
-
 #ifndef __UI__         // Not for the UI
 
 // Convenience functions offered by the user interface
@@ -3434,23 +3015,23 @@ inline bool jumpto(ea_t ea, int opnum=-1, int uijmp_flags=UIJMP_ACTIVATE)
 /// \retval 1    ok
 /// \retval 0    esc was pressed
 
-inline bool banner(int wait)               { return callui(ui_banner, wait).cnd; }
+inline bool banner(int wait)               { return callui(ui_banner, wait).cnd;}
 
 
 /// Can we use msg() functions?
 
-THREAD_SAFE inline bool is_msg_inited(void) { return callui(ui_is_msg_inited).cnd; }
+THREAD_SAFE inline bool is_msg_inited(void){ return callui(ui_is_msg_inited).cnd; }
 
 
 /// Refresh marked windows (::ui_refreshmarked)
 
-inline void refresh_idaview(void)          { callui(ui_refreshmarked); }
+inline void refresh_idaview(void)          { callui(ui_refreshmarked);}
 
 
 /// Refresh all disassembly views (::ui_refresh), forces an immediate refresh.
 /// Please consider request_refresh() instead
 
-inline void refresh_idaview_anyway(void)   { callui(ui_refresh); }
+inline void refresh_idaview_anyway(void)   { callui(ui_refresh);      }
 
 
 /// Allow the user to set analyzer options. (show a dialog box) (::ui_analyzer_options)
@@ -3932,14 +3513,14 @@ inline bool get_tform_title(TForm *form, char *buf, size_t bufsize)
   return callui(ui_get_tform_title, form, buf, bufsize).cnd;
 }
 
+
 /// Create new ida viewer based on ::place_t (::ui_new_custom_viewer).
 /// \param title     name of viewer
 /// \param parent    form to hold viewer
 /// \param minplace  first location of the viewer
 /// \param maxplace  last location of the viewer
 /// \param curplace  set current location
-/// \param handlers  handlers for the viewer (can be NULL)
-/// \param rinfo     renderer information (can be NULL)
+/// \param y         set current line # of cursor
 /// \param ud        contents of viewer
 /// \return pointer to resulting viewer
 
@@ -3949,30 +3530,35 @@ inline TCustomControl *create_custom_viewer(
         const place_t *minplace,
         const place_t *maxplace,
         const place_t *curplace,
-        const renderer_info_t *rinfo,
-        void *ud,
-        const custom_viewer_handlers_t *cvhandlers,
-        void *cvhandlers_ud)
+        int y,
+        void *ud)
 {
-  return (TCustomControl*)callui(
-          ui_new_custom_viewer, title, parent, minplace,
-          maxplace, curplace, rinfo, ud, cvhandlers, cvhandlers_ud).vptr;
+  return (TCustomControl*)callui(ui_new_custom_viewer, title, parent,
+                minplace, maxplace, curplace, y, ud).vptr;
 }
 
 
-/// Append 'loc' to the viewer's history, and cause the viewer
-/// to display it.
-///< \param v     (TCustomControl *)
-///< \param loc   (const lochist_entry_t &)
-///< \param flags (uint32) or'ed combination of CVNF_* values
-///< \return success
+/// Create a custom viewer with address support (::ui_new_ea_viewer).
+/// For undocumented params see create_custom_viewer().
+/// \param flags    reserved
+/// \param fillloc  callback - used to fill current location data
+/// \param jumploc  callback - called when the location changes
 
-inline bool custom_viewer_jump(
-        TCustomControl *v,
-        const lochist_entry_t &loc,
-        uint32 flags)
+inline TCustomControl *create_ea_viewer(
+        const char *title,
+        TWinControl *parent,
+        const place_t *minplace,
+        const place_t *maxplace,
+        const place_t *curplace,
+        int y,
+        void *ud,
+        int flags=0,
+        fillloc_t *fillloc=NULL,
+        jumploc_t *jumploc=NULL)
 {
-  return callui(ui_custom_viewer_jump, v, &loc, flags).cnd;
+  return (TCustomControl*)callui(ui_new_ea_viewer, title, parent,
+                minplace, maxplace, curplace, y,
+                ud, flags, fillloc, jumploc).vptr;
 }
 
 
@@ -4319,15 +3905,22 @@ inline bool get_action_visibility(const char *name, bool *visibility)
 //@{
 
 /// Set handlers for custom viewer events
-/// (::ui_obsolete_set_custom_viewer_handlers2 - also see ::ui_set_custom_viewer_handler).
+/// (::ui_set_custom_viewer_handlers - also see ::ui_set_custom_viewer_handler).
 /// Any of these handlers may be NULL
 
 inline void set_custom_viewer_handlers(
         TCustomControl *custom_viewer,
-        const custom_viewer_handlers_t *cvh,
-        void *cvh_ud)
+        custom_viewer_keydown_t *keyboard_handler,
+        custom_viewer_popup_t *popup_handler,
+        custom_viewer_mouse_moved_t *mouse_moved_handler,
+        custom_viewer_dblclick_t *dblclick_handler,
+        custom_viewer_curpos_t *curpos_handler,
+        custom_viewer_close_t *close_handler,
+        void *user_data)
 {
-  callui(ui_set_custom_viewer_handlers, custom_viewer, cvh, cvh_ud);
+  callui(ui_set_custom_viewer_handlers, custom_viewer, keyboard_handler,
+         popup_handler, mouse_moved_handler, dblclick_handler, curpos_handler,
+         close_handler, user_data);
 }
 
 
@@ -5172,7 +4765,7 @@ inline uint32 choose(
         void (idaapi*edit)(void *obj,uint32 n),
         void (idaapi*enter)(void * obj,uint32 n),
         void (idaapi*destroy)(void *obj),
-        const char *const *popup_names,
+        const char * const *popup_names,
         int (idaapi*get_icon)(void *obj,uint32 n))
 {
   return callui(ui_choose, chtype_generic, flags, x0, y0, x1, y1, obj, width,
@@ -5192,7 +4785,7 @@ inline uint32 choose2(
         int ncol,
         const int *widths,
         uint32 (idaapi*sizer)(void *obj),
-        void (idaapi*getl)(void *obj, uint32 n, char *const *arrptr),
+        void (idaapi*getl)(void *obj,uint32 n,char * const *arrptr),
         const char *title,
         int icon,
         uint32 deflt,
@@ -5202,7 +4795,7 @@ inline uint32 choose2(
         void (idaapi*edit)(void *obj,uint32 n),
         void (idaapi*enter)(void * obj,uint32 n),
         void (idaapi*destroy)(void *obj),
-        const char *const *popup_names,
+        const char * const *popup_names,
         int (idaapi*get_icon)(void *obj,uint32 n))
 {
   return callui(ui_choose, chtype_generic2, flags, x0, y0, x1, y1, obj, ncol,
@@ -5623,49 +5216,6 @@ inline DEPRECATED segreg_t *choose_segreg(const char *title)
 {
   return (segreg_t *)callui(ui_choose, chtype_segreg, title).sregptr;
 }
-
-inline DEPRECATED TCustomControl *create_custom_viewer(
-        const char *title,
-        TWinControl *parent,
-        const place_t *minplace,
-        const place_t *maxplace,
-        const place_t *curplace,
-        int y,
-        void *ud)
-{
-  return (TCustomControl*)callui(ui_obsolete_new_custom_viewer, title, parent,
-                minplace, maxplace, curplace, y, ud).vptr;
-}
-
-typedef void idaapi fillloc_t(location_t *loc, void *ud);
-typedef void idaapi jumploc_t(location_t *loc, int uijmp_flags, void *ud);
-inline DEPRECATED TCustomControl *create_ea_viewer(
-        const char *title,
-        TWinControl *parent,
-        const place_t *minplace,
-        const place_t *maxplace,
-        const place_t *curplace,
-        int y,
-        void *ud,
-        int flags=0,
-        fillloc_t *fillloc=NULL,
-        jumploc_t *jumploc=NULL)
-{
-  return (TCustomControl*)callui(ui_obsolete_new_ea_viewer2, title, parent,
-                minplace, maxplace, curplace, y,
-                ud, flags, fillloc, jumploc).vptr;
-}
-
-#ifndef SWIG
-struct saved_structplace_t
-{
-  ushort lnnum;
-  ushort x,y;
-  uval_t idx;
-  uval_t offset;
-};
-#endif // SWIG
-
 #endif // NO_OBSOLETE_FUNCS
 
 #endif  // __UI__ END OF UI SERVICE FUNCTIONS
@@ -6498,7 +6048,7 @@ struct addon_info_t
   size_t custom_size;
 
   /// Constructor
-  addon_info_t() { memset(this, 0, sizeof(addon_info_t)); cb = sizeof(addon_info_t); }
+  addon_info_t() { memset(this, 0, sizeof(addon_info_t)); cb = sizeof(addon_info_t); };
 };
 
 #ifndef __UI__
@@ -6637,13 +6187,13 @@ inline bool ea2str(qstring *out, ea_t ea)
 /// 5) +delta or -delta, where numerical 'delta' is added to or subtracted from 'screenEA'                  \n
 /// 6) if all else fails, try to evaluate 'str' as an IDC expression
 
-idaman bool ida_export str2ea(const char *str, ea_t *ea_ptr, ea_t screen_ea);
+idaman bool ida_export str2ea(const char *str, ea_t *ea_ptr, ea_t screenEA);
 
 
 /// Same as str2ea() but possibly with some steps skipped.
 /// \param flags  \ref S2EAOPT_
 
-idaman bool ida_export str2ea_ex(const char *str, ea_t *ea_ptr, ea_t screen_ea, int flags);
+idaman bool ida_export str2ea_ex(const char *str, ea_t *ea_ptr, ea_t screenEA, int flags);
 
 /// \defgroup S2EAOPT_ String to address conversion flags
 /// passed as 'flags' parameter to str2ea_ex()
@@ -6869,6 +6419,7 @@ THREAD_SAFE inline ea_t unpack_ea(const uchar **ptr, const uchar *end)
   return unpack_dd(ptr, end);
 #endif
 }
+
 
 /// Pack a string.
 /// \param ptr  pointer to output buffer
@@ -7414,33 +6965,8 @@ enum cb_id
 {
   CB_INIT = -1,
   CB_YES  = -2,
-  CB_CLOSE = -3,
-  CB_CLOSE_IDB = -4,
+  CB_CLOSE = -3
 };
-
-#ifndef SWIG
-//-------------------------------------------------------------------------
-// Those helpers are used by most place_t implementations.
-// If your place_t implementation relies on those, probably you
-// want to make sure it has a pack() of 1 (so there are no gaps.)
-template <class T>
-void serialize_place(bytevec_t *out, T *in)
-{
-  append_obj(*out,
-             ((uchar*) in) + sizeof(void*),
-             sizeof(*in) - sizeof(void*));
-}
-
-template <class T>
-bool deserialize_place(T *out, const uchar **pptr, const uchar *end)
-{
-  return unpack_obj(
-          pptr,
-          end,
-          ((uchar *) out) + sizeof(void*),
-          sizeof(*out) - sizeof(void*)) != NULL;
-}
-#endif
 
 
 

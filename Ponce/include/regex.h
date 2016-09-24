@@ -52,19 +52,17 @@
 /* types */
 typedef off_t regoff_t;
 
-struct regex_t
-{
-  int re_magic;
-  size_t re_nsub;         /* number of parenthesized subexpressions */
-  const char *re_endp;    /* end pointer for REG_PEND */
-  struct re_guts *re_g;   /* none of your business :-) */
-};
+typedef struct {
+        int re_magic;
+        size_t re_nsub;         /* number of parenthesized subexpressions */
+        const char *re_endp;    /* end pointer for REG_PEND */
+        struct re_guts *re_g;   /* none of your business :-) */
+} regex_t;
 
-struct regmatch_t
-{
-  regoff_t rm_so;         /* start of match */
-  regoff_t rm_eo;         /* end of match */
-};
+typedef struct {
+        regoff_t rm_so;         /* start of match */
+        regoff_t rm_eo;         /* end of match */
+} regmatch_t;
 
 /* regcomp() flags */
 #define REG_BASIC       0000
@@ -108,67 +106,5 @@ idaman THREAD_SAFE int    ida_export regcomp(regex_t *, const char *, int);
 idaman THREAD_SAFE size_t ida_export regerror(int, const regex_t *, char *, size_t);
 idaman THREAD_SAFE int    ida_export regexec(const regex_t *,const char *, size_t, regmatch_t [], int);
 idaman THREAD_SAFE void   ida_export regfree(regex_t *);
-
-//-------------------------------------------------------------------------
-class refcnted_regex_t : public qrefcnt_obj_t
-{
-  refcnted_regex_t()
-  {
-    memset(&regex, 0, sizeof(regex));
-  }
-  virtual ~refcnted_regex_t()
-  {
-    regfree(&regex);
-  }
-  regex_t regex;
-public:
-  virtual void idaapi release(void)
-  {
-    delete this;
-  }
-  int exec(const char *string, size_t nmatch, regmatch_t pmatch[], int eflags)
-  {
-    return regexec(&regex, string, nmatch, pmatch, eflags);
-  }
-  int process_errors(int code, qstring *errmsg)
-  {
-    if ( code != 0 && errmsg != NULL )
-    {
-      char errbuf[MAXSTR];
-      regerror(code, &regex, errbuf, sizeof(errbuf));
-      *errmsg = errbuf;
-    }
-    return code;
-  }
-  static refcnted_regex_t *create(const qstring &text, bool case_insensitive, qstring *errmsg)
-  {
-    refcnted_regex_t *p = new refcnted_regex_t();
-    int rflags = REG_EXTENDED;
-    if ( case_insensitive )
-      rflags |= REG_ICASE;
-    if ( !text.empty() )
-    {
-      int code = regcomp(&p->regex, text.begin(), rflags);
-      if ( p->process_errors(code, errmsg) != 0 )
-      {
-        // It is unnecessary to regfree() here: the deletion of 'p' will
-        // call regfree (but anyway, even that is unnecessary, because
-        // if we end up here, it means regcomp() failed, and when that
-        // happens, regcomp() frees the regex itself.)
-        delete p;
-        return NULL;
-      }
-    }
-    return p;
-  }
-  size_t nsub(void)
-  {
-    /* number of parenthesized subexpressions */
-    return regex.re_nsub;
-  }
-  DECLARE_UNCOPYABLE(refcnted_regex_t);
-};
-typedef qrefcnt_t<refcnted_regex_t> regex_ptr_t;
-
 
 #endif /* !_REGEX_H_ */

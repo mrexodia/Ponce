@@ -63,10 +63,9 @@ enum regval_type_t
 
 
 /// Delete a key from the registry
+
 idaman bool ida_export reg_delete_subkey(const char *name);
 
-/// Delete a subtree from the registry
-idaman bool ida_export reg_delete_tree(const char *name);
 
 /// Delete a value from the registry.
 /// \param name    value name

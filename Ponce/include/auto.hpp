@@ -57,11 +57,11 @@ typedef int idastate_t; ///< IDA status indicator - see \ref st_
 /// \defgroup st_ Status indicator states
 //@{
 const idastate_t
-                         //                      meaning
-  st_Ready   = 0,        ///< READY:             IDA is doing nothing
-  st_Think   = 1,        ///< THINKING:          Autoanalysis on, the user may press keys
-  st_Waiting = 2,        ///< WAITING:           Waiting for the user input
-  st_Work    = 3;        ///< BUSY:              IDA is busy
+                        //                      meaning
+  st_Ready  = 0,        ///< READY:             IDA is doing nothing
+  st_Think  = 1,        ///< THINKING:          Autoanalysis on, the user may press keys
+  st_Waiting= 2,        ///< WAITING:           Waiting for the user input
+  st_Work   = 3;        ///< BUSY:              IDA is busy
 //@}
 
 

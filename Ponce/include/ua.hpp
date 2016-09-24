@@ -216,7 +216,7 @@ public:
   /// Type of operand value (see \ref dt_). Usually first 9 types are used.
   /// This is the type of the operand itself, not the size of the addressing mode.
   /// for example, byte ptr [epb+32_bit_offset]  will have #dt_byte type.
-  char dtyp;
+  char          dtyp;
 /// \defgroup dt_ Operand value types
 /// \ingroup operands_t
 /// Used by op_t::dtyp
@@ -259,8 +259,7 @@ public:
   //  Next 12 bytes are used by mc68k for some float types
 
   // VALUE
-  union
-  {
+  union {
     uval_t value;               ///< operand value (::o_imm) or
                                 ///< outer displacement (::o_displ+#OF_OUTER_DISP).
                                 ///< integer values should be in IDA's (little-endian) order.
@@ -271,8 +270,7 @@ public:
 
     /// This structure is defined for
     /// your convenience only
-    struct
-    {
+    struct {
         uint16 low;
         uint16 high;
     } value_shorts;
@@ -282,28 +280,24 @@ public:
   bool is_imm(uval_t v) const { return type == o_imm && value == v; }
 
   // VIRTUAL ADDRESS (offset within the segment)
-  union
-  {
+  union {
     ea_t addr;                  ///< virtual address pointed or used by the operand.
                                 ///< (::o_mem,::o_displ,::o_far,::o_near)
 
     /// This structure is defined for
     /// your convenience only
-    struct
-    {
+    struct {
         uint16 low;
         uint16 high;
     } addr_shorts;
   };
 
   // IDP SPECIFIC INFORMATION
-  union
-  {
+  union {
     ea_t specval;               ///< This field may be used as you want.
     /// This structure is defined for
     /// your convenience only
-    struct
-    {
+    struct {
         uint16 low;             ///< IBM PC: segment register number (::o_mem,::o_far,::o_near)
         uint16 high;            ///< IBM PC: segment selector value  (::o_mem,::o_far,::o_near)
     } specval_shorts;

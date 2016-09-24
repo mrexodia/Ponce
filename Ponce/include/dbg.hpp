@@ -777,7 +777,7 @@ struct bpt_location_t
   uval_t offset(void) const { return (uval_t)info; }                  ///< Get offset (::BPLT_REL, ::BPLT_SYM)
   ea_t ea(void) const { return info; }                                ///< Get address (::BPLT_ABS)
 
-  bpt_location_t(void) : info(BADADDR), index(0), loctype(BPLT_ABS) {}  ///< Constructor (default type is ::BPLT_ABS)
+  bpt_location_t(void) : loctype(BPLT_ABS) {}                         ///< Constructor (default type is ::BPLT_ABS)
 
   /// Specify an absolute address location
   void set_abs_bpt(ea_t a)
@@ -854,8 +854,6 @@ struct bpt_t
                              ///< trace insns, functions, and basic blocks.
                              ///< if any of #BPT_TRACE_TYPES bits are set but #BPT_TRACEON is clear,
                              ///< then turn off tracing for the specified trace types
-#define BPT_ELANG_MASK  0xF0000000u
-#define BPT_ELANG_SHIFT 28 ///< index of the extlang (scripting language) of the condition
 //@}
 
   uint32 props;            ///< \ref BKPT_
@@ -872,6 +870,8 @@ struct bpt_t
                             ///< bpt of the same type is active at the same address(es)
 #define BKPT_PAGE     0x80  ///< written to the process as a page bpt. is available
                             ///< only after writing the bpt to the process.
+#define BKPT_ELANG_MASK  0xF0000000u
+#define BKPT_ELANG_SHIFT 28 ///< index of the extlang (scripting language) of the condition
 //@}
 
   int size;                 ///< Size of the breakpoint (0 for software breakpoints)
@@ -920,7 +920,7 @@ struct bpt_t
   /// Configure tracing options
   bool set_trace_action(bool enable, int trace_types)
   {
-    trace_types &= BPT_TRACE_TYPES;
+    trace_types &= ~BPT_TRACE_TYPES;
     if ( trace_types == 0 )
       return false;
     flags |= trace_types;
@@ -1063,18 +1063,6 @@ bool idaapi request_del_bpt(const bpt_location_t &bptloc);
 ///   - bpt_t::pass_count
 ///   - bpt_t::flags
 ///   - bpt_t::size
-///   - bpt_t::type
-/// \note Changing some properties will require removing and then re-adding
-///       the breakpoint to the process memory (or the debugger backend), which
-///       can lead to race conditions (i.e., breakpoint(s) can be missed) in
-///       case the process is not suspended.
-///       Here are a list of scenarios that will require the breakpoint
-///       to be removed & then re-added:
-///   - bpt_t::size is modified
-///   - bpt_t::type is modified
-///   - bpt_t::flags's BPT_ENABLED is modified
-///   - bpt_t::flags's BPT_LOWCND is changed
-///   - bpt_t::flags's BPT_LOWCND remains set, but cndbody changed
 
 bool idaapi update_bpt(const bpt_t *bpt);
 

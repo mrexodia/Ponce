@@ -172,8 +172,8 @@ inline sval_t lvar_off(func_t *pfn, uval_t frameoff)
   area_t lvars;
   get_frame_part(pfn, FPC_LVARS, &lvars);
   return ph.stkup()
-       ? frameoff - lvars.startEA
-       : lvars.endEA - frameoff;
+         ? frameoff - lvars.startEA
+         : lvars.endEA - frameoff;
 }
 
 /// Get pointer to function frame.

@@ -31,9 +31,6 @@
 
 typedef int help_t; ///< help screen number
 
-struct regval_t;
-struct simd_info_t;
-
 /// The interface version number.
 /// It must match the version number on the IDA modules.
 /// \note This will not change anymore. Use #IDA_SDK_VERSION from pro.h
@@ -76,9 +73,9 @@ struct bytes_t
 #define IDPOPT_STR 1    ///< string constant (char *)
 #define IDPOPT_NUM 2    ///< number (uval_t *)
 #define IDPOPT_BIT 3    ///< bit, yes/no (int *)
+#define IDPOPT_FLT 4    ///< float (double *)
 #define IDPOPT_I64 5    ///< 64bit number (int64 *)
-#define IDPOPT_CST 6    ///< lexer (lexer_t*)
-                        ///< Custom type, starting with a '{'
+#define IDPOPT_CST 6    ///< Custom type, starting with a '{'.
                         ///< Values of this type should be handled by
                         ///< ::set_options_t callbacks. E.g.,:
                         ///< \code
@@ -91,16 +88,12 @@ struct bytes_t
                         ///< \endcode
                         ///< For values of this type, the data that will
                         ///< be passed as the callback's 'value' parameter
-                        ///< is the lexer instance that is being used
+                        ///< is the lexer_t instance that is being used
                         ///< to parse the configuration file.
-                        ///< You can use \ref parse_json() (see parsejson.hpp)
-                        ///< to parse JSON-format data
-                        ///< NB: the '{' is already consumed by the parser,
-                        ///< so you need to push it again if it's a part of the JSON object
 //@}
 
 /// \defgroup IDPOPT_RET Option result codes
-/// Predefined return values for ::set_options_t callbacks
+/// Return values for ::set_options_t callbacks
 //@{
 #define IDPOPT_OK       NULL            ///< ok
 #define IDPOPT_BADKEY   ((char*)1)      ///< illegal keyword
@@ -110,9 +103,9 @@ struct bytes_t
 
 
 /// Callback - called when a config directive is processed in IDA.
-/// Also see read_config_file() and processor_t::set_idp_options
-/// \param keyword     keyword encountered in IDA.CFG/user config file.
-///                    if NULL, then an interactive dialog form should be displayed
+/// Also see read_user_config_file() and processor_t::set_idp_options
+/// \param keyword     keyword encountered in IDA.CFG file.
+///                    if NULL, then a dialog form should be displayed
 /// \param value_type  type of value of the keyword - one of \ref IDPOPT_T
 /// \param value       pointer to value
 /// \return one of \ref IDPOPT_RET, otherwise a pointer to an error message
@@ -130,231 +123,23 @@ typedef const char *(idaapi set_options_t)(
 /// in the next session
 //@{
 #define IDPOPT_PRI_DEFAULT 1  ///< default priority - taken from config file
-#define IDPOPT_PRI_HIGH    2  ///< high priority - received from UI or script function
+#define IDPOPT_PRI_HIGH    2  ///< high priority - received from UI or script func
 //@}
 
 
-//-------------------------------------------------------------------------
-/// Parse the value type for the value token 'value'.
-/// This is mostly used for converting from values that a cfgopt_handler_t
-/// receives, into data that callbacks
-///  - processor_t::set_idp_options
-///  - debugger_t::set_dbg_options
-/// expect.
-///
-/// Plugins that wish to use options shouldn't rely on this,
-/// and use the cfgopt_t utility instead.
-///
-/// \param out parsed data
-/// \param lx the lexer in use
-/// \param value the value token
-/// \return true if guessing didn't lead to an error, false otherwise.
-///         note that even if 'true' is returned, it doesn't mean the
-///         type could be guessed: merely that no syntax error occured.
-class lexer_t;
-struct token_t;
-idaman bool ida_export parse_config_value(
-        idc_value_t *out,
-        lexer_t *lx,
-        const token_t &value);
+/// Read any config file in the cfg subdirectory
 
-//-------------------------------------------------------------------------
-typedef const char *(idaapi cfgopt_handler_t)(
-        lexer_t *lx,
-        const token_t &keyword,
-        const token_t &value);
-
-//-----------------------------------------------------------------------
-/// used by cfgopt_t. You shouldn't have to deal with those directly.
-#define IDPOPT_NUM_INT     (0)
-#define IDPOPT_NUM_CHAR    (1 << 24)
-#define IDPOPT_NUM_SHORT   (2 << 24)
-#define IDPOPT_NUM_RANGE   (1 << 26)
-#define IDPOPT_NUM_UNS     (1 << 27)
-
-#define IDPOPT_BIT_UINT    0
-#define IDPOPT_BIT_UCHAR   (1 << 24)
-#define IDPOPT_BIT_USHORT  (2 << 24)
-#define IDPOPT_BIT_BOOL    (3 << 24)
-#define IDPOPT_BIT_INVRES  (1 << 26)
-
-#define IDPOPT_STR_QSTRING (1 << 24)
-#define IDPOPT_STR_LONG    (1 << 25)
-
-#define IDPOPT_I64_RANGES  (1 << 24)
-#define IDPOPT_I64_UNS     (1 << 25)
-
-//-------------------------------------------------------------------------
-struct cfgopt_t;
-idaman const char *ida_export cfgopt_t__apply(
-        const cfgopt_t *_this,
-        int vtype,
-        const void *vdata);
-
-//-------------------------------------------------------------------------
-// cfgopt_t objects are suitable for being statically initialized, and
-// passed to 'read_config_file'.
-//
-// E.g.,
-// ---
-// static const cfgopt_t g_opts[] =
-// {
-//   cfgopt_t("AUTO_UNDEFINE", &auto_undefine, -1, 1),
-//   cfgopt_t("NOVICE", &novice, true),
-//   cfgopt_t("EDITOR", editor_buf, sizeof(editor_buf)),
-//   cfgopt_t("SCREEN_PALETTE", set_screen_palette), // specific handler for SCREEN_PALETTE
-// };
-//
-// ...
-//
-// read_config_file("myfile", g_opts, qnumber(g_opts), other_handler)
-// ---
-//
-// NOTES:
-//   * so-called 'long' strings (the default) can span on multiple lines,
-//     and are terminated by a ';'
-struct cfgopt_t
-{
-  const char *name;
-  void *ptr;
-  int flags;
-  union
-  {
-    size_t buf_size;
-    struct
-    {
-      int64 min;
-      int64 max;
-    } num_range;
-    uint32 bit_flags;
-  };
-
-  // IDPOPT_STR
-  cfgopt_t(const char *_n, char *_p, size_t _sz, bool _long = true)
-    : name(_n), ptr(_p), flags(IDPOPT_STR | (_long ? IDPOPT_STR_LONG : 0))
-  { buf_size = _sz; }
-  cfgopt_t(const char *_n, qstring *_p, bool _long = true)
-    : name(_n), ptr(_p), flags(IDPOPT_STR | IDPOPT_STR_QSTRING | (_long ? IDPOPT_STR_LONG : 0))
-  {}
-
-  // IDPOPT_NUM
-  cfgopt_t(const char *_n, int *_p)
-    : name(_n), ptr(_p), flags(IDPOPT_NUM) {}
-  cfgopt_t(const char *_n, uint *_p)
-    : name(_n), ptr(_p), flags(IDPOPT_NUM | IDPOPT_NUM_UNS) {}
-  cfgopt_t(const char *_n, char *_p)
-    : name(_n), ptr(_p), flags(IDPOPT_NUM | IDPOPT_NUM_CHAR) {}
-  cfgopt_t(const char *_n, uchar *_p)
-    : name(_n), ptr(_p), flags(IDPOPT_NUM | IDPOPT_NUM_UNS | IDPOPT_NUM_CHAR) {}
-  cfgopt_t(const char *_n, short *_p)
-    : name(_n), ptr(_p), flags(IDPOPT_NUM | IDPOPT_NUM_SHORT) {}
-  cfgopt_t(const char *_n, ushort *_p)
-    : name(_n), ptr(_p), flags(IDPOPT_NUM | IDPOPT_NUM_UNS | IDPOPT_NUM_SHORT) {}
-  // IDPOPT_NUM + ranges
-  cfgopt_t(const char *_n, int *_p, int _min, int _max)
-    : name(_n), ptr(_p), flags(IDPOPT_NUM | IDPOPT_NUM_RANGE) { num_range.min = _min; num_range.max = _max; }
-  cfgopt_t(const char *_n, uint *_p, uint _min, uint _max)
-    : name(_n), ptr(_p), flags(IDPOPT_NUM | IDPOPT_NUM_UNS | IDPOPT_NUM_RANGE) { num_range.min = _min; num_range.max = _max; }
-  cfgopt_t(const char *_n, char *_p, char _min, char _max)
-    : name(_n), ptr(_p), flags(IDPOPT_NUM | IDPOPT_NUM_CHAR | IDPOPT_NUM_RANGE) { num_range.min = _min; num_range.max = _max; }
-  cfgopt_t(const char *_n, uchar *_p, uchar _min, uchar _max)
-    : name(_n), ptr(_p), flags(IDPOPT_NUM | IDPOPT_NUM_UNS | IDPOPT_NUM_CHAR | IDPOPT_NUM_RANGE) { num_range.min = _min; num_range.max = _max; }
-  cfgopt_t(const char *_n, short *_p, short _min, short _max)
-    : name(_n), ptr(_p), flags(IDPOPT_NUM | IDPOPT_NUM_RANGE | IDPOPT_NUM_SHORT) { num_range.min = _min; num_range.max = _max; }
-  cfgopt_t(const char *_n, ushort *_p, ushort _min, ushort _max)
-    : name(_n), ptr(_p), flags(IDPOPT_NUM | IDPOPT_NUM_UNS | IDPOPT_NUM_RANGE | IDPOPT_NUM_SHORT) { num_range.min = _min; num_range.max = _max; }
-
-  // IDPOPT_BIT
-  cfgopt_t(const char *_n, bool *_p, bool _flags, const int *optflgs = NULL) : name(_n), ptr(_p), flags(IDPOPT_BIT | IDPOPT_BIT_BOOL) { bit_flags = _flags; if ( optflgs != NULL ) flags |= *optflgs; }
-  cfgopt_t(const char *_n, uchar *_p, uchar _flags, const int *optflgs = NULL) : name(_n), ptr(_p), flags(IDPOPT_BIT | IDPOPT_BIT_UCHAR) { bit_flags = _flags; if ( optflgs != NULL ) flags |= *optflgs; }
-  cfgopt_t(const char *_n, ushort *_p, ushort _flags, const int *optflgs = NULL) : name(_n), ptr(_p), flags(IDPOPT_BIT | IDPOPT_BIT_USHORT) { bit_flags = _flags; if ( optflgs != NULL ) flags |= *optflgs; }
-  cfgopt_t(const char *_n, uint32 *_p, uint32 _flags, const int *optflgs = NULL) : name(_n), ptr(_p), flags(IDPOPT_BIT) { bit_flags = _flags; if ( optflgs != NULL ) flags |= *optflgs; }
-
-  // IDPOPT_I64
-  cfgopt_t(const char *_n, int64 *_p) : name(_n), ptr(_p), flags(IDPOPT_I64) {}
-  cfgopt_t(const char *_n, uint64 *_p) : name(_n), ptr(_p), flags(IDPOPT_I64 | IDPOPT_NUM_UNS) {}
-  // IDPOPT_I64 + ranges
-  cfgopt_t(const char *_n, int64 *_p, int64 _min, int64 _max)
-    : name(_n), ptr(_p), flags(IDPOPT_I64 | IDPOPT_I64_RANGES) { num_range.min = _min; num_range.max = _max; }
-  cfgopt_t(const char *_n, uint64 *_p, uint64 _min, uint64 _max)
-    : name(_n), ptr(_p), flags(IDPOPT_I64 | IDPOPT_I64_UNS | IDPOPT_I64_RANGES) { num_range.min = _min; num_range.max = _max; }
-
-  // IDPOPT_CST
-  cfgopt_t(const char *_n, cfgopt_handler_t *_p) : name(_n), ptr((void *) _p), flags(IDPOPT_CST) {}
-
-  int type() const { return flags & 0xf; }
-  int qualifier() const { return flags & 0xf000000; }
-
-  const char *apply(int vtype, const void *vdata) const { return cfgopt_t__apply(this, vtype, vdata); }
-};
-
-/// Parse the input, and apply options.
-///
-/// \param input      input file name, or string
-/// \param is_file    is input a string, or a file name
-/// \param opts       options destcriptions
-/// \param nopts      the number of entries present in the 'opts' array
-/// \param defhdlr    a handler to be called, if a directive couldn't be found in 'opts'
-/// \param defines    a list of preprocessor identifiers to define (so it is
-///                   possible to use #ifdef checks in the file.)
-///                   NB: the actual identifier defined by the parser will be
-///                   surrounded with double underscores (e.g., passing 'FOO'
-///                   will result in '__FOO__' being defined)
-///                   Additionally, the parser will also define a similar macro
-///                   with the current processor name (e.g., __ARM__)
-/// \param ndefines   the number of defines in the list
-/// \return true if parsing finished without errors, false if there was a
-///         syntax error, callback returned an error, or no file was found
-///         at all.
-
-idaman bool ida_export read_config(
-        const char *input,
-        bool is_file,
-        const cfgopt_t opts[],
-        size_t nopts,
-        cfgopt_handler_t *defhdlr = NULL,
-        const char *const *defines = NULL,
-        size_t ndefines = 0);
-
-
-/// Search for all IDA system files with the given name.
-/// This function will search, in that order, for the following files:
-///   -# %IDADIR%/cfg/<file>
-///   -# for each directory 'ONEDIR' in %IDAUSR%: %ONEDIR%/cfg/<file>
-///
-/// For each directive in each of those files, the same processing as
-/// that of read_config will be performed.
-
-inline bool read_config_file(
-        const char *filename,
-        const cfgopt_t opts[],
-        size_t nopts,
-        cfgopt_handler_t *defhdlr = NULL,
-        const char *const *defines = NULL,
-        size_t ndefines = 0)
-{
-  return read_config(filename, true, opts, nopts, defhdlr, defines, ndefines);
-}
-
-
-/// For each directive in 'string', the same processing as that of
-/// read_config will be performed.
-inline bool read_config_string(
-        const char *string,
-        const cfgopt_t opts[],
-        size_t nopts,
-        cfgopt_handler_t *defhdlr = NULL,
-        const char *const *defines = NULL,
-        size_t ndefines = 0)
-{
-  return read_config(string, false, opts, nopts, defhdlr, defines, ndefines);
-}
+idaman bool ida_export read_user_config_file(
+        const char *file,
+        set_options_t *callback,
+        const char *macroname = NULL);
 
 
 /// Get one of config parameters defined by CC_PARMS in ida.cfg.
 /// All parameters for all compilers are stored in local map during last read
 /// of ida.cfg - this function just returns previously stored parameter value for
 /// given compiler (NULL if no such parameter)
+
 idaman const char *ida_export cfg_get_cc_parm(comp_t compid, const char *name);
 
 
@@ -627,7 +412,7 @@ struct asm_t
   const char *a_seg;                    ///< 'seg ' prefix (example: push seg seg001)
 
   /// Pointer to checkarg_dispatch function. If NULL, checkarg won't be called.
-  bool (idaapi *checkarg_dispatch)(void *a1, void *a2, uchar cmd);
+  bool (idaapi* checkarg_dispatch)(void *a1, void *a2, uchar cmd);
   void *_UNUSED1_was_atomprefix;
   void *_UNUSED2_was_checkarg_operations;
 
@@ -799,7 +584,6 @@ struct processor_t
 #define PLFM_UNSP       64        ///< SunPlus unSP
 #define PLFM_TMS320C28  65        ///< Texas Instruments TMS320C28x
 #define PLFM_DSP96K     66        ///< Motorola DSP96000
-#define PLFM_SPC700     67        ///< Sony SPC700
 //@}
 
   uint32 flag;                    ///< \ref PR_
@@ -843,8 +627,7 @@ struct processor_t
 #define PR_USE_ARG_TYPES 0x200000 ///< use \ph{use_arg_types3} callback
 #define PR_SCALE_STKVARS 0x400000 ///< use \ph{get_stkvar_scale} callback
 #define PR_DELAYED    0x800000    ///< has delayed jumps and calls
-                                  ///< if this flag is set, \ph{is_basic_block_end}, \ph{has_delay_slot}
-                                  ///< should be implemented
+                                  ///< if this flag is set, \ph{is_basic_block_end} should be implemented
 #define PR_ALIGN_INSN 0x1000000   ///< allow ida to create alignment instructions arbitrarily.
                                   ///< Since these instructions might lead to other wrong instructions
                                   ///< and spoil the listing, IDA does not create them by default anymore
@@ -853,7 +636,6 @@ struct processor_t
 #define PR_USE_TBYTE  0x8000000   ///< ::BTMT_SPECFLT means _TBYTE type
 #define PR_DEFSEG64  0x10000000   ///< segments are 64-bit by default
 #define PR_TINFO     0x20000000   ///< has support for ::tinfo_t
-#define PR_OUTER     0x40000000   ///< has outer operands (currently only mc68k)
 //@}
   bool has_segregs(void) const  { return (flag & PR_SEGS)     != 0; }          ///< #PR_SEGS
   bool use32(void) const        { return (flag & (PR_USE64|PR_USE32)) != 0; }  ///< #PR_USE64 or #PR_USE32
@@ -909,10 +691,6 @@ struct processor_t
 /// processor_t::use_regarg_type3 uses this bit in the return value
 /// to indicate that the register value has been spoiled
 #define REG_SPOIL 0x80000000L
-
-  typedef const regval_t & (idaapi *regval_getter_t) (const char *name, const regval_t *regvalues);
-
-  //<hookgen IDP>
 
   /// Callback notification codes.
   ///
@@ -1027,7 +805,7 @@ struct processor_t
                                 ///< only the autoMark() functions can be used from it
                                 ///< (other functions may work but it is not tested).
                                 ///< \param type  (::atype_t)
-                                ///< \retval 1    yes, keep the queue empty (default)
+                                ///< \retval 1    yes, keep the queue empty
                                 ///< \retval <=0  no, the queue is not empty anymore
 
         func_bounds,            ///< find_func_bounds() finished its work.
@@ -1081,7 +859,7 @@ struct processor_t
                                 ///< \return success
 
         set_compiler,           ///< The kernel has changed the compiler information.
-                                ///< (\inf{cc} structure; \inf{abiname})
+                                ///< (\inf{cc} structure)
 
         is_basic_block_end,     ///< Is the current instruction end of a basic block?.
                                 ///< This function should be defined for processors
@@ -1137,8 +915,8 @@ struct processor_t
                                 ///<   to form the operand text
                                 ///< \return 2
 
-        custom_mnem,            ///< \param buf     (char *)
-                                ///< \param bufsize (size_t)
+        custom_mnem,            ///< \param outbuffer  (char *)
+                                ///< \param bufsize    (size_t)
                                 ///<
                                 ///< ::cmd structure contains information about the instruction.
                                 ///< Optional notification. if absent,
@@ -1174,7 +952,7 @@ struct processor_t
                                 ///< \retval <=0  the kernel should stop
 
         moving_segm,            ///< May the kernel move the segment?
-                                ///< \param seg    (::segment_t *) segment to move
+                                ///< \param seg    (::segment_t) segment to move
                                 ///< \param to     (::ea_t) new segment start address
                                 ///< \param flags  (int) combination of \ref MSF_
                                 ///< \retval 1    yes
@@ -1334,7 +1112,7 @@ struct processor_t
                                 ///< \retval 3  yes
 
         verify_noreturn,        ///< The kernel wants to set 'noreturn' flags for a function.
-                                ///< \param pfn  (::func_t *)
+                                ///< \param pfn  (::func_t)
                                 ///< \return 1: ok. any other value: do not set 'noreturn' flag
 
         verify_sp,              ///< All function instructions have been analyzed.
@@ -1512,19 +1290,6 @@ struct processor_t
                                 ///< \param el (const ::extlang_t *) pointer to the extlang affected
                                 ///< \return void
 
-        delay_slot_insn,        ///< Get delay slot instruction
-                                ///< \param ea    (::ea_t *) instruction address in question,
-                                ///<                         if answer is positive then set 'ea' to
-                                //<                          the delay slot insn address
-                                ///< \param bexec (bool *)   execute slot if jumping,
-                                ///<                         initially set to 'true'
-                                ///< \param fexec (bool *)   execute slot if not jumping,
-                                ///<                         initally set to 'true'
-                                ///< \retval 2  positive answer
-                                ///< \retval <2 ordinal insn
-                                ///< \note Input 'ea' may point to the instruction with a delay slot or
-                                ///<       to the delay slot instruction itself.
-
         last_cb_before_debugger,///< START OF DEBUGGER CALLBACKS
 
         obsolete_get_operand_info = 100,
@@ -1548,7 +1313,9 @@ struct processor_t
                                 ///< This function is essential if the 'single step' is not supported in hardware.
                                 ///< \param ea         (::ea_t) instruction address
                                 ///< \param tid        (int) current therad id
-                                ///< \param getreg     (::processor_t::regval_getter_t) function to get register values
+                                ///< \param getreg     (const ::regval_t &(#idaapi *)(const char *name,
+                                ///<                                  const ::regval_t *regvalues))
+                                ///<                   function to get register values
                                 ///< \param regvalues  (const ::regval_t *) register values array
                                 ///< \param target     (::ea_t *) pointer to the answer
                                 ///< \retval 1   unimplemented
@@ -1579,7 +1346,9 @@ struct processor_t
 
         insn_reads_tbit,        ///< Check if insn will read the TF bit.
                                 ///< \param ea         (::ea_t) instruction address
-                                ///< \param getreg     (::processor_t::regval_getter_t) function to get register values
+                                ///< \param getreg     (const ::regval_t &(#idaapi *)(const char *name,
+                                ///<                                  const ::regval_t *regvalues))
+                                ///<                   function to get register values
                                 ///< \param regvalues  (const ::regval_t *) register values array
                                 ///< \retval 3  yes, will generate 'step' exception
                                 ///< \retval 2  yes, will store the TF bit in memory
@@ -1591,7 +1360,9 @@ struct processor_t
                                 ///< \param ea         (::ea_t) instruction address
                                 ///< \param n          (int) operand number
                                 ///< \param thread_id  (int) current thread id
-                                ///< \param getreg     (::processor_t::regval_getter_t) function to get register values
+                                ///< \param getreg     (const ::regval_t &(#idaapi *)(const char *name,
+                                ///<                                  const ::regval_t *regvalues))
+                                ///<                   function to get register values
                                 ///< \param regvalues  (const ::regval_t *) register values array
                                 ///< \param opinf      (::idd_opinfo_t *) the output buffer
                                 ///< \return <=0-ok, otherwise failed
@@ -1612,7 +1383,9 @@ struct processor_t
 
         clean_tbit,             ///< Clear the TF bit after an insn like pushf stored it in memory.
                                 ///< \param ea  (::ea_t) instruction address
-                                ///< \param getreg     (::processor_t::regval_getter_t) function to get register values
+                                ///< \param getreg     (const ::regval_t &(#idaapi *)(const char *name,
+                                ///<                                  const ::regval_t *regvalues))
+                                ///<                   function to get register values
                                 ///< \param regvalues  (const ::regval_t *) register values array
                                 ///< \retval 2  ok
                                 ///< \retval 1  failed
@@ -1641,7 +1414,6 @@ struct processor_t
         // for example, ida will not know about the argument
         // locations for function calls.
 
-        last_cb_before_type_callbacks,
         OBSOLETE(decorate_name)=500,
                                 // Decorate/undecorate a C symbol name
                                 // const til_t *ti    - pointer to til
@@ -1804,20 +1576,6 @@ struct processor_t
         get_thiscall_regs3,     ///< Get register allocation convention used in the thiscall calling convention.
                                 ///< \param regs  (::callregs_t *)
                                 ///< \return max_possible_number_of_fastcall_regs+2
-
-        get_func_cvtarg_map,    ///< Get function arguments which should be converted to pointers lowering function prototype
-                                ///< \param fti     (const ::func_type_data_t *) func type details
-                                ///< \param argnums (intvec_t *) - number of arguments to be converted to pointers (special values -1/-2 for return value, position of hidden 'retstr' argument: -1 - at the beginning, -2 - at the end)
-                                ///< \return 2
-
-        get_simd_types,         ///< Get SIMD-related types according to given attributes ant/or argument location
-                                ///< \param simd_attrs (const ::simd_info_t *)
-                                ///< \param argloc (const ::argloc_t *)
-                                ///< \param out (::simd_info_vec_t *)
-                                ///< \param create_tifs (bool) return valid tinfo_t objects, create if neccessary
-                                ///< \return number of found types+1, -1-error
-                                ///< If name==NULL, initialize all SIMD types
-
         // END OF TYPEINFO CALLBACKS
 
         loader=1000,            ///< This code and higher ones are reserved
@@ -2262,25 +2020,6 @@ inline int create_custom_fixup(const char *name)
   return ph.notify(processor_t::register_custom_fixup, name) - 1;
 }
 
-/// Helper function to get the delay slot instruction
-inline bool delay_slot_insn(ea_t *ea, bool *bexec, bool *fexec)
-{
-  bool ok = (ph.flag & PR_DELAYED) != 0;
-  if ( ok )
-  {
-    bool be = true;
-    bool fe = true;
-    ok = ph.notify(processor_t::delay_slot_insn, ea, &be, &fe) > 1;
-    if ( ok )
-    {
-      if ( bexec != NULL )
-        *bexec = be;
-      if ( fexec != NULL )
-        *fexec = fe;
-    }
-  }
-  return ok;
-}
 
 /// IDB event group. Some events are still in the processor group, so you will
 /// need to hook to both groups. These events do not return anything.
@@ -2289,8 +2028,6 @@ inline bool delay_slot_insn(ea_t *ea, bool *bexec, bool *fexec)
 /// Use the hook_to_notification_point() function to install your callback.
 namespace idb_event
 {
-  //<hookgen IDB>
-
   /// IDB event codes
   enum event_code_t
   {
@@ -2315,7 +2052,7 @@ namespace idb_event
 
     op_type_changed,        ///< An operand type (offset, hex, etc...) has been set or deleted.
                             ///< \param ea  (::ea_t)
-                            ///< \param n   (int) eventually or'ed with OPND_OUTER
+                            ///< \param n   (int)
 
     enum_created,           ///< An enum type has been created.
                             ///< \param id  (::enum_t)
@@ -2404,18 +2141,15 @@ namespace idb_event
                             ///< \param endEA    (::ea_t)
 
     segm_start_changed,     ///< Segment start address has been changed.
-                            ///< \param s        (::segment_t *)
-                            ///< \param oldstart (::ea_t)
+                            ///< \param s  (::segment_t *)
 
     segm_end_changed,       ///< Segment end address has been changed.
-                            ///< \param s      (::segment_t *)
-                            ///< \param oldend (::ea_t)
+                            ///< \param s  (::segment_t *)
 
     segm_moved,             ///< Segment has been moved.
-                            ///< \param from    (::ea_t)
-                            ///< \param to      (::ea_t)
-                            ///< \param size    (::asize_t)
-                            ///< See also \ref idb_event::allsegs_moved
+                            ///< \param from  (::ea_t)
+                            ///< \param to    (::ea_t)
+                            ///< \param size  (::asize_t)
 
     area_cmt_changed,       ///< Area comment has been changed.
                             ///< \param cb          (::areacb_t *) may be: &funcs, &segs, etc.
@@ -2445,7 +2179,7 @@ namespace idb_event
 
     changing_op_type,       ///< An operand type (offset, hex, etc...) is to be changed.
                             ///< \param ea  (::ea_t)
-                            ///< \param n   (int) eventually or'ed with OPND_OUTER
+                            ///< \param n   (int)
 
     deleting_enum,          ///< An enum type is to be deleted.
                             ///< \param id  (::enum_t)
@@ -2567,23 +2301,10 @@ namespace idb_event
                             ///< \param s        (::segment_t *)
                             ///< This event is generated for secondary segment
                             ///< attributes (examples: color, permissions, etc)
-
-    allsegs_moved,          ///< Program rebasing is complete.
-                            ///< This event is generated after series of
-                            ///< segm_moved events
-                            ///< \param info     (::segm_move_infos_t *)
   };
 }
 
 
-
-
-#ifndef NO_OBSOLETE_FUNCS
-idaman DEPRECATED bool ida_export read_user_config_file(
-        const char *file,
-        set_options_t *callback,
-        const char *macroname = NULL);
-#endif // NO_OBSOLETE_FUNCS
 
 #pragma pack(pop)
 #endif // _IDP_HPP

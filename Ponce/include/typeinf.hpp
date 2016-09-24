@@ -101,7 +101,7 @@ const type_t    BTMT_CHAR    = 0x30;    ///< specify char or segment register
 
 /// \defgroup tf_bool Basic type: bool
 //@{
-const type_t    BT_BOOL      = 0x08;    ///< bool
+const type_t  BT_BOOL        = 0x08;    ///< bool
 const type_t    BTMT_DEFBOOL = 0x00;    ///< size is model specific or unknown(?)
 const type_t    BTMT_BOOL1   = 0x10;    ///< size 1byte
 const type_t    BTMT_BOOL2   = 0x20;    ///< size 2bytes
@@ -110,7 +110,7 @@ const type_t    BTMT_BOOL4   = 0x30;    ///< size 4bytes
 
 /// \defgroup tf_float Basic type: float
 //@{
-const type_t    BT_FLOAT     = 0x09;    ///< float
+const type_t  BT_FLOAT       = 0x09;    ///< float
 const type_t    BTMT_FLOAT   = 0x00;    ///< float (4 bytes)
 const type_t    BTMT_DOUBLE  = 0x10;    ///< double (8 bytes)
 const type_t    BTMT_LNGDBL  = 0x20;    ///< long double (compiler specific)
@@ -130,7 +130,7 @@ const type_t _BT_LAST_BASIC  = BT_FLOAT; ///< the last basic type,
   Pointers to undeclared yet ::BT_COMPLEX types are prohibited
 */
 //@{
-const type_t    BT_PTR       = 0x0A;    ///< pointer.
+const type_t  BT_PTR         = 0x0A;    ///< pointer.
                                         ///< has the following format:
                                         ///< [db sizeof(ptr)]; [tah-typeattrs]; type_t...
 const type_t    BTMT_DEFPTR  = 0x00;    ///< default for model
@@ -152,14 +152,14 @@ const type_t    BTMT_CLOSURE = 0x30;    ///< closure.
 */
 //@{
 const type_t  BT_ARRAY       = 0x0B;    ///< array
-const type_t  BTMT_NONBASED  = 0x10;    ///< \code
+const type_t    BTMT_NONBASED= 0x10;    ///< \code
                                         /// if set
                                         ///    array base==0
                                         ///    format: dt num_elem; [tah-typeattrs]; type_t...
                                         ///    if num_elem==0 then the array size is unknown
                                         /// else
                                         ///    format: da num_elem, base; [tah-typeattrs]; type_t... \endcode
-const type_t  BTMT_ARRESERV  = 0x20;    ///< reserved bit
+const type_t    BTMT_ARRESERV= 0x20;    ///< reserved bit
 //@}
 
 /*! \defgroup tf_func Derived type: function
@@ -200,7 +200,7 @@ const type_t    BTMT_INTCALL  = 0x30;   ///< function returns by iret
 
 /// \defgroup tf_complex Derived type: complex
 //@{
-const type_t    BT_COMPLEX   = 0x0D;    ///< struct/union/enum/typedef.
+const type_t  BT_COMPLEX     = 0x0D;    ///< struct/union/enum/typedef.
                                         ///< format: <pre>
                                         ///   [dt N (N=field count) if !::BTMT_TYPEDEF]
                                         ///   if N == 0:
@@ -274,12 +274,12 @@ const bte_t   BTE_BITFIELD    = 0x10; ///< 'subarrays'. In this case ANY record
                                       ///<   - cnt records of 'de' values
                                       ///<      (cnt CAN be 0)
                                       ///< \note delta for ALL subsegment is ONE
-const bte_t   BTE_OUT_MASK    = 0x60; ///< output style mask
+const bte_t   BTE_OUT_MASK  = 0x60;   ///< output style mask
 const bte_t   BTE_HEX         = 0x00; ///< hex
 const bte_t   BTE_CHAR        = 0x20; ///< char or hex
 const bte_t   BTE_SDEC        = 0x40; ///< signed decimal
 const bte_t   BTE_UDEC        = 0x60; ///< unsigned decimal
-const bte_t   BTE_ALWAYS      = 0x80; ///< this bit MUST be present
+const bte_t   BTE_ALWAYS    = 0x80;   ///< this bit MUST be present
 //@}
 
 /// \defgroup tf_conv_segreg Convenience definitions: segment register
@@ -343,36 +343,36 @@ const type_t BTF_TYPEDEF = BT_COMPLEX | BTMT_TYPEDEF;   ///< typedef
 //------------------------------------------------------------------------
 // convenience functions:
 
-inline bool is_type_const(type_t t)    { return (t & BTM_CONST) != 0; }                      ///< See ::BTM_CONST
-inline bool is_type_volatile(type_t t) { return (t & BTM_VOLATILE) != 0; }                   ///< See ::BTM_VOLATILE
+inline bool is_type_const(type_t t)   { return (t & BTM_CONST) != 0; }                      ///< See ::BTM_CONST
+inline bool is_type_volatile(type_t t){ return (t & BTM_VOLATILE) != 0; }                   ///< See ::BTM_VOLATILE
 
-inline type_t get_base_type(type_t t)  { return (t & TYPE_BASE_MASK); }                      ///< Get get basic type bits (::TYPE_BASE_MASK)
-inline type_t get_type_flags(type_t t) { return (t & TYPE_FLAGS_MASK); }                     ///< Get type flags (::TYPE_FLAGS_MASK)
-inline type_t get_full_type(type_t t)  { return (t & TYPE_FULL_MASK); }                      ///< Get basic type bits + type flags (::TYPE_FULL_MASK)
+inline type_t get_base_type(type_t t) { return (t & TYPE_BASE_MASK); }                      ///< Get get basic type bits (::TYPE_BASE_MASK)
+inline type_t get_type_flags(type_t t){ return (t & TYPE_FLAGS_MASK); }                     ///< Get type flags (::TYPE_FLAGS_MASK)
+inline type_t get_full_type(type_t t) { return (t & TYPE_FULL_MASK); }                      ///< Get basic type bits + type flags (::TYPE_FULL_MASK)
 
 /// Is the type_t the last byte of type declaration?
 /// (there are no additional bytes after a basic type, see ::_BT_LAST_BASIC)
-inline bool is_typeid_last(type_t t)   { return(get_base_type(t) <= _BT_LAST_BASIC); }
+inline bool is_typeid_last(type_t t)  { return(get_base_type(t) <= _BT_LAST_BASIC); }
 
 /// Identifies an unknown or void type with a known size (see \ref tf_unk)
-inline bool is_type_partial(type_t t)  { return(get_base_type(t) <= BT_VOID) && get_type_flags(t) != 0; }
+inline bool is_type_partial(type_t t) { return(get_base_type(t) <= BT_VOID) && get_type_flags(t) != 0; }
 
-inline bool is_type_void(type_t t)     { return(get_full_type(t) == BTF_VOID); }             ///< See ::BTF_VOID
-inline bool is_type_unknown(type_t t)  { return(get_full_type(t) == BT_UNKNOWN); }           ///< See ::BT_UNKNOWN
+inline bool is_type_void(type_t t)    { return(get_full_type(t) == BTF_VOID); }             ///< See ::BTF_VOID
+inline bool is_type_unknown(type_t t) { return(get_full_type(t) == BT_UNKNOWN); }           ///< See ::BT_UNKNOWN
 
-inline bool is_type_ptr(type_t t)      { return(get_base_type(t) == BT_PTR); }               ///< See ::BT_PTR
-inline bool is_type_complex(type_t t)  { return(get_base_type(t) == BT_COMPLEX); }           ///< See ::BT_COMPLEX
-inline bool is_type_func(type_t t)     { return(get_base_type(t) == BT_FUNC); }              ///< See ::BT_FUNC
-inline bool is_type_array(type_t t)    { return(get_base_type(t) == BT_ARRAY); }             ///< See ::BT_ARRAY
+inline bool is_type_ptr(type_t t)     { return(get_base_type(t) == BT_PTR); }               ///< See ::BT_PTR
+inline bool is_type_complex(type_t t) { return(get_base_type(t) == BT_COMPLEX); }           ///< See ::BT_COMPLEX
+inline bool is_type_func(type_t t)    { return(get_base_type(t) == BT_FUNC); }              ///< See ::BT_FUNC
+inline bool is_type_array(type_t t)   { return(get_base_type(t) == BT_ARRAY); }             ///< See ::BT_ARRAY
 
-inline bool is_type_typedef(type_t t)  { return(get_full_type(t) == BTF_TYPEDEF); }          ///< See ::BTF_TYPEDEF
-inline bool is_type_sue(type_t t)      { return is_type_complex(t) && !is_type_typedef(t); } ///< Is the type a struct/union/enum?
-inline bool is_type_struct(type_t t)   { return(get_full_type(t) == BTF_STRUCT); }           ///< See ::BTF_STRUCT
-inline bool is_type_union(type_t t)    { return(get_full_type(t) == BTF_UNION); }            ///< See ::BTF_UNION
-inline bool is_type_struni(type_t t)   { return(is_type_struct(t) || is_type_union(t)); }    ///< Is the type a struct or union?
-inline bool is_type_enum(type_t t)     { return(get_full_type(t) == BTF_ENUM); }             ///< See ::BTF_ENUM
+inline bool is_type_typedef(type_t t) { return(get_full_type(t) == BTF_TYPEDEF); }          ///< See ::BTF_TYPEDEF
+inline bool is_type_sue(type_t t)     { return is_type_complex(t) && !is_type_typedef(t); } ///< Is the type a struct/union/enum?
+inline bool is_type_struct(type_t t)  { return(get_full_type(t) == BTF_STRUCT); }           ///< See ::BTF_STRUCT
+inline bool is_type_union(type_t t)   { return(get_full_type(t) == BTF_UNION); }            ///< See ::BTF_UNION
+inline bool is_type_struni(type_t t)  { return(is_type_struct(t) || is_type_union(t)); }    ///< Is the type a struct or union?
+inline bool is_type_enum(type_t t)    { return(get_full_type(t) == BTF_ENUM); }             ///< See ::BTF_ENUM
 
-inline bool is_type_bitfld(type_t t)   { return(get_base_type(t) == BT_BITFIELD); }          ///< See ::BT_BITFIELD
+inline bool is_type_bitfld(type_t t)  { return(get_base_type(t) == BT_BITFIELD); }          ///< See ::BT_BITFIELD
 
 
 /// Does the type_t specify one of the basic types in \ref tf_int?
@@ -423,7 +423,7 @@ inline bool is_type_paf(type_t t)
 /// Is the type a pointer or array type?
 inline bool is_type_ptr_or_array(type_t t) { t = get_base_type(t); return t == BT_PTR || t == BT_ARRAY; }
 /// Is the type a floating point type?
-inline bool is_type_floating(type_t t) { return get_base_type(t) == BT_FLOAT; } // any floating type
+inline bool is_type_floating(type_t t){return get_base_type(t) == BT_FLOAT; } // any floating type
 /// Is the type an integral type (char/short/int/long/bool)?
 inline bool is_type_integral(type_t t) { return get_full_type(t) > BT_VOID && get_base_type(t) <= BT_BOOL; }
 /// Is the type an extended integral type? (integral or enum)
@@ -433,16 +433,16 @@ inline bool is_type_arithmetic(type_t t) { return get_full_type(t) > BT_VOID && 
 /// Is the type an extended arithmetic type? (arithmetic or enum)
 inline bool is_type_ext_arithmetic(type_t t) { return is_type_arithmetic(t) || is_type_enum(t); }
 
-inline bool is_type_uint(type_t t)    { return get_full_type(t) == BTF_UINT; }     ///< See ::BTF_UINT
-inline bool is_type_uchar(type_t t)   { return get_full_type(t) == BTF_UCHAR; }    ///< See ::BTF_UCHAR
-inline bool is_type_uint16(type_t t)  { return get_full_type(t) == BTF_UINT16; }   ///< See ::BTF_UINT16
-inline bool is_type_uint32(type_t t)  { return get_full_type(t) == BTF_UINT32; }   ///< See ::BTF_UINT32
-inline bool is_type_uint64(type_t t)  { return get_full_type(t) == BTF_UINT64; }   ///< See ::BTF_UINT64
-inline bool is_type_uint128(type_t t) { return get_full_type(t) == BTF_UINT128; }  ///< See ::BTF_UINT128
-inline bool is_type_ldouble(type_t t) { return get_full_type(t) == BTF_LDOUBLE; }  ///< See ::BTF_LDOUBLE
-inline bool is_type_double(type_t t)  { return get_full_type(t) == BTF_DOUBLE; }   ///< See ::BTF_DOUBLE
-inline bool is_type_float(type_t t)   { return get_full_type(t) == BTF_FLOAT; }    ///< See ::BTF_FLOAT
-inline bool is_type_bool(type_t t)    { return get_base_type(t) == BT_BOOL; }      ///< See ::BTF_BOOL
+inline bool is_type_uint(type_t t)   { return get_full_type(t) == BTF_UINT; }     ///< See ::BTF_UINT
+inline bool is_type_uchar(type_t t)  { return get_full_type(t) == BTF_UCHAR; }    ///< See ::BTF_UCHAR
+inline bool is_type_uint16(type_t t) { return get_full_type(t) == BTF_UINT16; }   ///< See ::BTF_UINT16
+inline bool is_type_uint32(type_t t) { return get_full_type(t) == BTF_UINT32; }   ///< See ::BTF_UINT32
+inline bool is_type_uint64(type_t t) { return get_full_type(t) == BTF_UINT64; }   ///< See ::BTF_UINT64
+inline bool is_type_uint128(type_t t){ return get_full_type(t) == BTF_UINT128; }  ///< See ::BTF_UINT128
+inline bool is_type_ldouble(type_t t){ return get_full_type(t) == BTF_LDOUBLE; }  ///< See ::BTF_LDOUBLE
+inline bool is_type_double(type_t t) { return get_full_type(t) == BTF_DOUBLE; }   ///< See ::BTF_DOUBLE
+inline bool is_type_float(type_t t)  { return get_full_type(t) == BTF_FLOAT; }    ///< See ::BTF_FLOAT
+inline bool is_type_bool(type_t t)   { return get_base_type(t) == BT_BOOL; }      ///< See ::BTF_BOOL
 
 /*! \defgroup tattr Type attributes
   \ingroup tf
@@ -1125,7 +1125,6 @@ struct argpart_t : public argloc_t
 {
   ushort off;  ///< offset from the beginning of the argument
   ushort size; ///< the number of bytes
-  DEFINE_MEMORY_ALLOCATION_FUNCS()
   argpart_t(void) : off(0xFFFF), size(0) {} ///< Constructor
 
   /// Does this argpart have a valid offset?
@@ -1149,8 +1148,6 @@ DECLARE_TYPE_AS_MOVABLE(argpart_t);
 /// Used to manage arguments that are described by multiple locations (also see ::ALOC_DIST)
 class scattered_aloc_t : public qvector<argpart_t>
 {
-public:
-  DEFINE_MEMORY_ALLOCATION_FUNCS()
 };
 DECLARE_TYPE_AS_MOVABLE(scattered_aloc_t);
 
@@ -1215,10 +1212,9 @@ inline int idaapi for_all_const_arglocs(const_aloc_visitor_t &vv, const argloc_t
 enum argreg_policy_t
 {
   ARGREGS_POLICY_UNDEFINED,
-  ARGREGS_GP_ONLY,       ///< GP registers used for all arguments
-  ARGREGS_INDEPENDENT,   ///< FP/GP registers used separately (like gcc64)
-  ARGREGS_BY_SLOTS,      ///< fixed FP/GP register per each slot (like vc64)
-  ARGREGS_FP_CONSUME_GP, ///< FP register also consumes one or more GP regs but not vice versa (aix ppc ABI)
+  ARGREGS_GP_ONLY,     ///< GP registers used for all arguments
+  ARGREGS_INDEPENDENT, ///< FP/GP registers used separately (like gcc64)
+  ARGREGS_BY_SLOTS,    ///< fixed FP/GP register per each slot (like vc64)
 };
 
 //@} argloc
@@ -1231,12 +1227,17 @@ idaman void ida_export callregs_init_regs(callregs_t *_this, int request);
 /// (allocation policy, arrays of GP and FP registers)
 class callregs_t
 {
+  static int findreg(const intvec_t &regs, int r)
+  {
+    intvec_t::const_iterator p = regs.find(r);
+    return p == regs.end() ? -1 : (p-regs.begin());
+  }
   bool set_inds(int *p_ind1, int *p_ind2, int ind)
   {
     if ( ind == -1 )
       return false;
     *p_ind1 = ind;
-    *p_ind2 = policy == ARGREGS_BY_SLOTS ? ind : -1;
+    *p_ind2 = (policy == ARGREGS_BY_SLOTS) ? ind : -1;
     return true;
   }
 
@@ -1282,7 +1283,7 @@ public:
     set_regarray(&gpregs, gprs);
     set_regarray(&fpregs, fprs);
     nregs = gpregs.size();
-    if ( policy == ARGREGS_INDEPENDENT || policy == ARGREGS_FP_CONSUME_GP )
+    if ( policy == ARGREGS_INDEPENDENT )
       nregs += fpregs.size();
   }
 
@@ -1300,13 +1301,6 @@ public:
   static int regcount(int request)
   {
     callregs_t vr(request); return vr.nregs;
-  }
-
-  // return index of register, -1 else
-  static int findreg(const intvec_t &regs, int r)
-  {
-    intvec_t::const_iterator p = regs.find(r);
-    return p == regs.end() ? -1 : (p-regs.begin());
   }
 
   /// Get register indexes within GP/FP arrays.
@@ -1380,7 +1374,7 @@ inline bool is_purging_cc(cm_t cm)
 
 /// \defgroup COMP_ Compiler IDs
 //@{
-const comp_t  COMP_MASK    = 0x0F;
+const comp_t COMP_MASK   = 0x0F;
 const comp_t  COMP_UNK     = 0x00;      ///< Unknown
 const comp_t  COMP_MS      = 0x01;      ///< Visual C++
 const comp_t  COMP_BC      = 0x02;      ///< Borland C++
@@ -1447,15 +1441,11 @@ inline bool is_gcc64(void) { return is_gcc() && inf.is_64bit(); }
 
 
 /// Change current compiler.
-/// \param cc       compiler to switch to
-/// \param flags    \ref SETCOMP_
-/// \param abiname  ABI name
+/// \param cc     compiler to switch to
+/// \param flags  \ref SETCOMP_
 /// \return success
 
-idaman bool ida_export set_compiler2(
-        const compiler_info_t &cc,
-        int flags,
-        const char *abiname=NULL);
+idaman bool ida_export set_compiler(const compiler_info_t &cc, int flags);
 
 /// \defgroup SETCOMP_ Set compiler flags
 //@{
@@ -1463,26 +1453,16 @@ idaman bool ida_export set_compiler2(
 #define SETCOMP_ONLY_ID  0x0002         ///< cc has only 'id' field
                                         ///< the rest will be set to defaults
                                         ///< corresponding to the program bitness
-#define SETCOMP_ONLY_ABI 0x0004         ///< ignore cc field complete, use only abiname
 //@}
 
 
 /// Set the compiler id (see \ref COMP_)
 
-inline bool idaapi set_compiler_id(comp_t id, const char *abiname=NULL)
+inline bool idaapi set_compiler_id(comp_t id)
 {
   compiler_info_t cc;
   cc.id = id;
-  return set_compiler2(cc, SETCOMP_ONLY_ID, abiname);
-}
-
-/// Set abi name (see \ref COMP_)
-
-inline bool idaapi set_abi_name(const char *abiname)
-{
-  compiler_info_t cc;
-  cc.id = 0;
-  return set_compiler2(cc, SETCOMP_ONLY_ABI, abiname);
+  return set_compiler(cc, SETCOMP_ONLY_ID);
 }
 
 //@} CC_funcs
@@ -1596,7 +1576,7 @@ idaman int ida_export h2ti(
 /// \note name & type & fields might be empty after the call!
 /// \param til          type library to use
 /// \param decl         C declaration to parse
-/// \param[out] out     declared name
+/// \param[out] name    declared name
 /// \param[out] tif     type info
 /// \param flags        combination of \ref PT_
 /// \retval true   ok
@@ -1605,7 +1585,7 @@ idaman int ida_export h2ti(
 idaman bool ida_export parse_decl2(
         til_t *til,
         const char *decl,
-        qstring *out,
+        qstring *name,
         tinfo_t *tif,
         int flags);
 
@@ -2137,21 +2117,6 @@ inline int get_stkarg_offset(void)
   return ph.notify(ph.get_stkarg_offset2) - 2;
 }
 
-
-/// Get numbers of function arguments which should be converted to pointers
-/// when lowering function prototype
-/// \param argnums - arguments to be converted to pointers
-///                   (special values -1/-2 mean 'return value' and shpuld be
-//                     placed as the first member of the vector if present):
-//                       -1 -> 'retstr' pointer is the first hidden arg
-//                       -2 -> 'retstr' pointer at the end of the arglist
-/// \param fti     - func type details
-/// \return FALSE if the request is not supported
-inline bool get_func_cvtarg_map(intvec_t *argnums, const func_type_data_t &fti)
-{
-  return ph.notify(ph.get_func_cvtarg_map, &fti, argnums) == 2;
-}
-
 /// Copy a named type from til to idb.
 /// \param til    type library
 /// \param idx    the position of the new type in the list of types (structures or enums).
@@ -2229,7 +2194,6 @@ idaman bool ida_export apply_tinfo2(
 #define TINFO_DELAYFUNC  0x0002 ///< if type is a function and no function exists at ea,
                                 ///< schedule its creation and argument renaming to auto-analysis
                                 ///< otherwise try to create it immediately
-#define TINFO_STRICT     0x0004 ///< never convert given type to another one before applying
 //@}
 
 
@@ -2388,8 +2352,8 @@ enum gtd_udt_t
 /// Constants to be used with get_func_details()
 enum gtd_func_t
 {
-  GTD_CALC_ARGLOCS = 0,             ///< calculate func arg locations
-  GTD_NO_ARGLOCS = BTM_VOLATILE,    ///< don't calculate func arg locations
+  GTD_CALC_ARGLOCS= 0,              ///< calculate func arg locations
+  GTD_NO_ARGLOCS  = BTM_VOLATILE,   ///< don't calculate func arg locations
                                     ///< please note that the locations may have been
                                     ///< calculated earlier
 };
@@ -2691,17 +2655,17 @@ public:
   /// Names are returned for numbered types too: either a user-defined nice name
   /// or, if a user-provided name does not exist, an ordinal name
   /// (like #xx, see create_numbered_type_name()).
-  bool get_type_name(qstring *out) const { return is_typeref() && get_tinfo_pdata(typid, out, GTP_NAME); }
+  bool get_type_name(qstring *name) const { return is_typeref() && get_tinfo_pdata(typid, name, GTP_NAME); }
 
   /// Use in the case of typedef chain (TYPE1 -> TYPE2 -> TYPE3...TYPEn).
   /// \return the name of the last type in the chain (TYPEn).
   ///         if there is no chain, returns TYPE1
-  bool get_final_type_name(qstring *out) const { return is_typeref() && get_tinfo_pdata(typid, out, GTP_FINAL_NAME); }
+  bool get_final_type_name(qstring *name) const { return is_typeref() && get_tinfo_pdata(typid, name, GTP_FINAL_NAME); }
 
   /// Use In the case of typedef chain (TYPE1 -> TYPE2 -> TYPE3...TYPEn).
   /// \return the name of the next type in the chain (TYPE2).
   ///         if there is no chain, returns failure
-  bool get_next_type_name(qstring *out) const { return is_typeref() && get_tinfo_pdata(typid, out, GTP_NEXT_NAME); }
+  bool get_next_type_name(qstring *name) const { return is_typeref() && get_tinfo_pdata(typid, name, GTP_NEXT_NAME); }
 
   /// Get type ordinal (only if the type was created as a numbered type, 0 if none)
   uint32 get_ordinal(void) const { return get_tinfo_property(typid, GTA_ORDINAL); }
@@ -2789,9 +2753,9 @@ public:
   bool is_float(void) const    { return is_type_float(get_realtype());    }      ///< \isreal{is_type_float}
   bool is_bool(void) const     { return is_type_bool(get_realtype());     }      ///< \isreal{is_type_bool}
   bool is_paf(void) const      { return is_type_paf(get_realtype());      }      ///< \isreal{is_type_paf}
-  bool is_ptr_or_array(void) const   { return is_type_ptr_or_array(get_realtype()); }   ///< \isreal{is_type_ptr_or_array}
-  bool is_integral(void) const       { return is_type_integral(get_realtype()); }       ///< \isreal{is_type_integral}
-  bool is_ext_integral(void) const   { return is_type_ext_integral(get_realtype()); }   ///< \isreal{is_type_ext_integral}
+  bool is_ptr_or_array(void) const   { return is_type_ptr_or_array(get_realtype());}    ///< \isreal{is_type_ptr_or_array}
+  bool is_integral(void) const       { return is_type_integral(get_realtype());}        ///< \isreal{is_type_integral}
+  bool is_ext_integral(void) const   { return is_type_ext_integral(get_realtype());}    ///< \isreal{is_type_ext_integral}
   bool is_floating(void) const       { return is_type_floating(get_realtype()); }       ///< \isreal{is_type_floating}
   bool is_arithmetic(void) const     { return is_type_arithmetic(get_realtype()); }     ///< \isreal{is_type_arithmetic}
   bool is_ext_arithmetic(void) const { return is_type_ext_arithmetic(get_realtype()); } ///< \isreal{is_type_ext_arithmetic}
@@ -3098,43 +3062,6 @@ DECLARE_TYPE_AS_MOVABLE(tinfo_t);
 typedef qvector<tinfo_t> tinfovec_t; ///< vector of tinfo objects
 
 //------------------------------------------------------------------------
-/// SIMD type info
-struct simd_info_t
-{
-  const char *name;  ///< name of SIMD type (NULL-undefined)
-  tinfo_t tif;       ///< SIMD type (empty-undefined)
-  uint16 size;       ///< SIMD type size in bytes (0-undefined)
-  type_t memtype;    ///< member type
-                     ///<   BTF_INT8/16/32/64/128, BTF_UINT8/16/32/64/128
-                     ///<   BTF_INT - integrals of any size/sign
-                     ///<   BTF_FLOAT, BTF_DOUBLE
-                     ///<   BTF_TBYTE - floatings of any size
-                     ///<   BTF_UNION - union of integral and floating types
-                     ///<   BTF_UNK - undefined
-
-  simd_info_t(const char *nm = NULL, uint16 sz = 0, type_t memt = BTF_UNK)
-    : name(nm), size(sz), memtype(memt) {}
-
-  bool match_pattern(const simd_info_t *pattern)
-  {
-    if ( pattern == NULL )
-      return true;
-    if ( pattern->size != 0 && pattern->size != size
-      || pattern->name != NULL && !streq(pattern->name, name)
-      || !pattern->tif.empty() && !pattern->tif.compare_with(tif) )
-    {
-      return false;
-    }
-    if ( pattern->memtype == BTF_UNK || pattern->memtype == memtype )
-      return true;
-    return pattern->memtype == BTF_TBYTE && is_type_float(memtype)
-        || pattern->memtype == BTF_INT   && is_type_int(memtype);
-  }
-};
-DECLARE_TYPE_AS_MOVABLE(simd_info_t);
-typedef qvector<simd_info_t> simd_info_vec_t;
-
-//------------------------------------------------------------------------
 /// Use func_type_data_t::guess_cc()
 idaman cm_t ida_export guess_func_cc(
         const func_type_data_t &fti,
@@ -3314,7 +3241,16 @@ struct enum_type_data_t : public qvector<enum_member_t> // #enum
     return emsize != 0 ? 1 << (emsize-1) : int(get_default_enum_size(inf.cc.cm));
   }
   uint64 calc_mask(void) const { return left_shift(uint64(1), calc_nbytes()*8) - 1; }
-  void swap(enum_type_data_t &r) { qswap(*this, r); } ///< swap two instances
+  bool is_unsigned(void) const { return get_sign() == type_unsigned; }
+  bool is_signed(void) const { return !is_unsigned(); }
+  type_sign_t get_sign(void) const;      // do not use. use tinfo_t::get_sign()
+  type_t get_enum_base_type(void) const; // do not use. use tinfo_t::get_enum_base_type()
+  bool deserialize_enum(                 // do not use.
+        int cnt,
+        const type_t **ptype,
+        const p_list **pfields,
+        const p_list **pfldcmts);
+  void swap(enum_type_data_t &r) { qswap(*this, r); }
 };
 DECLARE_TYPE_AS_MOVABLE(enum_type_data_t);
 
@@ -3451,33 +3387,6 @@ struct bitfield_type_data_t // #bitfield
 DECLARE_TYPE_AS_MOVABLE(bitfield_type_data_t);
 
 //-------------------------------------------------------------------------
-// return argument alignment (which depends on ABI and natural type alignment)
-inline int get_arg_align(int type_align, int slotsize)
-{
-  return type_align < slotsize
-       ? inf.pack_stkargs() ? type_align : slotsize
-       : inf.big_arg_align() ? type_align : slotsize;
-}
-
-inline int get_arg_align(const tinfo_t &tif, int slotsize)
-{
-  uint32 align = 0;
-  tif.get_size(&align);
-  return get_arg_align(align, slotsize);
-}
-
-inline sval_t align_stkarg_up(sval_t spoff, int type_align, int slotsize)
-{
-  uint32 align = get_arg_align(type_align, slotsize);
-  return align_up(spoff, align);
-}
-
-inline sval_t align_stkarg_up(sval_t spoff, const tinfo_t &tif, int slotsize)
-{
-  uint32 align = get_arg_align(tif, slotsize);
-  return align_up(spoff, align);
-}
-
 inline bool tinfo_t::get_named_type(
         const til_t *til,
         const char *name,
@@ -3802,8 +3711,8 @@ public:
           const func_type_data_t &candidate_data)
   {
     return candidate == tif
-         ? ::func_has_stkframe_hole(ea, candidate_data)
-         : false;
+      ? ::func_has_stkframe_hole(ea, candidate_data)
+      : false;
   }
 
   virtual int idaapi get_func_purged_bytes(
@@ -3811,8 +3720,8 @@ public:
           const func_type_data_t &)
   {
     return candidate == tif
-         ? purged_bytes
-         : -1;
+      ? purged_bytes
+      : -1;
   }
 };
 
@@ -3836,7 +3745,7 @@ idaman int ida_export lower_type2(
         til_t *til,
         tinfo_t *tif,
         const char *name=NULL,
-        lowertype_helper_t *_helper=NULL);
+        lowertype_helper_t *helper=NULL);
 
 
 /// Mark the beginning of a large update operation on the types.
@@ -3972,7 +3881,7 @@ inline valstr_t::~valstr_t(void)
 /// \param tif         type of the data to format.
 ///                    if NULL and #PTV_DEREF is specified, take tinfo from idb
 /// \param vtree       more detailed output info
-/// \param fdi         formatting options
+/// \param fdi         formatting options. points to the following struct
 /// \return success. if failed, see qerrno for more info
 
 idaman bool ida_export format_cdata2(
@@ -4005,10 +3914,9 @@ idaman int ida_export print_cdata(
         const format_data_info_t *fdi=NULL);
 
 //-------------------------------------------------------------------------
-#define PDF_INCL_DEPS  0x1 ///< Include all type dependencies
-#define PDF_DEF_FWD    0x2 ///< Allow forward declarations
-#define PDF_DEF_BASE   0x4 ///< Include base types: __int8, __int16, etc..
-#define PDF_HEADER_CMT 0x8 ///< Prepend output with a descriptive comment
+#define PDF_INCL_DEPS 0x1 ///< Include dependencies
+#define PDF_DEF_FWD   0x2 ///< Allow forward declarations
+#define PDF_DEF_BASE  0x4 ///< Include base types: __int8, __int16, etc..
 
 typedef qvector<uint32> ordvec_t;
 
@@ -4131,7 +4039,7 @@ idaman bool ida_export choose_named_type2(
                 const char *title,
                 int ntf_flags,
                 predicate_t *func,
-                til_symbol_t *sym);
+                til_symbol_t* sym);
 
 
 /// Choose a type from a type library.
@@ -4394,8 +4302,8 @@ typedef int idaapi local_predicate_t(uint32 ord, const type_t *type, const p_lis
 idaman DEPRECATED int ida_export add_til(const char *name);
 inline DEPRECATED bool is_type_voiddef(type_t t) { return(get_full_type(t) == BTF_VOID); }
 inline DEPRECATED bool is_type_void_obsolete(type_t t) { return(get_base_type(t) == BT_VOID); }
-inline DEPRECATED bool is_type_unk(type_t t) { return(get_base_type(t) == BT_UNK); }
-inline DEPRECATED bool is_type_only_size(type_t t) { return get_base_type(t) <= BT_VOID; }
+inline DEPRECATED bool is_type_unk(type_t t)     { return(get_base_type(t) == BT_UNK); }
+inline DEPRECATED bool is_type_only_size(type_t t){ return get_base_type(t) <= BT_VOID; }
 idaman DEPRECATED bool ida_export apply_type(ea_t ea, const type_t *type, const p_list *fields);
 idaman DEPRECATED bool ida_export apply_type2(ea_t ea, const type_t *rtype, const p_list *fields, int userti);
 idaman DEPRECATED bool ida_export parse_type(const char *decl, char **name, type_t **type, p_list **fields, int flags=0);
@@ -4406,7 +4314,7 @@ idaman DEPRECATED int ida_export foreach_strmem(const type_t *type, const p_list
 idaman DEPRECATED bool ida_export get_struct_member(const type_t *type, const p_list *fields, asize_t offset, asize_t *delta, char *name, size_t namesize, type_t *ftype, size_t typesize, p_list *ffields, size_t ffldsize, char *sname, size_t snamesize);
 idaman DEPRECATED bool ida_export apply_cdecl(ea_t ea, const char *decl);
 idaman DEPRECATED tid_t ida_export til2idb(int idx, const char *name);
-idaman DEPRECATED bool ida_export get_idainfo_by_type(const type_t *&rtype, const p_list *fields, size_t *psize, flags_t *pflags, opinfo_t *mt, size_t *alsize=NULL);
+idaman DEPRECATED bool ida_export get_idainfo_by_type(const type_t *&rtype, const p_list *fields, size_t *psize,  flags_t *pflags,  opinfo_t *mt, size_t *alsize=NULL);
 idaman DEPRECATED bool ida_export remove_pointerness(const type_t **ptype, const char **pname);
 idaman DEPRECATED int  ida_export get_pointer_object_size(const type_t *t);
 idaman DEPRECATED bool ida_export is_type_scalar(const type_t *type);
@@ -4432,7 +4340,7 @@ idaman DEPRECATED int ida_export build_funcarg_arrays(const type_t *type, const 
 idaman DEPRECATED void ida_export free_funcarg_arrays(type_t **types, char **names, int n);
 idaman DEPRECATED int ida_export calc_arglocs(const type_t *&type, uint32 *arglocs, int maxn);
 idaman DEPRECATED const type_t *ida_export resolve_typedef(const til_t *ti, const type_t *p, const p_list **fields);
-idaman DEPRECATED bool ida_export get_strmem(const til_t *til, const type_t *type, const p_list *fields, asize_t offset, asize_t *delta, qstring *out, qtype *ftype=NULL, qtype *fnames=NULL, qstring *sname=NULL);
+idaman DEPRECATED bool ida_export get_strmem(const til_t *til, const type_t *type, const p_list *fields, asize_t offset, asize_t *delta, qstring *name, qtype *ftype=NULL, qtype *fnames=NULL, qstring *sname=NULL);
 idaman DEPRECATED bool ida_export get_strmem_by_name(const til_t *til, const type_t *type, const p_list *fields, const char *name, asize_t *offset, qtype *ftype=NULL, qtype *fnames=NULL, qstring *sname=NULL);
 idaman DEPRECATED int ida_export calc_argloc_info(const til_t *til, const type_t *type, varloc_t *arglocs, size_t maxn);
 idaman DEPRECATED type_t *ida_export set_argloc(type_t *pt, int reg, int reghi=-1, bool ret=false);
@@ -4459,10 +4367,8 @@ inline DEPRECATED int get_argloc_r2(uint32 reg_argloc) { return (reg_argloc >> 1
 inline DEPRECATED argloc_old_t make_old_argloc(int r1, int r2)
 {
   argloc_old_t a = 0;
-  if ( r1 != -1 )
-    a |= ARGLOC_REG | r1;
-  if ( r2 != -1 )
-    a |= ARGLOC_REG2 | (r2 << 15);
+  if ( r1 != -1 ) a |= ARGLOC_REG | r1;
+  if ( r2 != -1 ) a |= ARGLOC_REG2 | (r2 << 15);
   return a;
 }
 inline DEPRECATED void split_old_argloc(argloc_old_t al, int *r1, int *r2)
@@ -4576,7 +4482,7 @@ inline DEPRECATED bool is_type_signed  (const til_t *til, const type_t *type) { 
 inline DEPRECATED bool is_type_unsigned(const til_t *til, const type_t *type) { return get_type_sign(til, type) == type_unsigned; }
 idaman DEPRECATED bool ida_export get_idainfo_by_type2(const til_t *til, const type_t **ptype, const p_list *fields, size_t *psize, flags_t *pflags, opinfo_t *mt, size_t *alsize=NULL);
 idaman DEPRECATED bool ida_export apply_tinfo(const til_t *til, ea_t ea, const type_t *type, const p_list *fields, uint32 flags);
-idaman DEPRECATED bool ida_export parse_decl(til_t *til, const char *decl, qstring *out, qtype *type, qtype *fields, int flags);
+idaman DEPRECATED bool ida_export parse_decl(til_t *til, const char *decl, qstring *name, qtype *type, qtype *fields, int flags);
 idaman DEPRECATED bool ida_export apply_type_to_stkarg(const op_t &x, uval_t v, const type_t *type, const char *name);
 idaman DEPRECATED int ida_export calc_bare_name(const char *name, const type_t *type, char *buf, size_t bufsize);
 idaman DEPRECATED void ida_export calc_c_cpp_name(const char *name, const type_t *type, char *buf, size_t bufsize, int ccn_flags);
@@ -4605,7 +4511,7 @@ idaman DEPRECATED int ida_export print_type_to_one_line(char *buf, size_t bufsiz
 idaman DEPRECATED int ida_export print_type_to_many_lines(bool (idaapi*printer)(void *cbdata, const char *buf), void *cbdata, const char *prefix, int indent, int cmtindent, const til_t *ti, const type_t *pt, const char *name = NULL, const char *cmt = NULL, const p_list *field_names = NULL, const p_list *field_cmts = NULL);
 idaman DEPRECATED ssize_t ida_export print_type_to_qstring(qstring *result, const char *prefix, int indent,int cmtindent, int flags, const til_t *ti, const type_t *pt, const char *name=NULL, const char *cmt=NULL, const p_list *field_names=NULL, const p_list *field_cmts=NULL);
 typedef bool (idaapi*tcbfn)(void *cb_data, int level, const char *str, const char *cmt);
-idaman DEPRECATED int ida_export unpack_type(const til_t *ti, const type_t *pt, tcbfn cb_func, void *cb_data, const char *name = NULL, const char *cmt = NULL, const struct descr_t *Descr = NULL, unsigned int flags=0);
+idaman DEPRECATED int ida_export unpack_type(const til_t *ti, const type_t *pt, tcbfn cb_func, void  *cb_data, const char *name = NULL, const char *cmt = NULL, const struct descr_t *Descr = NULL, unsigned int flags=0);
 idaman DEPRECATED bool ida_export extract_pstr(const p_list **ptype, char *buf, size_t bufsize);
 #endif
 #if !defined(NO_OBSOLETE_FUNCS) || defined(VARLOCS_SOURCE)
@@ -4633,7 +4539,7 @@ idaman DEPRECATED int ida_export build_funcarg_info(const til_t *til, const type
 #define BFI_NOCONST 0x0001      // remove constness from all function argument types
 #define BFI_NOLOCS  0x0002      // do not calculate arglocs (except __usercall)
 typedef bool idaapi set_op_type_t(op_t &x, const type_t *type, const char *name);
-idaman DEPRECATED int ida_export gen_use_arg_types(ea_t caller, const type_t *const *types, const char *const *names, const varloc_t *varlocs, int n, const type_t **rtypes, const char **rnames, uint32 *rlocs, int rn, set_op_type_t *set_op_type, is_stkarg_load_t *is_stkarg_load, has_delay_slot_t *has_delay_slot=NULL);
+idaman DEPRECATED int ida_export gen_use_arg_types(ea_t caller, const type_t * const *types, const char * const *names, const varloc_t *varlocs, int n, const type_t **rtypes, const char **rnames, uint32 *rlocs, int rn, set_op_type_t *set_op_type, is_stkarg_load_t *is_stkarg_load, has_delay_slot_t *has_delay_slot=NULL);
 idaman DEPRECATED int ida_export use_regarg_type_cb(ea_t ea, const type_t **rtypes, const char **rnames, uint32 *rlocs, int rn, void *ud=NULL);
 idaman DEPRECATED bool ida_export resolve_complex_type2(const til_t *til, const type_t **ptype, const p_list **fields, qstring *type_name, type_t *bt, int *N);
 idaman DEPRECATED int ida_export visit_strmems(const til_t *til, const type_t *type, const p_list *fields, int N, bool is_union, int idaapi visitor(uint32 offset, const type_t *type, const p_list *fields, const char *name, void *ud), void *ud);
@@ -4671,7 +4577,6 @@ idaman DEPRECATED int ida_export guess_func_tinfo2(func_t *pfn, tinfo_t *tif); /
 idaman DEPRECATED int ida_export lower_type(til_t *til, tinfo_t *tif, const char *name=NULL); // use lower_type2
 idaman DEPRECATED void ida_export calc_c_cpp_name3(char *buf, size_t bufsize, const char *name, const tinfo_t *type, int ccn_flags);
 idaman DEPRECATED bool ida_export print_type2(ea_t ea, char *buf, size_t bufsize, int prtype_flags);
-idaman DEPRECATED bool ida_export set_compiler(const compiler_info_t &cc, int flags);
 #ifdef _MSC_VER
 #pragma warning(pop)
 #endif

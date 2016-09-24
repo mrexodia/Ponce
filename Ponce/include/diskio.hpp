@@ -35,9 +35,9 @@ idaman THREAD_SAFE const char *ida_export idadir(const char *subdir);
 
 /// Search for IDA system file.
 /// This function searches for a file in:
-///   -# each directory specified by %IDAUSR%
-///   -# ida directory [+ subdir]
-/// and returns the first match.
+///   -# get_user_idadir() subdirectory
+///   -# ida (sub)directory
+///   -# current directory
 /// \param[out] buf  buffer for file name
 /// \param bufsize   size of output buffer
 /// \param filename  name of file to search
@@ -64,11 +64,12 @@ idaman THREAD_SAFE char *ida_export getsysfile(
 #define PLG_SUBDIR "plugins"
 //@}
 
+
 /// Get user ida related directory.
-///   - if $IDAUSR is defined:
-///       - the first element in $IDAUSR
-///   - else
-///       - default user directory ($HOME/.idapro or %APPDATA%Hex-Rays/IDA Pro)
+///   - Under Linux: $HOME/.ida
+///   - Under Windows: Application Data\\Hex-Rays\\IDA Pro
+///
+/// If the directory did not exist, it will be created
 
 idaman THREAD_SAFE const char *ida_export get_user_idadir(void);
 
@@ -76,7 +77,7 @@ idaman THREAD_SAFE const char *ida_export get_user_idadir(void);
 /// Get a folder location by CSIDL (see \ref CSIDL).
 /// Path should be of at least MAX_PATH size
 
-idaman THREAD_SAFE bool ida_export get_special_folder(int csidl, char *buf, size_t bufsize);
+idaman bool ida_export get_special_folder(int csidl, char *buf, size_t bufsize);
 
 /// \defgroup CSIDL Common CSIDLs
 /// Passed as 'csidl' parameter to get_special_folder()
@@ -361,7 +362,7 @@ idaman THREAD_SAFE ioport_t *ida_export read_ioports(
         const char *file,
         char *default_device,
         size_t dsize,
-        const char *(idaapi *callback)(
+        const char *(idaapi* callback)(
                 const ioport_t *ports,
                 size_t numports,
                 const char *line));
@@ -386,9 +387,9 @@ idaman THREAD_SAFE ioport_t *ida_export read_ioports(
 
 idaman THREAD_SAFE bool ida_export choose_ioport_device(
         const char *file,
-        char *_device,
+        char *device,
         size_t device_size,
-        const char *(idaapi *parse_params)(
+        const char *(idaapi* parse_params)(
                 const char *line,
                 char *buf,
                 size_t bufsize));

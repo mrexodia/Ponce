@@ -75,23 +75,6 @@ idaman ssize_t ida_export get_entry_name(uval_t ord, char *buf, size_t bufsize);
 idaman bool ida_export rename_entry(uval_t ord, const char *name);
 
 
-/// Set forwarder name for ordinal.
-/// \param ord      ordinal number of the entry point
-/// \param name     forwarder name for entry point.
-/// \return success
-
-idaman bool ida_export set_entry_forwarder(uval_t ord, const char *name);
-
-
-/// Get forwarder name for the entry point by its ordinal.
-/// \param ord      ordinal number of entry point
-/// \param buf      output buffer, may be NULL
-/// \param bufsize  output buffer size
-/// \return size of entry forwarder name or -1
-
-idaman ssize_t ida_export get_entry_forwarder(uval_t ord, char *buf, size_t bufsize);
-
-
 
 
 #pragma pack(pop)

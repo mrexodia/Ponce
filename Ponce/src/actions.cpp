@@ -178,8 +178,8 @@ struct ah_taint_memory_t : public action_handler_t
 				return 0;
 			}
 			//We get the selection bounds from the action activation context
-			selection_starts = action_activation_ctx->cur_sel.from.at->toea();
-			selection_ends = action_activation_ctx->cur_sel.to.at->toea();
+			selection_starts = ((idaplace_t*)action_activation_ctx->cur_sel.from.at)->ea;
+			selection_ends = ((idaplace_t*)action_activation_ctx->cur_sel.to.at)->ea;
 		}
 		//In the dissas windows we use the whole item selected. If we have a string we can't select only some bytes from the dissas windows
 		else if (action_activation_ctx->form_type == BWN_DISASM)
@@ -229,8 +229,8 @@ struct ah_taint_memory_t : public action_handler_t
 			{
 				if (action_update_ctx_t->cur_sel.from.at != NULL && action_update_ctx_t->cur_sel.to.at != NULL)
 				{
-					auto selection_starts = action_update_ctx_t->cur_sel.from.at->toea();
-					auto selection_ends = action_update_ctx_t->cur_sel.to.at->toea();
+					auto selection_starts = ((idaplace_t*)action_update_ctx_t->cur_sel.from.at)->ea;
+					auto selection_ends = ((idaplace_t*)action_update_ctx_t->cur_sel.to.at)->ea;
 					if (selection_ends - selection_starts >= 0)
 						return AST_ENABLE;
 				}
@@ -266,8 +266,8 @@ struct ah_symbolize_memory_t : public action_handler_t
 			if (action_activation_ctx->cur_sel.from.at == NULL || action_activation_ctx->cur_sel.to.at == NULL)
 				return 0;
 			//We get the selection bounds from the action activation context
-			selection_starts = action_activation_ctx->cur_sel.from.at->toea();
-			selection_ends = action_activation_ctx->cur_sel.to.at->toea();
+			selection_starts = ((idaplace_t*)action_activation_ctx->cur_sel.from.at)->ea;
+			selection_ends = ((idaplace_t*)action_activation_ctx->cur_sel.to.at)->ea;
 		}
 		//In the dissas windows we use the whole item selected. If we have a string we can't select only some bytes from the dissas windows
 		else if (action_activation_ctx->form_type == BWN_DISASM)
@@ -318,8 +318,8 @@ struct ah_symbolize_memory_t : public action_handler_t
 			{
 				if (action_update_ctx_t->cur_sel.from.at != NULL && action_update_ctx_t->cur_sel.to.at != NULL)
 				{
-					auto selection_starts = action_update_ctx_t->cur_sel.from.at->toea();
-					auto selection_ends = action_update_ctx_t->cur_sel.to.at->toea();
+					auto selection_starts = ((idaplace_t*)action_update_ctx_t->cur_sel.from.at)->ea;
+					auto selection_ends = ((idaplace_t*)action_update_ctx_t->cur_sel.to.at)->ea;
 					if (selection_ends - selection_starts >= 0)
 						return AST_ENABLE;
 				}

@@ -439,7 +439,7 @@ idaman sel_t ida_export find_selector(ea_t base);
 ///                - para: selector mapping
 /// \return 0 or code returned by 'func'.
 
-idaman int ida_export enumerate_selectors(int (idaapi *func)(sel_t sel,ea_t para));
+idaman int ida_export enumerate_selectors(int (idaapi* func)(sel_t sel,ea_t para));
 
 
 /// Enumerate all segments with the specified selector.
@@ -458,7 +458,7 @@ idaman int ida_export enumerate_selectors(int (idaapi *func)(sel_t sel,ea_t para
 
 idaman ea_t ida_export enumerate_segments_with_selector(
                                 sel_t selector,
-                                ea_t (idaapi *func)(segment_t *s, void *ud),
+                                ea_t (idaapi* func)(segment_t *s,void *ud),
                                 void *ud);
 
 
@@ -596,7 +596,7 @@ idaman bool ida_export del_segm(ea_t ea, int flags);
 
 /// Get number of segments
 
-inline int get_segm_qty(void) { return segs.get_area_qty(); }
+inline int get_segm_qty(void){ return segs.get_area_qty(); }
 
 
 /// Get pointer to segment by linear address.
@@ -612,7 +612,7 @@ inline segment_t *getseg(ea_t ea) { return (segment_t *)(segs.get_area(ea)); }
 /// \param n  segment number in the range (0..get_segm_qty()-1)
 /// \returns NULL or pointer to segment structure
 
-inline segment_t *getnseg(int n) { return (segment_t *)(segs.getn_area(n)); }
+inline segment_t *getnseg(int n){ return (segment_t *)(segs.getn_area(n)); }
 
 
 /// Get pointer to the next segment

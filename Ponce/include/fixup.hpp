@@ -200,8 +200,8 @@ idaman void ida_export set_custom_fixup(ea_t ea, int cfid, const fixup_data_t *f
 inline ea_t get_fixup_extdef_ea(ea_t source, const fixup_data_t *fd)
 {
   return (fd != NULL && (fd->type & FIXUP_EXTDEF) != 0)
-       ? get_fixup_base(source, fd) + fd->off
-       : BADADDR;
+        ? get_fixup_base(source, fd) + fd->off
+        : BADADDR;
 }
 
 
@@ -211,8 +211,8 @@ inline ea_t get_fixup_extdef_ea(ea_t source, const fixup_data_t *fd)
 inline sel_t get_fixup_segdef_sel(const fixup_data_t *fd)
 {
   return (fd != NULL && (fd->type & FIXUP_EXTDEF) == 0)
-       ? fd->sel
-       : BADSEL;
+        ? fd->sel
+        : BADSEL;
 }
 
 

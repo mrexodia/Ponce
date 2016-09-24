@@ -328,7 +328,7 @@ inline bool update_func(func_t *fn) { return funcs.update(fn) != 0; }
 /// \param fn  ptr to filled function structure
 /// \return success
 
-idaman bool ida_export add_func_ex(func_t *fn);
+idaman bool ida_export  add_func_ex(func_t *fn);
 
 
 /// Add a new function.
@@ -573,12 +573,11 @@ inline func_t *get_next_fchunk(ea_t ea) { return getn_fchunk(funcs.get_next_area
 /// Append a new tail chunk to the function definition.
 /// If the tail already exists, then it will simply be added to the function tail list
 /// Otherwise a new tail will be created and its owner will be set to be our function
-/// If a new tail can not be created, then this function will fail.
+/// If a new tail can not be created, then this function will fail
 /// \param ea1  start of the tail. If a tail already exists at the specified address
 ///             it must start at 'ea1'
 /// \param ea2  end of the tail. If a tail already exists at the specified address
-///             it must end at 'ea2'. If specified as BADADDR, IDA will determine
-///             the end address itself.
+///             it must end at 'ea2'
 
 idaman bool ida_export append_func_tail(func_t *pfn, ea_t ea1, ea_t ea2);
 
@@ -652,7 +651,7 @@ class func_tail_iterator_t
   int idx;
   area_t seglim;        // valid and used only if pfn == NULL
 public:
-  func_tail_iterator_t(void) : pfn(NULL), idx(-1) {}
+  func_tail_iterator_t(void) : pfn(NULL) {}
   func_tail_iterator_t(func_t *_pfn, ea_t ea=BADADDR) : pfn(NULL) { set(_pfn, ea); }
   ~func_tail_iterator_t(void)
   {
@@ -723,7 +722,7 @@ class func_item_iterator_t
   func_tail_iterator_t fti;
   ea_t ea;
 public:
-  func_item_iterator_t(void) : ea(BADADDR) {}
+  func_item_iterator_t(void) {}
   func_item_iterator_t(func_t *pfn, ea_t _ea=BADADDR) { set(pfn, _ea); }
   /// Set a function range. if pfn == NULL then a segment range will be set.
   bool set(func_t *pfn, ea_t _ea=BADADDR)
@@ -773,7 +772,7 @@ class func_parent_iterator_t
   func_t *fnt;
   int idx;
 public:
-  func_parent_iterator_t(void) : fnt(NULL), idx(0) {}
+  func_parent_iterator_t(void) : fnt(NULL) {}
   func_parent_iterator_t(func_t *_fnt) : fnt(NULL) { set(_fnt); }
   ~func_parent_iterator_t(void)
   {
