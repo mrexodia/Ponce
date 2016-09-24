@@ -14,6 +14,8 @@
 #include <api.hpp>
 //Ponce
 #include "globals.hpp"
+//IDA
+#include <idd.hpp>
 
 void start_tainting_or_symbolic_analysis();
 bool str_to_register(std::string register_name, triton::arch::Register &reg);
